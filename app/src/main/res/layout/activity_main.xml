@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary_reef"
+
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/bd_icon"
+        android:layout_above="@+id/welcome_text"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="60dp"
+        android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:id="@+id/welcome_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="10dp"
+        android:fontFamily="@font/cantora_one"
+        android:gravity="center"
+        android:text="GPS based Database for TR-Kabikha/Kabita Projects\n\nদুর্যোগ ব্যবস্থাপনা ও ত্রাণ মন্ত্রণালয়\nগণপ্রজাতন্ত্রী বাংলাদেশ সরকার"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="end"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="Developed by:"
+            android:textStyle="italic"
+            android:textSize="12sp"/>
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:textColor="@color/white"
+            android:text="Tech Terrain IT Ltd"
+            android:src="@drawable/ttit_new2"
+            android:textStyle="italic"
+            android:textSize="12sp"/>
+
+
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Version 5.0"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentStart="true"/>
+
+</RelativeLayout>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">GDTK PROJECTS</string>
+    <string name="fys">Financial Year (start) <font color='red'>*</font></string>
+    <string name="fye">Financial Year (end) <font color='red'>*</font></string>
+    <string name="searc_project_headline"><u>Search Project List &amp; Details</u></string>
+    <string name="comments_name">Name<font color='red'>*</font></string>
+    <string name="comments_email">Email<font color='red'>*</font></string>
+    <string name="comments_comment">Comment<font color='red'>*</font></string>
+    <string name="comment_headline"><u>COMMENTS:</u></string>
+    <string name="photo_headline"><u>PROJECT PHOTOS:</u></string>
+    <string name="project_headline"><u>PROJECTS:</u></string>
+    <string name="headline">GDTK PROJECTS</string>
+    <string name="title_activity_projects_maps">Map</string>
+    <string name="title_activity_project_details">Map</string>
+    <string name="div">Division <font color='red'>*</font></string>
+    <string name="dist">District <font color='red'>*</font></string>
+</resources>

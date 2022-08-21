@@ -1,0 +1,888 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrolling"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".projectDetails.ProjectDetails"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight=".6"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            app:cardBackgroundColor="@color/white">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <fragment
+                    xmlns:map="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/single_map"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentStart="true"
+                    />
+                <Spinner
+                    android:id="@+id/spinnnnn_multi2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/quit_button_design"
+                    android:layout_alignParentStart="true"
+                    android:layout_above="@+id/dummy_layout"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginBottom="5dp" />
+                <LinearLayout
+                    android:id="@+id/dummy_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="@color/white"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/full_screen_changer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/fullscreen"/>
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+
+
+        </androidx.cardview.widget.CardView>
+
+
+
+
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/scrollview_project_details"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:visibility="visible"
+        android:layout_weight=".4">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="2dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="5dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Internal No (ক্রমিক নং):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/internal_no_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Project No (প্রকল্প নং):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_no_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Project Code (প্রকল্প কোড):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_code_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Project Name (প্রকল্পের নাম):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="3dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_name_pr_details"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Project Details (প্রকল্পের বিস্তারিত বিবরণ):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="3dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_details_pr_details"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Entry date (তথ্য প্রদানের তারিখ):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_entry_date_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Start Date (প্রকল্প শুরুর তারিখ):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_start_date_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="End Date (প্রকল্প শেষের তারিখ):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_end_date_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Submitted By:"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_submitted_by_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Project Date (প্রকল্প অনুমোদনের তারিখ):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_date_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Financial Year(অর্থ বছর):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_fin_year_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Estimated Value (বরাদ্দের পরিমান):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_value_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Category:"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_category_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Project Type (প্রকল্পের প্রকারভেদ):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_type_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Fund name (তহবিলের উৎস):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_fund_name_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1"
+                        android:gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:text="Sanction category (বরাদ্দের ধরন):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_sanction_cat_pr_details"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="PIC/Contractor/Others Details (পিআইসি / ঠিকাদার / অন্যান্য বিস্তারিত তথ্য):"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="3dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_pic_det_pr_details"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Evaluation Notes:"
+                            android:textSize="15sp"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="3dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_medium"/>
+
+                        <TextView
+                            android:id="@+id/project_evaluation_notes_pr_details"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/picture_show_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="See project Picture"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="14sp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/three_sixty_image_show_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="360 Image"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="14sp"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/no_comment_msg"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No Comments Submitted"
+                        android:textSize="15sp"
+                        android:visibility="gone"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        android:layout_marginBottom="5dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_medium"/>
+
+                <LinearLayout
+                    android:id="@+id/comments_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Last Comment:"
+                        android:textSize="15sp"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        android:layout_marginBottom="5dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_medium"/>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="3dp"
+                        app:cardBackgroundColor="@color/back_color">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center">
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_baseline_account"/>
+                            <TextView
+                                android:id="@+id/name_of_commentor"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginEnd="3dp"
+                                android:text="Ahasan Ul Haque Shuvo"
+                                android:layout_gravity="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black"
+                                android:textStyle="bold"
+                                />
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="1">
+
+                        <TextView
+                            android:id="@+id/comments_of_commentor"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".75"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginStart="7dp"
+                            android:layout_marginEnd="3dp"
+                            android:layout_gravity="center"
+                            android:text="Internal No/ ক্রমিক নং:"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            />
+                        <TextView
+                            android:id="@+id/time_of_commentor"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".25"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="3dp"
+                            android:gravity="end"
+                            android:layout_gravity="center"
+                            android:text="22-May-21"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            />
+
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/show_comment_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="See All Comments"
+                        android:textColor="@color/white"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="12sp"/>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/comment_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Post New Comment"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:textSize="14sp"/>
+
+                </LinearLayout>
+
+
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/primary_reef"
+    android:padding="16dp">
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/terrain_logo"
+        android:layout_centerVertical="true"
+        android:src="@drawable/bd_icon"/>
+
+    <TextView
+        android:id="@+id/thrm_app_name_main_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="5dp"
+        android:layout_toStartOf="@+id/log_out_icon_main_menu"
+        android:layout_toEndOf="@+id/terrain_logo"
+        android:fontFamily="@font/russo_one"
+        android:text="@string/headline"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/log_out_icon_main_menu"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+
+        android:layout_marginEnd="5dp"
+        android:src="@drawable/log_out_24"/>
+
+
+
+
+</RelativeLayout>
