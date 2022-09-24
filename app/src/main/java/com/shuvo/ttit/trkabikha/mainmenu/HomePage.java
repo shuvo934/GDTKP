@@ -30,11 +30,13 @@ import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
 import com.shuvo.ttit.trkabikha.arraylist.ProjectMapsLists;
 import com.shuvo.ttit.trkabikha.arraylist.ProjectSubTypeLists;
 import com.shuvo.ttit.trkabikha.arraylist.ProjectTypeLists;
+import com.shuvo.ttit.trkabikha.arraylist.ProjectUpdateLists;
 import com.shuvo.ttit.trkabikha.arraylist.Projectlists;
 import com.shuvo.ttit.trkabikha.arraylist.SourceFundLists;
 import com.shuvo.ttit.trkabikha.arraylist.UnionLists;
 import com.shuvo.ttit.trkabikha.arraylist.UpazilaLists;
 import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
+import com.shuvo.ttit.trkabikha.projectUpdate.ProjectUpdate;
 import com.shuvo.ttit.trkabikha.projects.Projects;
 import com.shuvo.ttit.trkabikha.projectsWithMap.ProjectsMaps;
 
@@ -73,6 +75,7 @@ public class HomePage extends AppCompatActivity {
 
     Button search;
     Button searchMap;
+    Button searchUpdateProject;
 
     WaitProgress waitProgress = new WaitProgress();
     private String message = null;
@@ -119,6 +122,7 @@ public class HomePage extends AppCompatActivity {
 
     public static ArrayList<Projectlists> projectlists;
     public static ArrayList<ProjectMapsLists> projectMapsLists;
+    public static ArrayList<ProjectUpdateLists> projectUpdateLists;
 
     TextView  userName;
 
@@ -168,6 +172,8 @@ public class HomePage extends AppCompatActivity {
         search.setEnabled(false);
         searchMap = findViewById(R.id.search_map_button);
         searchMap.setEnabled(false);
+        searchUpdateProject = findViewById(R.id.search_to_update_project_button);
+        searchUpdateProject.setEnabled(false);
 
         logOut = findViewById(R.id.log_out_icon_main_menu);
 
@@ -182,15 +188,18 @@ public class HomePage extends AppCompatActivity {
         unionLists = new ArrayList<>();
         projectlists = new ArrayList<>();
         projectMapsLists = new ArrayList<>();
+        projectUpdateLists = new ArrayList<>();
 
         if (userType.equals("GUEST")) {
             userName.setText(userType);
             searchMap.setVisibility(View.GONE);
+            searchUpdateProject.setVisibility(View.GONE);
             logOut.setVisibility(View.GONE);
         } else if (userType.equals("ADMIN")) {
             String n = userInfoLists.get(0).getUserName();
             userName.setText(n);
             searchMap.setVisibility(View.VISIBLE);
+            searchUpdateProject.setVisibility(View.VISIBLE);
             logOut.setVisibility(View.VISIBLE);
         }
 
@@ -265,9 +274,11 @@ public class HomePage extends AppCompatActivity {
                 if (!div_id.isEmpty() && !fys_id.isEmpty() && !fye_id.isEmpty() && !dist_id.isEmpty()) {
                     search.setEnabled(true);
                     searchMap.setEnabled(true);
+                    searchUpdateProject.setEnabled(true);
                 } else {
                     searchMap.setEnabled(false);
                     search.setEnabled(false);
+                    searchUpdateProject.setEnabled(false);
                 }
 
             }
@@ -297,9 +308,11 @@ public class HomePage extends AppCompatActivity {
                 if (!div_id.isEmpty() && !fys_id.isEmpty() && !fye_id.isEmpty() && !dist_id.isEmpty()) {
                     search.setEnabled(true);
                     searchMap.setEnabled(true);
+                    searchUpdateProject.setEnabled(true);
                 } else {
                     searchMap.setEnabled(false);
                     search.setEnabled(false);
+                    searchUpdateProject.setEnabled(false);
                 }
 
                 new UpazilaCheck().execute();
@@ -418,12 +431,21 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
-
         searchMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!fys_id.isEmpty() && !fye_id.isEmpty()) {
                     new ProjectMapDataCheck().execute();
+                }
+            }
+        });
+
+        searchUpdateProject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!fys_id.isEmpty() && !fye_id.isEmpty()) {
+
+                    new ProjectUpdateDataCheck().execute();
                 }
             }
         });
@@ -463,7 +485,6 @@ public class HomePage extends AppCompatActivity {
                 }
             }
         });
-
 
         new Check().execute();
 
@@ -1085,6 +1106,75 @@ public class HomePage extends AppCompatActivity {
                     public void onClick(View v) {
 
                         new ProjectMapDataCheck().execute();
+                        dialog.dismiss();
+                    }
+                });
+            }
+        }
+    }
+
+    public class ProjectUpdateDataCheck extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            waitProgress.show(getSupportFragmentManager(), "WaitBar");
+            waitProgress.setCancelable(false);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            if (isConnected() && isOnline()) {
+
+                ProjectUpdateDataQuery();
+                if (connected) {
+                    conn = true;
+                    message = "Internet Connected";
+                }
+
+            } else {
+                conn = false;
+                message = "Not Connected";
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            waitProgress.dismiss();
+            if (conn) {
+
+                if (projectUpdateLists.size() != 0) {
+                    System.out.println(projectUpdateLists.size());
+                    Intent intent = new Intent(HomePage.this, ProjectUpdate.class);
+                    startActivity(intent);
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"No Results Found",Toast.LENGTH_SHORT).show();
+                }
+
+                conn = false;
+                connected = false;
+
+            } else {
+                Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+                AlertDialog dialog = new AlertDialog.Builder(HomePage.this)
+                        .setMessage("Please Check Your Internet Connection")
+                        .setPositiveButton("Retry", null)
+                        .show();
+
+//                dialog.setCancelable(false);
+//                dialog.setCanceledOnTouchOutside(false);
+                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positive.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        new ProjectDataCheck().execute();
                         dialog.dismiss();
                     }
                 });
@@ -1716,6 +1806,210 @@ public class HomePage extends AppCompatActivity {
                 resultSet1.close();
 
                 projectMapsLists.get(i).setLocationLists(locationLists);
+
+            }
+
+            stmt.close();
+
+            if (ptm_id == null) {
+                ptm_id = "";
+            }
+
+            if (fsm_id == null) {
+                fsm_id = "";
+            }
+
+            if (ddu_id == null) {
+                ddu_id = "";
+            }
+
+            if (dist_id == null) {
+                dist_id = "";
+            }
+
+            if (dd_id == null) {
+                dd_id = "";
+            }
+
+            if (ptd_Id == null) {
+                ptd_Id = "";
+            }
+
+            if (div_id == null) {
+                div_id = "";
+            }
+
+            connected = true;
+
+            connection.close();
+
+
+        } catch (Exception e) {
+            Log.i("ERRRRR", e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void ProjectUpdateDataQuery() {
+        try {
+            this.connection = createConnection();
+
+            projectUpdateLists = new ArrayList<>();
+
+            Statement stmt = connection.createStatement();
+
+            if (ptm_id != null) {
+                if (ptm_id.isEmpty()) {
+                    ptm_id = null;
+                }
+            }
+            if (fsm_id != null) {
+                if (fsm_id.isEmpty()) {
+                    fsm_id = null;
+                }
+            }
+
+            if (ddu_id != null) {
+                if (ddu_id.isEmpty()) {
+                    ddu_id = null;
+                }
+            }
+
+            if (dist_id != null) {
+                if (dist_id.isEmpty()) {
+                    dist_id = null;
+                }
+            }
+
+            if (dd_id != null) {
+                if (dd_id.isEmpty()) {
+                    dd_id = null;
+                }
+            }
+            if (ptd_Id != null) {
+                if (ptd_Id.isEmpty()) {
+                    ptd_Id = null;
+                }
+            }
+
+            if (div_id != null) {
+                if (div_id.isEmpty()) {
+                    div_id = null;
+                }
+            }
+
+            int count = 0;
+            ResultSet resultSet = stmt.executeQuery("SELECT * FROM (\n" +
+                    "                                SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
+                    "                            SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
+                    "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_USER,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
+                    "                            TO_CHAR(PROJECT_CREATION_MST.PCM_PROJECT_DATE,'DD-MON-RR') PCM_PROJECT_DATE,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
+                    "                            FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
+                    "                            FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
+                    "                            PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
+                    "                            PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
+                    "                            PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
+                    "                            PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
+                    "                            PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
+                    "                            PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
+                    "                            PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                    "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
+                    "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE,\n" +
+                    "                            PROJECT_CREATION_MST.PCM_PSC_ID, PROJECT_CREATION_MST.PCM_PCM_ID\n" +
+                    "                        FROM\n" +
+                    "                            PROJECT_CREATION_MST,\n" +
+                    "                            PROJECT_CREATION_UPOZILA,\n" +
+                    "                            PROJECT_CREATION_UNION,\n" +
+                    "                            PROJECT_CREATION_VILLAGE,\n" +
+                    "                            PROJECT_CREATION_WARD,\n" +
+                    "                            FINANCIAL_YEAR,\n" +
+                    "                            FUND_SOURCE_MST,\n" +
+                    "                            PROJECT_TYPE_MST,\n" +
+                    "                            PROJECT_TYPE_DTL,\n" +
+                    "                            PROJECT_SANCTION_CATEGORY,\n" +
+                    "                            PROJECT_CATEGORY_MST,\n" +
+                    "                            PROJECT_CREATION_MST_GPS_DTL\n" +
+                    "                        WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
+                    "                            AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
+                    "                            AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
+                    "                            AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
+                    "                            AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
+                    "                            AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
+                    "                            AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
+                    "                            AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID (+)\n" +
+                    "                            AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
+                    "                            AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
+                    "                            AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
+                    "                            AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG IS NULL\n" +
+                    "                            AND (PROJECT_CREATION_MST.PCM_PTD_ID = "+ptd_Id+" OR "+ptd_Id+" IS NULL )\n" +
+                    "                            AND (PROJECT_CREATION_MST.PCM_PTM_ID = "+ptm_id+" OR "+ptm_id+" IS NULL )\n" +
+                    "                            AND (PROJECT_CREATION_MST.PCM_FSM_ID = "+fsm_id+" OR "+fsm_id+" IS NULL )\n" +
+                    "                            AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = "+ddu_id+" OR "+ddu_id+" IS NULL )\n" +
+                    "                            AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = "+dd_id+" OR "+dd_id+" IS NULL )\n" +
+                    "                            AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = "+dist_id+" OR "+dist_id+" IS NULL )\n" +
+                    "                            AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = "+div_id+" OR "+div_id+" IS NULL )\n" +
+                    "                            AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN "+fys_id+" AND "+fye_id+" ) p\n" +
+                    "                        ORDER BY p.PCM_ID DESC )");
+
+            while (resultSet.next()) {
+                count++;
+                String stype = "";
+                switch (resultSet.getString(25)) {
+                    case "0":
+                        stype = "Taka(টাকা)";
+                        break;
+                    case "1":
+                        stype = "Rice(চাল) (MT)";
+                        break;
+                    case "2":
+                        stype = "Wheat(গম) (MT)";
+                        break;
+                }
+
+                String pCount = "#"+count;
+
+                projectUpdateLists.add(new ProjectUpdateLists(resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),
+                        resultSet.getString(4),resultSet.getString(5),resultSet.getString(6),
+                        resultSet.getString(7),resultSet.getString(8),resultSet.getString(9),
+                        resultSet.getString(10),resultSet.getString(11),resultSet.getString(12),
+                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
+                        resultSet.getString(16),resultSet.getString(17),resultSet.getString(18),
+                        resultSet.getString(19),resultSet.getString(20),resultSet.getString(21),
+                        resultSet.getString(22),resultSet.getString(23),resultSet.getString(24),
+                        stype,resultSet.getString(25),resultSet.getString(26),resultSet.getString(27),
+                        resultSet.getString(28),pCount,new ArrayList<>()));
+
+            }
+
+            resultSet.close();
+
+            for (int i = 0 ; i < projectUpdateLists.size(); i++) {
+                String pcmid = projectUpdateLists.get(i).getPcmId();
+                ArrayList<LocationLists> locationLists = new ArrayList<>();
+                ResultSet resultSet1 = stmt.executeQuery("SELECT \n" +
+                        "PCMGD_LATITUDE,\n" +
+                        "PCMGD_LONGITUDE,\n" +
+                        "PCMGD_LATITUDE_NUM,\n" +
+                        "PCMGD_LONGITUDE_NUM,\n" +
+                        "NVL(PCMGD_SEGMENT,0)\n"+
+                        "FROM project_creation_mst_gps_dtl WHERE PCMGD_PCM_ID = "+pcmid+" AND PCMGD_ACTIVE_FLAG=1 order by pcmgd_id ASC");
+
+                while (resultSet1.next()) {
+                    locationLists.add(new LocationLists(resultSet1.getString(1),resultSet1.getString(2),resultSet1.getInt(5)));
+                }
+
+                resultSet1.close();
+
+                projectUpdateLists.get(i).setLocationLists(locationLists);
 
             }
 

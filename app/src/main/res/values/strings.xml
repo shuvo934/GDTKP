@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">GDTK PROJECTS</string>
+    <string name="version_control">Version 6.0</string>
     <string name="fys">Financial Year (start) <font color='red'>*</font></string>
     <string name="fye">Financial Year (end) <font color='red'>*</font></string>
-    <string name="searc_project_headline"><u>Search Project List &amp; Details</u></string>
+    <string name="searc_project_headline">Search Project List &amp; Details</string>
     <string name="comments_name">Name<font color='red'>*</font></string>
     <string name="comments_email">Email<font color='red'>*</font></string>
     <string name="comments_comment">Comment<font color='red'>*</font></string>

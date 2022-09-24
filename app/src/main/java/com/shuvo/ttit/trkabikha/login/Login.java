@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -26,10 +27,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.shuvo.ttit.trkabikha.MainActivity;
 import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.arraylist.UserDetails;
 import com.shuvo.ttit.trkabikha.mainmenu.HomePage;
 import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
+import com.shuvo.ttit.trkabikha.userChoice.ChooseUser;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -95,6 +98,7 @@ public class Login extends AppCompatActivity {
 
     public static ArrayList<UserDetails> userInfoLists;
 
+    private final Handler mHandler = new Handler();
 
     @SuppressLint("HardwareIds")
     @Override
@@ -379,7 +383,7 @@ public class Login extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            waitProgress.dismiss();
+
             if (conn) {
 
                 if (!userId.equals("-1")) {
@@ -408,18 +412,30 @@ public class Login extends AppCompatActivity {
                         }
 
 
-                        Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(Login.this, HomePage.class);
-                        intent.putExtra("USER","ADMIN");
-                        startActivity(intent);
-                        finish();
+                        mHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(Login.this, HomePage.class);
+                                intent.putExtra("USER","ADMIN");
+                                waitProgress.dismiss();
+                                startActivity(intent);
+                                finish();
+                            }
+                        }, 2000);
+//                        Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
+//                        Intent intent = new Intent(Login.this, HomePage.class);
+//                        intent.putExtra("USER","ADMIN");
+//                        startActivity(intent);
+//                        finish();
 
                     } else {
+                        waitProgress.dismiss();
                         new CheckLogin().execute();
                     }
 
                 } else {
-
+                    waitProgress.dismiss();
                     login_failed.setVisibility(View.VISIBLE);
                 }
                 conn = false;
@@ -428,6 +444,8 @@ public class Login extends AppCompatActivity {
 
 
             } else {
+
+                waitProgress.dismiss();
                 Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
                 AlertDialog dialog = new AlertDialog.Builder(Login.this)
                         .setMessage("Please Check Your Internet Connection")

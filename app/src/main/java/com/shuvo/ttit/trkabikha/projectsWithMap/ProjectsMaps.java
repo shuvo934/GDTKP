@@ -167,9 +167,11 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
         // Add a marker in Sydney and move the camera
         //LatLng bangladesh = new LatLng(23.6850, 90.3563);
         //LatLng bangladesh = new LatLng(23.664745, 90.167949);
-        LatLng bangladesh = new LatLng(23.9697833326, 90.2372869849);
+        //23.8925766816657, 90.26834454129256;
+        //LatLng bangladesh = new LatLng(23.9697833326, 90.2372869849);
+        LatLng bangladesh = new LatLng(23.8925766816657, 90.26834454129256);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bangladesh, 12));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bangladesh, 10));
 
         selection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
