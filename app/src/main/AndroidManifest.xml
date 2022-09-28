@@ -32,6 +32,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="n">
         <activity
+            android:name=".projectUpdate.editProject.showPicture.ShowImage"
+            android:exported="false" />
+        <activity
+            android:name=".projectUpdate.editProject.showMap.ShowInMap"
+            android:exported="false" />
+        <activity
             android:name=".gpxCreation.GpxCreationMap"
             android:exported="false" />
         <!--
@@ -58,8 +64,8 @@
         <activity
             android:name=".projectUpdate.ProjectUpdate"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:windowSoftInputMode="stateHidden"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".projectPicture.ProjectPicture"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />

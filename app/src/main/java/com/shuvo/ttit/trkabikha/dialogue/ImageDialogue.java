@@ -14,6 +14,7 @@ import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.gpx
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.imageCapturedAdapter;
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.imageCapturedLists;
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.imageFileName;
+import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.locationListsCreate;
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.targetLocation;
 
 import android.annotation.SuppressLint;
@@ -49,10 +50,12 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.arraylist.ImageCapturedList;
+import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -213,11 +216,13 @@ public class ImageDialogue extends AppCompatDialogFragment {
 
                                         String innnn = INTERNAL_NO.replace("/","_");
                                         gpxContent = "";
+                                        locationListsCreate = new ArrayList<>();
                                         String wpt = "\t<wpt lat=\""+ targetLocation.getLatitude() +"\" lon=\""+ targetLocation.getLongitude()+"\">\n" +
                                                 "\t\t<name>"+innnn+"</name>\n" +
                                                 "\t</wpt>";
 
                                         gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n" + wpt + "\n</gpx>";
+                                        locationListsCreate.add(new LocationLists(String.valueOf(targetLocation.getLatitude()),String.valueOf(targetLocation.getLongitude()),0));
                                         System.out.println(gpxContent);
                                         gpxFileLayout.setVisibility(View.VISIBLE);
                                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
@@ -247,11 +252,13 @@ public class ImageDialogue extends AppCompatDialogFragment {
                                     public void onClick(DialogInterface dialog, int which) {
                                         String innnn = INTERNAL_NO.replace("/","_");
                                         gpxContent = "";
+                                        locationListsCreate = new ArrayList<>();
                                         String wpt = "\t<wpt lat=\""+ targetLocation.getLatitude() +"\" lon=\""+ targetLocation.getLongitude()+"\">\n" +
                                                 "\t\t<name>"+innnn+"</name>\n" +
                                                 "\t</wpt>";
 
                                         gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n" + wpt + "\n</gpx>";
+                                        locationListsCreate.add(new LocationLists(String.valueOf(targetLocation.getLatitude()),String.valueOf(targetLocation.getLongitude()),0));
                                         System.out.println(gpxContent);
                                         gpxFileLayout.setVisibility(View.VISIBLE);
                                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());

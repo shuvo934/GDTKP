@@ -83,10 +83,13 @@ import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.adapter.ImageCapturedAdapter;
 import com.shuvo.ttit.trkabikha.arraylist.ChoiceList;
 import com.shuvo.ttit.trkabikha.arraylist.ImageCapturedList;
+import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
 import com.shuvo.ttit.trkabikha.dialogue.ImageDialogue;
 import com.shuvo.ttit.trkabikha.gpxCreation.GpxCreationMap;
 import com.shuvo.ttit.trkabikha.mainmenu.HomePage;
 import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
+import com.shuvo.ttit.trkabikha.projectUpdate.editProject.showMap.ShowInMap;
+import com.shuvo.ttit.trkabikha.projectUpdate.editProject.showPicture.ShowImage;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -209,6 +212,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
 
     public static String gpxContent = "";
+    public static ArrayList<LocationLists> locationListsCreate;
     LatLng[] WayLatLng;
 
     public static RelativeLayout gpxFileLayout;
@@ -224,6 +228,9 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
     String project_value_to_update = "";
     String pic_details_to_update = "";
     String project_details_to_update = "";
+
+    CardView showMap;
+    CardView showImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -250,6 +257,10 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
         projectSubType = findViewById(R.id.project_sub_type_project_edit);
         projectPICDetails = findViewById(R.id.project_pic_contractor_details_project_edit);
         projectDetails = findViewById(R.id.project_details_project_edit);
+        showMap = findViewById(R.id.show_map_data_card);
+        showMap.setVisibility(View.GONE);
+        showImage = findViewById(R.id.show_picture_data_card);
+        showImage.setVisibility(View.GONE);
         save = findViewById(R.id.updated_project_save_button);
 
         mapTaken = findViewById(R.id.taken_map_data_card);
@@ -269,6 +280,9 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
         firstImage = findViewById(R.id.first_picture);
         imageCapturedview = findViewById(R.id.image_captured_list_view);
         imageCapturedLists = new ArrayList<>();
+
+        gpxContent = "";
+        locationListsCreate = new ArrayList<>();
 
         projectvalurTypeLists = new ArrayList<>();
         sanctionCatLists = new ArrayList<>();
@@ -329,9 +343,11 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
         if (locationListsAdapterPU.size() != 0) {
             mapTaken.setVisibility(View.VISIBLE);
+            showMap.setVisibility(View.VISIBLE);
         }
         else {
             mapTaken.setVisibility(View.GONE);
+            showMap.setVisibility(View.GONE);
         }
 
         imageCapturedview.setHasFixedSize(true);
@@ -719,6 +735,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
             public void onClick(View view) {
                 gpxFileName.setText("");
                 gpxContent = "";
+                locationListsCreate = new ArrayList<>();
                 gpxFileLayout.setVisibility(View.GONE);
                 addWaypoint.setVisibility(View.VISIBLE);
                 addTrack.setVisibility(View.VISIBLE);
@@ -741,6 +758,29 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
                 Intent intent1 = new Intent(ProjectEdit.this, GpxCreationMap.class);
                 intent1.putExtra("VALUE","TRACK");
+                startActivity(intent1);
+            }
+        });
+
+        showMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent1 = new Intent(ProjectEdit.this, ShowInMap.class);
+                intent1.putExtra("P_NAME",P_NAME);
+                intent1.putExtra("P_NO",P_NO);
+                intent1.putExtra("P_CODE",P_CODE);
+                intent1.putExtra("P_DATE",P_DATE);
+                intent1.putExtra("ES_VAL",ES_VAL);
+                intent1.putExtra("S_TYPE",S_TYPE);
+                intent1.putExtra("F_YEAR",F_YEAR);
+                startActivity(intent1);
+            }
+        });
+
+        showImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent1 = new Intent(ProjectEdit.this, ShowImage.class);
                 startActivity(intent1);
             }
         });
@@ -806,6 +846,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
     @Override
     public void onBackPressed() {
         gpxContent = "";
+        locationListsCreate = new ArrayList<>();
         imageCapturedLists = new ArrayList<>();
         super.onBackPressed();
 
@@ -1206,9 +1247,11 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
                     projectUpdateLists.get(index).setPcmCategoryName(CATEGORY);
                     projectUpdateLists.get(index).setPcmPicChairmanDetails(pic_details_to_update);
                     projectUpdateLists.get(index).setProjectDetails(project_details_to_update);
+                    projectUpdateLists.get(index).setLocationLists(locationListsCreate);
                 }
                 Toast.makeText(ProjectEdit.this, "Project Updated Successfully", Toast.LENGTH_SHORT).show();
                 gpxContent = "";
+                locationListsCreate = new ArrayList<>();
                 imageCapturedLists = new ArrayList<>();
                 finish();
 
@@ -1346,9 +1389,11 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
                 if (databaseImage) {
                     imageTaken.setVisibility(View.VISIBLE);
+                    showImage.setVisibility(View.VISIBLE);
                 }
                 else {
                     imageTaken.setVisibility(View.GONE);
+                    showImage.setVisibility(View.GONE);
                 }
 
                 if(!gps_enabled && !network_enabled) {
@@ -1436,7 +1481,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
                 CallableStatement callableStatement1 = connection.prepareCall("{call androaid_gpx_file_process(?,?,?,?,?)}");
                 callableStatement1.setInt(1,Integer.parseInt(PCM_ID_PE));
                 callableStatement1.setString(2,P_TYPE);
-                callableStatement1.setString(3,P_NAME);
+                callableStatement1.setString(3,"Default from Android");
                 callableStatement1.setString(4,gpxName);
                 callableStatement1.setBinaryStream(5,stream,bArray.length);
                 callableStatement1.execute();

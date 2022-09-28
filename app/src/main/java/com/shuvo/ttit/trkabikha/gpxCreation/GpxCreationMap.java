@@ -9,6 +9,7 @@ import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.add
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.gpxContent;
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.gpxFileLayout;
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.gpxFileName;
+import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.locationListsCreate;
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.targetLocation;
 
 import androidx.annotation.NonNull;
@@ -56,6 +57,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.shuvo.ttit.trkabikha.R;
+import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -102,6 +104,8 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
 
     String val = "";
 
+    ArrayList<LocationLists> locationListsGpxCreation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,6 +132,7 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
         autoGpxLatLng = new ArrayList<>();
         wpLatLng = new ArrayList<>();
         trk = new ArrayList<>();
+        locationListsGpxCreation = new ArrayList<>();
 
         Intent intent = getIntent();
         val = intent.getStringExtra("VALUE");
@@ -390,6 +395,10 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
 
                     trk.add(start + desc + trkseg + trkpt + trksegFinish + finish);
 
+                    for (int c = 0 ; c < autoGpxLatLng.size(); c++) {
+                        locationListsGpxCreation.add(new LocationLists(String.valueOf(autoGpxLatLng.get(c).latitude),String.valueOf(autoGpxLatLng.get(c).longitude),trk.size()-1));
+                    }
+
 
                     nop[0] = new PolylineOptions().width(5).color(Color.RED).geodesic(true);
 
@@ -583,6 +592,10 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
 
                         trk.add(start + desc + trkseg + trkpt + trksegFinish + finish);
 
+                        for (int c = 0 ; c < gpxLatLng.size(); c++) {
+                            locationListsGpxCreation.add(new LocationLists(String.valueOf(gpxLatLng.get(c).latitude),String.valueOf(gpxLatLng.get(c).longitude),trk.size()-1));
+                        }
+
                         gpxLatLng.clear();;
                         gpxLatLng = new ArrayList<>();
 
@@ -651,6 +664,7 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
                                     "\t\t<name>TTIT</name>\n" +
                                     "\t</wpt>";
                             trk.add(wpt);
+                            locationListsGpxCreation.add(new LocationLists(String.valueOf(wpLatLng.get(i).latitude),String.valueOf(wpLatLng.get(i).longitude),trk.size()-1));
                         }
 
                         wpLatLng.clear();
@@ -695,6 +709,8 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
                 wpLatLng = new ArrayList<>();
                 trk.clear();
                 trk = new ArrayList<>();
+                locationListsGpxCreation.clear();
+                locationListsGpxCreation = new ArrayList<>();
 
                 lineValue = true;
                 autoLineValue = false;
@@ -744,12 +760,14 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     gpxContent = "";
+                                    locationListsCreate = new ArrayList<>();
                                     String innnn = INTERNAL_NO.replace("/","_");
                                     gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n";
                                     for (int i = 0; i < trk.size(); i++) {
                                         gpxContent = gpxContent + "\n" + trk.get(i);
                                     }
                                     gpxContent = gpxContent + "\n</gpx>";
+                                    locationListsCreate = locationListsGpxCreation;
                                     System.out.println(gpxContent);
                                     gpxFileLayout.setVisibility(View.VISIBLE);
                                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
@@ -787,12 +805,14 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     gpxContent = "";
+                                    locationListsCreate = new ArrayList<>();
                                     String innnn = INTERNAL_NO.replace("/","_");
                                     gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n";
                                     for (int i = 0; i < trk.size(); i++) {
                                         gpxContent = gpxContent + "\n" + trk.get(i);
                                     }
                                     gpxContent = gpxContent + "\n</gpx>";
+                                    locationListsCreate = locationListsGpxCreation;
                                     System.out.println(gpxContent);
                                     gpxFileLayout.setVisibility(View.VISIBLE);
                                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());

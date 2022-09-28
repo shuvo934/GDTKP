@@ -8,13 +8,19 @@
         <entry key="app/src/main/res/drawable/search_24.xml" value="0.133" />
         <entry key="app/src/main/res/layout/activity_gpx_creation_map.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/activity_home_page.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_project_details.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/activity_project_edit.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/activity_project_picture.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/activity_project_update.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_projects.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_show_image.xml" value="0.14868421052631578" />
+        <entry key="app/src/main/res/layout/activity_show_in_map.xml" value="0.14868421052631578" />
         <entry key="app/src/main/res/layout/image_captured_view.xml" value="0.165" />
         <entry key="app/src/main/res/layout/image_view.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/project_info_update_layout.xml" value="0.1569078947368421" />
+        <entry key="app/src/main/res/layout/wait_bar.xml" value="0.15756578947368421" />
         <entry key="app/src/release/res/xml/file_paths.xml" value="0.1" />
       </map>
     </option>
