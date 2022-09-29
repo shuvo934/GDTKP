@@ -62,7 +62,7 @@
                 android:layout_margin="3dp"
                 app:cardCornerRadius="5dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/primaryVariant_waterfall">
+                app:cardBackgroundColor="@color/primary_reef">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -108,7 +108,7 @@
                     android:layout_marginBottom="5dp"
                     app:cardCornerRadius="5dp"
                     app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/primaryVariant_waterfall">
+                    app:cardBackgroundColor="@color/primary_reef">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -164,22 +164,22 @@
                             android:layout_marginBottom="3dp"
                             android:src="@drawable/done_24" />
 
-                        <TextView
-                            android:id="@+id/map_data_taken"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="6dp"
-                            android:layout_marginTop="3dp"
-                            android:layout_marginEnd="6dp"
-                            android:layout_marginBottom="3dp"
-                            android:layout_toEndOf="@id/done_icon_map_data"
-                            android:fontFamily="@font/roboto_bold"
-                            android:letterSpacing=".15"
-                            android:text="Taken"
-                            android:textColor="@color/white"
-                            android:textSize="17sp"
-                            android:textStyle="bold" />
+<!--                        <TextView-->
+<!--                            android:id="@+id/map_data_taken"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_centerVertical="true"-->
+<!--                            android:layout_marginStart="6dp"-->
+<!--                            android:layout_marginTop="3dp"-->
+<!--                            android:layout_marginEnd="6dp"-->
+<!--                            android:layout_marginBottom="3dp"-->
+<!--                            android:layout_toEndOf="@id/done_icon_map_data"-->
+<!--                            android:fontFamily="@font/roboto_bold"-->
+<!--                            android:letterSpacing=".15"-->
+<!--                            android:text="Taken"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17sp"-->
+<!--                            android:textStyle="bold" />-->
 
                     </RelativeLayout>
 
@@ -221,7 +221,7 @@
                             android:letterSpacing=".15"
                             android:text="Show in Map"
                             android:textColor="@color/white"
-                            android:textSize="17sp"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
 
                     </RelativeLayout>
@@ -330,7 +330,7 @@
                     android:layout_marginBottom="5dp"
                     app:cardCornerRadius="5dp"
                     app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/primaryVariant_waterfall">
+                    app:cardBackgroundColor="@color/primary_reef">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -386,22 +386,22 @@
                             android:layout_marginBottom="3dp"
                             android:src="@drawable/done_24" />
 
-                        <TextView
-                            android:id="@+id/image_data_taken"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="6dp"
-                            android:layout_marginTop="3dp"
-                            android:layout_marginEnd="6dp"
-                            android:layout_marginBottom="3dp"
-                            android:layout_toEndOf="@id/done_icon_image_data"
-                            android:fontFamily="@font/roboto_bold"
-                            android:letterSpacing=".15"
-                            android:text="Taken"
-                            android:textColor="@color/white"
-                            android:textSize="17sp"
-                            android:textStyle="bold" />
+<!--                        <TextView-->
+<!--                            android:id="@+id/image_data_taken"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_centerVertical="true"-->
+<!--                            android:layout_marginStart="6dp"-->
+<!--                            android:layout_marginTop="3dp"-->
+<!--                            android:layout_marginEnd="6dp"-->
+<!--                            android:layout_marginBottom="3dp"-->
+<!--                            android:layout_toEndOf="@id/done_icon_image_data"-->
+<!--                            android:fontFamily="@font/roboto_bold"-->
+<!--                            android:letterSpacing=".15"-->
+<!--                            android:text="Taken"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17sp"-->
+<!--                            android:textStyle="bold" />-->
 
                     </RelativeLayout>
 
@@ -443,7 +443,7 @@
                             android:letterSpacing=".15"
                             android:text="Show Image"
                             android:textColor="@color/white"
-                            android:textSize="17sp"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
 
                     </RelativeLayout>
@@ -527,7 +527,7 @@
         android:id="@+id/updated_project_save_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SAVE"
+        android:text="Update"
         android:textStyle="bold"
         android:textSize="16sp"
         android:layout_alignParentBottom="true"

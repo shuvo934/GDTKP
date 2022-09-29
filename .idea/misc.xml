@@ -3,7 +3,15 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/cancel_24.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/custom_button.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/done_24.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/fullscreen.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/fullscreen_exit.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/ic_baseline_account.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/ic_baseline_account_box.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/ic_baseline_camera_alt_24.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/ic_baseline_clear_.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/image_transparent.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/search_24.xml" value="0.133" />
         <entry key="app/src/main/res/layout/activity_gpx_creation_map.xml" value="0.15756578947368421" />

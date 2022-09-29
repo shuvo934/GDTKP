@@ -86,7 +86,6 @@ import com.shuvo.ttit.trkabikha.arraylist.ImageCapturedList;
 import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
 import com.shuvo.ttit.trkabikha.dialogue.ImageDialogue;
 import com.shuvo.ttit.trkabikha.gpxCreation.GpxCreationMap;
-import com.shuvo.ttit.trkabikha.mainmenu.HomePage;
 import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
 import com.shuvo.ttit.trkabikha.projectUpdate.editProject.showMap.ShowInMap;
 import com.shuvo.ttit.trkabikha.projectUpdate.editProject.showPicture.ShowImage;
@@ -96,8 +95,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -1247,7 +1244,9 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
                     projectUpdateLists.get(index).setPcmCategoryName(CATEGORY);
                     projectUpdateLists.get(index).setPcmPicChairmanDetails(pic_details_to_update);
                     projectUpdateLists.get(index).setProjectDetails(project_details_to_update);
-                    projectUpdateLists.get(index).setLocationLists(locationListsCreate);
+                    if(locationListsCreate.size() != 0) {
+                        projectUpdateLists.get(index).setLocationLists(locationListsCreate);
+                    }
                 }
                 Toast.makeText(ProjectEdit.this, "Project Updated Successfully", Toast.LENGTH_SHORT).show();
                 gpxContent = "";
@@ -1493,7 +1492,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
             for (int i = 0; i < imageCapturedLists.size(); i++) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 Bitmap bitmap = imageCapturedLists.get(i).getBitmap();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 60, bos);
                 byte[] bArray = bos.toByteArray();
                 InputStream in = new ByteArrayInputStream(bArray);
 
