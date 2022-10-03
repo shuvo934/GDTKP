@@ -3,19 +3,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
-        android:id="@+id/image_captured_from_project_edit"
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/image_captured_from_project_edit_card"
         android:layout_width="70dp"
         android:layout_height="70dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardElevation="2dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="3dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="3dp"
-        android:layout_marginBottom="3dp"
-        tools:ignore="ContentDescription" />
+        android:layout_centerInParent="true"
+        app:cardCornerRadius="10dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/image_captured_from_project_edit"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                tools:ignore="ContentDescription" />
+
+        </FrameLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
 
     <ImageView
         android:id="@+id/delete_captured_image"
@@ -23,7 +43,19 @@
         android:layout_height="18dp"
         android:layout_alignParentTop="true"
         android:src="@drawable/cancel_24"
-        android:layout_toEndOf="@+id/image_captured_from_project_edit"
+        android:layout_toEndOf="@+id/image_captured_from_project_edit_card"
         tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/image_stage_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        android:layout_marginBottom="3dp"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_below="@+id/image_captured_from_project_edit_card"
+        android:layout_centerInParent="true"/>
 
 </RelativeLayout>

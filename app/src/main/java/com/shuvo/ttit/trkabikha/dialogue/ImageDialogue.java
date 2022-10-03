@@ -35,6 +35,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -48,7 +50,9 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.rosemaryapp.amazingspinner.AmazingSpinner;
 import com.shuvo.ttit.trkabikha.R;
+import com.shuvo.ttit.trkabikha.arraylist.ChoiceList;
 import com.shuvo.ttit.trkabikha.arraylist.ImageCapturedList;
 import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
 
@@ -66,8 +70,15 @@ public class ImageDialogue extends AppCompatDialogFragment {
     ImageView imageView;
     TextInputEditText fileName;
     TextInputLayout fileLayout;
+    TextView imageStageLayout;
+    AmazingSpinner imageStageSpinner;
     Button cancel;
     Button save;
+
+    ArrayList<ChoiceList> imageStageTypeLists;
+
+    String imageStageName = "";
+    String imageStageId = "";
 
     AlertDialog dialog;
 
@@ -84,12 +95,44 @@ public class ImageDialogue extends AppCompatDialogFragment {
         fileLayout = view.findViewById(R.id.editTextImage_layout);
         save = view.findViewById(R.id.save_image);
         cancel = view.findViewById(R.id.cancel_save_image);
+        imageStageLayout = view.findViewById(R.id.project_image_stage_spinner_layout);
+        imageStageLayout.setVisibility(View.GONE);
+        imageStageSpinner = view.findViewById(R.id.project_image_stage_spinner);
+
+        imageStageTypeLists = new ArrayList<>();
+
+        imageStageTypeLists.add(new ChoiceList("1", "Pre-Work"));
+        imageStageTypeLists.add(new ChoiceList("2","On-Working"));
+        imageStageTypeLists.add(new ChoiceList("3","Finish-Work"));
 
         builder.setView(view);
 
         dialog = builder.create();
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
+
+        ArrayList<String> type = new ArrayList<>();
+        for(int i = 0; i < imageStageTypeLists.size(); i++) {
+            type.add(imageStageTypeLists.get(i).getName());
+        }
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+
+        imageStageSpinner.setAdapter(arrayAdapter);
+
+        imageStageSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                imageStageLayout.setVisibility(View.GONE);
+                String name = adapterView.getItemAtPosition(i).toString();
+                for (int j = 0; j < imageStageTypeLists.size(); j++) {
+                    if (name.equals(imageStageTypeLists.get(j).getName())) {
+                        imageStageId = (imageStageTypeLists.get(j).getId());
+                        imageStageName = name;
+                    }
+                }
+                System.out.println(imageStageId);
+            }
+        });
 
         fileName.setText(imageFileName);
         if (firstBitmap != null)
@@ -108,13 +151,13 @@ public class ImageDialogue extends AppCompatDialogFragment {
             }
         });
 
-        fileName.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                fileLayout.setHint("ফাইলের নাম / File Name");
-                return false;
-            }
-        });
+//        fileName.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                fileLayout.setHint("ফাইলের নাম / File Name");
+//                return false;
+//            }
+//        });
 
         fileName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -139,153 +182,158 @@ public class ImageDialogue extends AppCompatDialogFragment {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(View v) {
-                if (fileName.getText().toString().isEmpty()) {
-                    Toast.makeText(getContext(), "Please Write Your File Name", Toast.LENGTH_SHORT).show();
-                } else {
-                    // deleting file
-                    File deletefile = new File(currentPhotoPath);
-                    boolean deleted = deletefile.delete();
-                    if (deleted) {
-                        System.out.println("deleted");
-                    }
-
-                    FileOutputStream fileOutputStream = null;
-//                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-//                    System.out.println(timeStamp);
-                    String imageFileName = fileName.getText().toString() +".jpg";
-                    File file = new File(Environment.getExternalStorageDirectory().getPath() + "/DCIM/Camera/" + imageFileName);
-                    try {
-                        file.createNewFile();
-                        currentPhotoPath = file.getAbsolutePath();
-                        fileOutputStream = new FileOutputStream(file);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    firstBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-                    try {
-                        fileOutputStream.flush();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        fileOutputStream.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-
-                    galleryAddPic();
-
-                    String imaaa = file.getAbsolutePath();
-
-                    //Writes Exif Information to the Image
-                    try {
-                        ExifInterface exif = new ExifInterface(imaaa);
-                        Log.w("Location", String.valueOf(targetLocation));
-
-                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, convert(targetLocation.getLatitude()));
-                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitudeRef(targetLocation.getLatitude()));
-                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, convert(targetLocation.getLongitude()));
-                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitudeRef(targetLocation.getLongitude()));
-
-                        exif.saveAttributes();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    scanFile(getContext(),currentPhotoPath, null);
-
-                    Toast.makeText(getContext(), "Photo is saved", Toast.LENGTH_SHORT).show();
-                    imageCapturedLists.add(new ImageCapturedList(firstBitmap,imageFileName,false));
-                    File deletefile1 = new File(currentPhotoPath);
-                    boolean deleted1 = deletefile1.delete();
-                    if (deleted1) {
-                        System.out.println("deleted");
-                    }
-                    System.out.println(imageCapturedLists.size());
-                    imageCapturedAdapter.notifyDataSetChanged();
-
-                    if (!gpxContent.isEmpty()) {
-                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(getContext())
-                                .setTitle("Add GPX File!")
-                                .setMessage("Do you want to add a Single WAYPOINT as GPX File from this Image Location replacing the previous one?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                        String innnn = INTERNAL_NO.replace("/","_");
-                                        gpxContent = "";
-                                        locationListsCreate = new ArrayList<>();
-                                        String wpt = "\t<wpt lat=\""+ targetLocation.getLatitude() +"\" lon=\""+ targetLocation.getLongitude()+"\">\n" +
-                                                "\t\t<name>"+innnn+"</name>\n" +
-                                                "\t</wpt>";
-
-                                        gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n" + wpt + "\n</gpx>";
-                                        locationListsCreate.add(new LocationLists(String.valueOf(targetLocation.getLatitude()),String.valueOf(targetLocation.getLongitude()),0));
-                                        System.out.println(gpxContent);
-                                        gpxFileLayout.setVisibility(View.VISIBLE);
-                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
-                                        Date c = Calendar.getInstance().getTime();
-                                        String f = simpleDateFormat.format(c);
-                                        String n = innnn + "_" + f+".gpx";
-                                        gpxFileName.setText(n);
-                                        addTrack.setVisibility(View.GONE);
-                                        addWaypoint.setVisibility(View.VISIBLE);
-                                    }
-                                })
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        //Do nothing
-                                    }
-                                });
-                        AlertDialog alertDialog = alertDialogBuilder.create();
-                        alertDialog.show();
+                if (imageStageId.isEmpty()) {
+                    imageStageLayout.setVisibility(View.VISIBLE);
+                }
+                else {
+                    imageStageLayout.setVisibility(View.GONE);
+                    if (fileName.getText().toString().isEmpty()) {
+                        Toast.makeText(getContext(), "Please Write Your File Name", Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(getContext())
-                                .setTitle("Add GPX File!")
-                                .setMessage("Do you want to add a Single WAYPOINT as GPX File from this Image Location?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        String innnn = INTERNAL_NO.replace("/","_");
-                                        gpxContent = "";
-                                        locationListsCreate = new ArrayList<>();
-                                        String wpt = "\t<wpt lat=\""+ targetLocation.getLatitude() +"\" lon=\""+ targetLocation.getLongitude()+"\">\n" +
-                                                "\t\t<name>"+innnn+"</name>\n" +
-                                                "\t</wpt>";
+                        // deleting file
+                        File deletefile = new File(currentPhotoPath);
+                        boolean deleted = deletefile.delete();
+                        if (deleted) {
+                            System.out.println("deleted");
+                        }
 
-                                        gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n" + wpt + "\n</gpx>";
-                                        locationListsCreate.add(new LocationLists(String.valueOf(targetLocation.getLatitude()),String.valueOf(targetLocation.getLongitude()),0));
-                                        System.out.println(gpxContent);
-                                        gpxFileLayout.setVisibility(View.VISIBLE);
-                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
-                                        Date c = Calendar.getInstance().getTime();
-                                        String f = simpleDateFormat.format(c);
-                                        String n = innnn + "_" + f+".gpx";
-                                        gpxFileName.setText(n);
-                                        addTrack.setVisibility(View.GONE);
-                                        addWaypoint.setVisibility(View.VISIBLE);
-                                    }
-                                })
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        //Do nothing
-                                    }
-                                });
-                        AlertDialog alertDialog = alertDialogBuilder.create();
-                        alertDialog.show();
+                        FileOutputStream fileOutputStream = null;
+//                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+//                    System.out.println(timeStamp);
+                        String imageFileName = fileName.getText().toString() +".jpg";
+                        File file = new File(Environment.getExternalStorageDirectory().getPath() + "/DCIM/Camera/" + imageFileName);
+                        try {
+                            file.createNewFile();
+                            currentPhotoPath = file.getAbsolutePath();
+                            fileOutputStream = new FileOutputStream(file);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        firstBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                        try {
+                            fileOutputStream.flush();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            fileOutputStream.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+
+                        galleryAddPic();
+
+                        String imaaa = file.getAbsolutePath();
+
+                        //Writes Exif Information to the Image
+                        try {
+                            ExifInterface exif = new ExifInterface(imaaa);
+                            Log.w("Location", String.valueOf(targetLocation));
+
+                            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, convert(targetLocation.getLatitude()));
+                            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitudeRef(targetLocation.getLatitude()));
+                            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, convert(targetLocation.getLongitude()));
+                            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitudeRef(targetLocation.getLongitude()));
+
+                            exif.saveAttributes();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        scanFile(getContext(),currentPhotoPath, null);
+
+                        Toast.makeText(getContext(), "Photo is saved", Toast.LENGTH_SHORT).show();
+                        imageCapturedLists.add(new ImageCapturedList(firstBitmap,imageFileName,false,imageStageId));
+                        File deletefile1 = new File(currentPhotoPath);
+                        boolean deleted1 = deletefile1.delete();
+                        if (deleted1) {
+                            System.out.println("deleted");
+                        }
+                        System.out.println(imageCapturedLists.size());
+                        imageCapturedAdapter.notifyDataSetChanged();
+
+                        if (!gpxContent.isEmpty()) {
+                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(getContext())
+                                    .setTitle("Add GPX File!")
+                                    .setMessage("Do you want to add a Single WAYPOINT as GPX File from this Image Location replacing the previous one?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            String innnn = INTERNAL_NO.replace("/","_");
+                                            gpxContent = "";
+                                            locationListsCreate = new ArrayList<>();
+                                            String wpt = "\t<wpt lat=\""+ targetLocation.getLatitude() +"\" lon=\""+ targetLocation.getLongitude()+"\">\n" +
+                                                    "\t\t<name>"+innnn+"</name>\n" +
+                                                    "\t</wpt>";
+
+                                            gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n" + wpt + "\n</gpx>";
+                                            locationListsCreate.add(new LocationLists(String.valueOf(targetLocation.getLatitude()),String.valueOf(targetLocation.getLongitude()),0));
+                                            System.out.println(gpxContent);
+                                            gpxFileLayout.setVisibility(View.VISIBLE);
+                                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                                            Date c = Calendar.getInstance().getTime();
+                                            String f = simpleDateFormat.format(c);
+                                            String n = innnn + "_" + f+".gpx";
+                                            gpxFileName.setText(n);
+                                            addTrack.setVisibility(View.GONE);
+                                            addWaypoint.setVisibility(View.VISIBLE);
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            //Do nothing
+                                        }
+                                    });
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+                            alertDialog.show();
+                        }
+                        else {
+                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(getContext())
+                                    .setTitle("Add GPX File!")
+                                    .setMessage("Do you want to add a Single WAYPOINT as GPX File from this Image Location?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            String innnn = INTERNAL_NO.replace("/","_");
+                                            gpxContent = "";
+                                            locationListsCreate = new ArrayList<>();
+                                            String wpt = "\t<wpt lat=\""+ targetLocation.getLatitude() +"\" lon=\""+ targetLocation.getLongitude()+"\">\n" +
+                                                    "\t\t<name>"+innnn+"</name>\n" +
+                                                    "\t</wpt>";
+
+                                            gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n" + wpt + "\n</gpx>";
+                                            locationListsCreate.add(new LocationLists(String.valueOf(targetLocation.getLatitude()),String.valueOf(targetLocation.getLongitude()),0));
+                                            System.out.println(gpxContent);
+                                            gpxFileLayout.setVisibility(View.VISIBLE);
+                                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                                            Date c = Calendar.getInstance().getTime();
+                                            String f = simpleDateFormat.format(c);
+                                            String n = innnn + "_" + f+".gpx";
+                                            gpxFileName.setText(n);
+                                            addTrack.setVisibility(View.GONE);
+                                            addWaypoint.setVisibility(View.VISIBLE);
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            //Do nothing
+                                        }
+                                    });
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+                            alertDialog.show();
+                        }
+
+                        dialog.dismiss();
+
+
                     }
-
-                    dialog.dismiss();
-
-
                 }
-
-
             }
         });
 

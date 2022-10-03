@@ -7,11 +7,13 @@ public class ImageCapturedList {
     private Bitmap bitmap;
     private String fileName;
     private boolean uploaded;
+    private String stage;
 
-    public ImageCapturedList(Bitmap bitmap, String fileName, boolean uploaded) {
+    public ImageCapturedList(Bitmap bitmap, String fileName, boolean uploaded,String stage) {
         this.bitmap = bitmap;
         this.fileName = fileName;
         this.uploaded = uploaded;
+        this.stage = stage;
     }
 
     public Bitmap getBitmap() {
@@ -36,5 +38,13 @@ public class ImageCapturedList {
 
     public void setUploaded(boolean uploaded) {
         this.uploaded = uploaded;
+    }
+
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
     }
 }

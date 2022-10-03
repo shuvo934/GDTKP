@@ -1078,6 +1078,8 @@ public class HomePage extends AppCompatActivity {
                 if (projectMapsLists.size() != 0) {
                     System.out.println(projectMapsLists.size());
                     Intent intent = new Intent(HomePage.this, ProjectsMaps.class);
+                    intent.putExtra("DIST_ID",dist_id);
+                    intent.putExtra("DD_ID",dd_id);
                     startActivity(intent);
                 }
                 else {

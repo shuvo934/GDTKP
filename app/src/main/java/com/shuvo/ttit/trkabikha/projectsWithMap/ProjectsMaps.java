@@ -3,13 +3,17 @@ package com.shuvo.ttit.trkabikha.projectsWithMap;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -33,11 +37,20 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.collections.MarkerManager;
+import com.google.maps.android.data.Feature;
+import com.google.maps.android.data.Layer;
+import com.google.maps.android.data.geojson.GeoJsonFeature;
+import com.google.maps.android.data.geojson.GeoJsonLayer;
+import com.google.maps.android.data.geojson.GeoJsonPolygonStyle;
+import com.google.maps.android.data.kml.KmlLayer;
 import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.adapter.ProjectMapAdapter;
 import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
 import com.shuvo.ttit.trkabikha.arraylist.MarkerData;
 import com.shuvo.ttit.trkabikha.arraylist.PolyLindata;
+import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
+import java.io.IOException;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -49,10 +62,13 @@ import java.util.Locale;
 import java.util.Random;
 
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 
 import static com.shuvo.ttit.trkabikha.mainmenu.HomePage.projectMapsLists;
 
-public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallback,ProjectMapAdapter.ClickedItem {
+import org.json.JSONException;
+
+public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallback, ProjectMapAdapter.ClickedItem, Layer.OnFeatureClickListener {
 
     private GoogleMap mMap;
     RecyclerView itemView;
@@ -72,6 +88,11 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
     ImageView imageView;
 
     final Random mRandom = new Random(System.currentTimeMillis());
+    String dist_id = "";
+    String dd_id = "";
+    GeoJsonLayer layer = null;
+    WaitProgress waitProgress = new WaitProgress();
+    MarkerManager markerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,12 +115,15 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
         itemView.addItemDecoration(dividerItemDecoration);
 
         projectMapAdapter = new ProjectMapAdapter(projectMapsLists, ProjectsMaps.this, ProjectsMaps.this);
-        ScaleInAnimationAdapter animationAdapter = new ScaleInAnimationAdapter(projectMapAdapter);
+        AlphaInAnimationAdapter animationAdapter = new AlphaInAnimationAdapter(projectMapAdapter);
         animationAdapter.setDuration(500);
         animationAdapter.setInterpolator(new AccelerateDecelerateInterpolator());
         animationAdapter.setFirstOnly(false);
         itemView.setAdapter(animationAdapter);
 
+        Intent intent = getIntent();
+        dist_id = intent.getStringExtra("DIST_ID");
+        dd_id = intent.getStringExtra("DD_ID");
 
         markerData = new ArrayList<>();
         polyLindata = new ArrayList<>();
@@ -171,7 +195,10 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
         //LatLng bangladesh = new LatLng(23.9697833326, 90.2372869849);
         LatLng bangladesh = new LatLng(23.8925766816657, 90.26834454129256);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bangladesh, 10));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bangladesh, 10));
+
+        markerManager = new MarkerManager(mMap);
+        MarkerManager.Collection markerCollection = markerManager.newCollection();
 
         selection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -230,7 +257,7 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+        markerCollection.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
             @Override
             public View getInfoWindow(Marker arg0) {
@@ -304,7 +331,7 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
             if (locationLists.size() != 0) {
                 if (locationLists.size() == 1 ) {
                     LatLng latLng = new LatLng(Double.parseDouble(locationLists.get(0).getLatitude()),Double.parseDouble(locationLists.get(0).getLongitude()));
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(proName)
+                    Marker marker = markerCollection.addMarker(new MarkerOptions().position(latLng).title(proName)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_18))
                             .snippet("Project No (প্রকল্প নং): "+ proNo+"\nProject Code (প্রকল্প কোড): "+projectCode+"\nProject Date: "+proDate+
                                     "\nEstimated Value: " + totalVal + "\nFinancial Year: " + finYear));
@@ -360,7 +387,7 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
                         }
 
                         if (pointNumber == 1) {
-                            Marker marker = mMap.addMarker(new MarkerOptions().position(point).title(proName)
+                            Marker marker = markerCollection.addMarker(new MarkerOptions().position(point).title(proName)
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_18))
                                     .snippet("Project No (প্রকল্প নং): "+ proNo+"\nProject Code (প্রকল্প কোড): "+projectCode+"\nProject Date: "+proDate+
                                             "\nEstimated Value: " + totalVal + "\nFinancial Year: " + finYear));
@@ -375,7 +402,7 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
                             int a = polyline.getPoints().size()/2;
 
                             LatLng latLng = new LatLng(polyline.getPoints().get(a).latitude,polyline.getPoints().get(a).longitude);
-                            Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(proName)
+                            Marker marker = markerCollection.addMarker(new MarkerOptions().position(latLng).title(proName)
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.transparent_circle))
                                     .anchor((float) 0.5,(float) 0.5)
                                     .snippet("Project No (প্রকল্প নং): "+ proNo+"\nProject Code (প্রকল্প কোড): "+projectCode+"\nProject Date: "+proDate+
@@ -403,7 +430,7 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        markerCollection.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
@@ -495,26 +522,28 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng latLng) {
-                for (int i = 0 ; i < polyLindata.size(); i++) {
-                    Polyline polyline = polyLindata.get(i).getPolyline();
-                    polyline.setColor(Color.BLACK);
-                    polyline.setWidth(16);
-                }
-                for (int i = 0; i < markerData.size(); i++) {
-                    Marker marker = markerData.get(i).getMarker();
-                    boolean isPoly = markerData.get(i).isPoly();
-                    if (!isPoly) {
-                        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_18));
-                    }
-                    marker.hideInfoWindow();
-                }
-                selectedAdapterPosition = -1;
-                projectMapAdapter.notifyDataSetChanged();
-            }
-        });
+//        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+//            @Override
+//            public void onMapClick(@NonNull LatLng latLng) {
+//                for (int i = 0 ; i < polyLindata.size(); i++) {
+//                    Polyline polyline = polyLindata.get(i).getPolyline();
+//                    polyline.setColor(Color.BLACK);
+//                    polyline.setWidth(16);
+//                }
+//                for (int i = 0; i < markerData.size(); i++) {
+//                    Marker marker = markerData.get(i).getMarker();
+//                    boolean isPoly = markerData.get(i).isPoly();
+//                    if (!isPoly) {
+//                        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_18));
+//                    }
+//                    marker.hideInfoWindow();
+//                }
+//                selectedAdapterPosition = -1;
+//                projectMapAdapter.notifyDataSetChanged();
+//            }
+//        });
+
+        new LayerOfDisSetup().execute();
     }
 
     @Override
@@ -589,5 +618,129 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
     public void onBackPressed() {
         super.onBackPressed();
         selectedAdapterPosition = -1;
+    }
+
+    @Override
+    public void onFeatureClick(Feature feature) {
+        for (int i = 0 ; i < polyLindata.size(); i++) {
+            Polyline polyline = polyLindata.get(i).getPolyline();
+            polyline.setColor(Color.BLACK);
+            polyline.setWidth(16);
+        }
+        for (int i = 0; i < markerData.size(); i++) {
+            Marker marker = markerData.get(i).getMarker();
+            boolean isPoly = markerData.get(i).isPoly();
+            if (!isPoly) {
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_18));
+            }
+            marker.hideInfoWindow();
+        }
+        selectedAdapterPosition = -1;
+        projectMapAdapter.notifyDataSetChanged();
+    }
+
+    public class LayerOfDisSetup extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            waitProgress.show(getSupportFragmentManager(),"WaitBar");
+            waitProgress.setCancelable(false);
+
+            if (dd_id.isEmpty()) {
+                try {
+                    layer = new GeoJsonLayer(mMap, R.raw.small_bangladesh_districts_zillas, ProjectsMaps.this, markerManager,null,null,null);
+                    //System.out.println(0);
+
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                try {
+                    layer = new GeoJsonLayer(mMap, R.raw.small_bangladesh_upozila, ProjectsMaps.this, markerManager,null,null,null);
+                    //System.out.println(0);
+
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            GeoJsonPolygonStyle polygonStyle = layer.getDefaultPolygonStyle();
+            polygonStyle.setStrokeColor(Color.BLACK);
+
+
+            polygonStyle.setStrokeWidth(0);
+            layer.addLayerToMap();
+            layer.setOnFeatureClickListener(ProjectsMaps.this);
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Random rand = new Random(-20677027);
+
+
+            for (GeoJsonFeature feature : layer.getFeatures()) {
+                GeoJsonPolygonStyle ppp = new GeoJsonPolygonStyle();
+                //List<LatLng> pp = new ArrayList<>();
+
+//                float r = (float) (rand.nextFloat() );
+//                float g = (float) (rand.nextFloat() );
+//                float b = (float) (rand.nextFloat() );
+
+                if (dd_id.isEmpty()) {
+                    if (feature.getId().equals(dist_id)) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                            //Color randomColor = Color.valueOf(Color.pack(r,g,b));
+                            //ppp.setFillColor(Color.argb((float) .2,r,g,b));
+                            int c = Color.parseColor("#c8d6e5");
+                            c = ColorUtils.setAlphaComponent(c,100);
+                            ppp.setFillColor(c);
+                            ppp.setStrokeColor(Color.RED);
+                            ppp.setStrokeWidth(4);
+                            feature.setPolygonStyle(ppp);
+                        }
+                        if (feature.getProperty("Lat") != null && feature.getProperty("Long") != null) {
+                            LatLng latLng = new LatLng(Float.parseFloat(feature.getProperty("Lat")),Float.parseFloat(feature.getProperty("Long")));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 9.5F));
+
+                        }
+                    }
+                }
+                else {
+                    if (feature.getId().equals(dd_id)) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                            //Color randomColor = Color.valueOf(Color.pack(r,g,b));
+                            //ppp.setFillColor(Color.argb((float) .2,r,g,b));
+                            int c = Color.parseColor("#c8d6e5");
+                            c = ColorUtils.setAlphaComponent(c,100);
+                            ppp.setFillColor(c);
+                            ppp.setStrokeColor(Color.RED);
+                            ppp.setStrokeWidth(4);
+                            feature.setPolygonStyle(ppp);
+                        }
+                        if (feature.getProperty("Lat") != null && feature.getProperty("Long") != null) {
+                            LatLng latLng = new LatLng(Float.parseFloat(feature.getProperty("Lat")),Float.parseFloat(feature.getProperty("Long")));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10.5F));
+
+                        }
+                    }
+                }
+
+
+            }
+            waitProgress.dismiss();
+        }
     }
 }

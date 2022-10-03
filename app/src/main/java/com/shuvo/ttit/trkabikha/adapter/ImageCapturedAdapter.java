@@ -5,12 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.shuvo.ttit.trkabikha.R;
+import com.shuvo.ttit.trkabikha.arraylist.ChoiceList;
 import com.shuvo.ttit.trkabikha.arraylist.ImageCapturedList;
 
 import java.util.ArrayList;
@@ -42,6 +44,23 @@ public class ImageCapturedAdapter extends RecyclerView.Adapter<ImageCapturedAdap
                 .load(imageCapturedList.getBitmap())
                 .fitCenter()
                 .into(holder.imageCapture);
+
+        String stype = "";
+        if (imageCapturedList.getStage() != null) {
+            switch (imageCapturedList.getStage()) {
+                case "1":
+                    stype = "Pre-Work";
+                    break;
+                case "2":
+                    stype = "On-Working";
+                    break;
+                case "3":
+                    stype = "Finish-Work";
+                    break;
+            }
+        }
+
+        holder.imageStage.setText(stype);
         //holder.imageCapture.setBackgroundResource(R.drawable.image_transparent);
     }
 
@@ -55,6 +74,7 @@ public class ImageCapturedAdapter extends RecyclerView.Adapter<ImageCapturedAdap
 
         public ImageView imageCapture;
         public ImageView deleteImage;
+        public TextView imageStage;
 
         ClickedItem mClickedItem;
 
@@ -62,6 +82,7 @@ public class ImageCapturedAdapter extends RecyclerView.Adapter<ImageCapturedAdap
             super(itemView);
             imageCapture = itemView.findViewById(R.id.image_captured_from_project_edit);
             deleteImage = itemView.findViewById(R.id.delete_captured_image);
+            imageStage = itemView.findViewById(R.id.image_stage_text);
 
             this.mClickedItem = ci;
             itemView.setOnClickListener(this);
