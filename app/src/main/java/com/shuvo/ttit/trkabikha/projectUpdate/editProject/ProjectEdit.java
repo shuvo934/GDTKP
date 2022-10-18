@@ -1504,11 +1504,12 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 //
 //                callableStatement1.close();
 
-                CallableStatement callableStatement1 = connection.prepareCall("{call androaid_proj_pic_upl_process(?,?,?,?)}");
+                CallableStatement callableStatement1 = connection.prepareCall("{call androaid_proj_pic_upl_process(?,?,?,?,?)}");
                 callableStatement1.setInt(1,Integer.parseInt(PCM_ID_PE));
                 callableStatement1.setString(2, imageCapturedLists.get(i).getFileName());
                 callableStatement1.setString(3,userInfoLists.get(0).getUserName());
                 callableStatement1.setBinaryStream(4,in,bArray.length);
+                callableStatement1.setInt(5,Integer.parseInt(imageCapturedLists.get(i).getStage()));
                 callableStatement1.execute();
 
                 callableStatement1.close();

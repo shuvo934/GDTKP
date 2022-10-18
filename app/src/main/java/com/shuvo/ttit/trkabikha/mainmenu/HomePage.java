@@ -1080,6 +1080,7 @@ public class HomePage extends AppCompatActivity {
                     Intent intent = new Intent(HomePage.this, ProjectsMaps.class);
                     intent.putExtra("DIST_ID",dist_id);
                     intent.putExtra("DD_ID",dd_id);
+                    intent.putExtra("DDU_ID",ddu_id);
                     startActivity(intent);
                 }
                 else {

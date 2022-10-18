@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">GDTK PROJECTS</string>
-    <string name="version_control">Version 8.0</string>
+    <string name="version_control">Version 8.1</string>
     <string name="fys">Financial Year (start) <font color='red'>*</font></string>
     <string name="fye">Financial Year (end) <font color='red'>*</font></string>
     <string name="searc_project_headline">Search Project List &amp; Details</string>
