@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.login.Login;
+import com.shuvo.ttit.trkabikha.login.PICLogin;
 import com.shuvo.ttit.trkabikha.mainmenu.HomePage;
 
 
@@ -18,6 +19,7 @@ public class ChooseUser extends AppCompatActivity {
 
     LinearLayout guest;
     LinearLayout admin;
+    LinearLayout picUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,7 @@ public class ChooseUser extends AppCompatActivity {
 
         guest = findViewById(R.id.guest_button);
         admin = findViewById(R.id.admin_button);
+        picUser = findViewById(R.id.pic_user_button);
 
         guest.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,6 +43,14 @@ public class ChooseUser extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ChooseUser.this, Login.class);
+                startActivity(intent);
+            }
+        });
+
+        picUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChooseUser.this, PICLogin.class);
                 startActivity(intent);
             }
         });

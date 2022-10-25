@@ -745,6 +745,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
                 Intent intent1 = new Intent(ProjectEdit.this, GpxCreationMap.class);
                 intent1.putExtra("VALUE","WAYPOINT");
+                intent1.putExtra("FROM","PROJECT_EDIT");
                 startActivity(intent1);
             }
         });
@@ -755,6 +756,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
                 Intent intent1 = new Intent(ProjectEdit.this, GpxCreationMap.class);
                 intent1.putExtra("VALUE","TRACK");
+                intent1.putExtra("FROM","PROJECT_EDIT");
                 startActivity(intent1);
             }
         });
@@ -781,6 +783,8 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
                 startActivity(intent1);
             }
         });
+
+        closeKeyBoard();
     }
 
     @Override
@@ -842,10 +846,26 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
     @Override
     public void onBackPressed() {
-        gpxContent = "";
-        locationListsCreate = new ArrayList<>();
-        imageCapturedLists = new ArrayList<>();
-        super.onBackPressed();
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ProjectEdit.this)
+                .setTitle("EXIT!")
+                .setMessage("Do you leave this page without updating this project?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        gpxContent = "";
+                        locationListsCreate = new ArrayList<>();
+                        imageCapturedLists = new ArrayList<>();
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Do nothing
+                    }
+                });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
 
     }
 

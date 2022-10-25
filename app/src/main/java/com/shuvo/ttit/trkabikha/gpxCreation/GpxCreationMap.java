@@ -1,6 +1,15 @@
 package com.shuvo.ttit.trkabikha.gpxCreation;
 
 import static com.shuvo.ttit.trkabikha.gpxCreation.necessary.DistanceCalculator.CalculationByDistance;
+import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.TAG_GPX_PC;
+import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.XML_HEADER_PC;
+import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.addTrack_pc;
+import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.addWaypoint_pc;
+import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.gpxContent_pc;
+import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.gpxFileLayout_pc;
+import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.gpxFileName_pc;
+import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.locationListsCreatePC;
+
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.INTERNAL_NO;
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.TAG_GPX;
 import static com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit.XML_HEADER;
@@ -103,6 +112,7 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
     LocationCallback locationCallback;
 
     String val = "";
+    String from = "";
 
     ArrayList<LocationLists> locationListsGpxCreation;
 
@@ -136,6 +146,7 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
 
         Intent intent = getIntent();
         val = intent.getStringExtra("VALUE");
+        from = intent.getStringExtra("FROM");
 
         if (val.equals("TRACK")) {
 //            instantWay.setVisibility(View.GONE);
@@ -751,95 +762,189 @@ public class GpxCreationMap extends AppCompatActivity implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
 
-                if (!gpxContent.isEmpty()) {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(GpxCreationMap.this)
-                            .setTitle("Add GPX File!")
-                            .setMessage("Do you want to add a new GPX File replacing the previous one?")
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                if (from.equals("PROJECT_EDIT")) {
+                    if (!gpxContent.isEmpty()) {
+                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(GpxCreationMap.this)
+                                .setTitle("Add GPX File!")
+                                .setMessage("Do you want to add a new GPX File replacing the previous one?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
 
-                                    gpxContent = "";
-                                    locationListsCreate = new ArrayList<>();
-                                    String innnn = INTERNAL_NO.replace("/","_");
-                                    gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n";
-                                    for (int i = 0; i < trk.size(); i++) {
-                                        gpxContent = gpxContent + "\n" + trk.get(i);
-                                    }
-                                    gpxContent = gpxContent + "\n</gpx>";
-                                    locationListsCreate = locationListsGpxCreation;
-                                    System.out.println(gpxContent);
-                                    gpxFileLayout.setVisibility(View.VISIBLE);
-                                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
-                                    Date c = Calendar.getInstance().getTime();
-                                    String f = simpleDateFormat.format(c);
-                                    String n = innnn + "_" + f+".gpx";
-                                    gpxFileName.setText(n);
-                                    if (val.equals("TRACK")) {
-                                        addTrack.setVisibility(View.VISIBLE);
-                                        addWaypoint.setVisibility(View.GONE);
-                                    }
-                                    else if (val.equals("WAYPOINT")){
-                                        addTrack.setVisibility(View.GONE);
-                                        addWaypoint.setVisibility(View.VISIBLE);
-                                    }
+                                        gpxContent = "";
+                                        locationListsCreate = new ArrayList<>();
+                                        String innnn = INTERNAL_NO.replace("/","_");
+                                        gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n";
+                                        for (int i = 0; i < trk.size(); i++) {
+                                            gpxContent = gpxContent + "\n" + trk.get(i);
+                                        }
+                                        gpxContent = gpxContent + "\n</gpx>";
+                                        locationListsCreate = locationListsGpxCreation;
+                                        System.out.println(gpxContent);
+                                        gpxFileLayout.setVisibility(View.VISIBLE);
+                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                                        Date c = Calendar.getInstance().getTime();
+                                        String f = simpleDateFormat.format(c);
+                                        String n = innnn + "_" + f+".gpx";
+                                        gpxFileName.setText(n);
+                                        if (val.equals("TRACK")) {
+                                            addTrack.setVisibility(View.VISIBLE);
+                                            addWaypoint.setVisibility(View.GONE);
+                                        }
+                                        else if (val.equals("WAYPOINT")){
+                                            addTrack.setVisibility(View.GONE);
+                                            addWaypoint.setVisibility(View.VISIBLE);
+                                        }
 
-                                    fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-                                    finish();
-                                }
-                            })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    //Do nothing
-                                }
-                            });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
+                                        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+                                        finish();
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Do nothing
+                                    }
+                                });
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                    }
+                    else {
+                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(GpxCreationMap.this)
+                                .setTitle("Add GPX File!")
+                                .setMessage("Do you want to add a new GPX File?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        gpxContent = "";
+                                        locationListsCreate = new ArrayList<>();
+                                        String innnn = INTERNAL_NO.replace("/","_");
+                                        gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n";
+                                        for (int i = 0; i < trk.size(); i++) {
+                                            gpxContent = gpxContent + "\n" + trk.get(i);
+                                        }
+                                        gpxContent = gpxContent + "\n</gpx>";
+                                        locationListsCreate = locationListsGpxCreation;
+                                        System.out.println(gpxContent);
+                                        gpxFileLayout.setVisibility(View.VISIBLE);
+                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                                        Date c = Calendar.getInstance().getTime();
+                                        String f = simpleDateFormat.format(c);
+                                        String n = innnn + "_" + f+".gpx";
+                                        gpxFileName.setText(n);
+                                        if (val.equals("TRACK")) {
+                                            addTrack.setVisibility(View.VISIBLE);
+                                            addWaypoint.setVisibility(View.GONE);
+                                        }
+                                        else if (val.equals("WAYPOINT")){
+                                            addTrack.setVisibility(View.GONE);
+                                            addWaypoint.setVisibility(View.VISIBLE);
+                                        }
+                                        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+                                        finish();
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Do nothing
+                                    }
+                                });
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                    }
                 }
-                else {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(GpxCreationMap.this)
-                            .setTitle("Add GPX File!")
-                            .setMessage("Do you want to add a new GPX File?")
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    gpxContent = "";
-                                    locationListsCreate = new ArrayList<>();
-                                    String innnn = INTERNAL_NO.replace("/","_");
-                                    gpxContent = XML_HEADER + "\n" + TAG_GPX + "\n";
-                                    for (int i = 0; i < trk.size(); i++) {
-                                        gpxContent = gpxContent + "\n" + trk.get(i);
+                else if (from.equals("PROJECT_CREATION")) {
+                    if (!gpxContent_pc.isEmpty()) {
+                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(GpxCreationMap.this)
+                                .setTitle("Add GPX File!")
+                                .setMessage("Do you want to add a new GPX File replacing the previous one?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                                        Date c = Calendar.getInstance().getTime();
+                                        String f = simpleDateFormat.format(c);
+
+                                        gpxContent_pc = "";
+                                        locationListsCreatePC = new ArrayList<>();
+                                        gpxContent_pc = XML_HEADER_PC + "\n" + TAG_GPX_PC + "\n";
+                                        for (int i = 0; i < trk.size(); i++) {
+                                            gpxContent_pc = gpxContent_pc + "\n" + trk.get(i);
+                                        }
+                                        gpxContent_pc = gpxContent_pc + "\n</gpx>";
+                                        locationListsCreatePC = locationListsGpxCreation;
+                                        System.out.println(gpxContent_pc);
+                                        gpxFileLayout_pc.setVisibility(View.VISIBLE);
+
+                                        String n = "map_data_" + f+".gpx";
+                                        gpxFileName_pc.setText(n);
+                                        if (val.equals("TRACK")) {
+                                            addTrack_pc.setVisibility(View.VISIBLE);
+                                            addWaypoint_pc.setVisibility(View.GONE);
+                                        }
+                                        else if (val.equals("WAYPOINT")){
+                                            addTrack_pc.setVisibility(View.GONE);
+                                            addWaypoint_pc.setVisibility(View.VISIBLE);
+                                        }
+
+                                        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+                                        finish();
                                     }
-                                    gpxContent = gpxContent + "\n</gpx>";
-                                    locationListsCreate = locationListsGpxCreation;
-                                    System.out.println(gpxContent);
-                                    gpxFileLayout.setVisibility(View.VISIBLE);
-                                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
-                                    Date c = Calendar.getInstance().getTime();
-                                    String f = simpleDateFormat.format(c);
-                                    String n = innnn + "_" + f+".gpx";
-                                    gpxFileName.setText(n);
-                                    if (val.equals("TRACK")) {
-                                        addTrack.setVisibility(View.VISIBLE);
-                                        addWaypoint.setVisibility(View.GONE);
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Do nothing
                                     }
-                                    else if (val.equals("WAYPOINT")){
-                                        addTrack.setVisibility(View.GONE);
-                                        addWaypoint.setVisibility(View.VISIBLE);
+                                });
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                    }
+                    else {
+                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(GpxCreationMap.this)
+                                .setTitle("Add GPX File!")
+                                .setMessage("Do you want to add a new GPX File?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        gpxContent_pc = "";
+                                        locationListsCreatePC = new ArrayList<>();
+                                        gpxContent_pc = XML_HEADER_PC + "\n" + TAG_GPX_PC + "\n";
+                                        for (int i = 0; i < trk.size(); i++) {
+                                            gpxContent_pc = gpxContent_pc + "\n" + trk.get(i);
+                                        }
+                                        gpxContent_pc = gpxContent_pc + "\n</gpx>";
+                                        locationListsCreatePC = locationListsGpxCreation;
+                                        System.out.println(gpxContent_pc);
+                                        gpxFileLayout_pc.setVisibility(View.VISIBLE);
+                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                                        Date c = Calendar.getInstance().getTime();
+                                        String f = simpleDateFormat.format(c);
+                                        String n = "map_data_" + f+".gpx";
+                                        gpxFileName_pc.setText(n);
+                                        if (val.equals("TRACK")) {
+                                            addTrack_pc.setVisibility(View.VISIBLE);
+                                            addWaypoint_pc.setVisibility(View.GONE);
+                                        }
+                                        else if (val.equals("WAYPOINT")){
+                                            addTrack_pc.setVisibility(View.GONE);
+                                            addWaypoint_pc.setVisibility(View.VISIBLE);
+                                        }
+                                        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+                                        finish();
                                     }
-                                    fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-                                    finish();
-                                }
-                            })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    //Do nothing
-                                }
-                            });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Do nothing
+                                    }
+                                });
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                    }
                 }
             }
         });

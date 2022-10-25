@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">GDTK PROJECTS</string>
-    <string name="version_control">Version 8.1</string>
+    <string name="version_control">Version 9.0</string>
     <string name="fys">Financial Year (start) <font color='red'>*</font></string>
     <string name="fye">Financial Year (end) <font color='red'>*</font></string>
     <string name="searc_project_headline">Search Project List &amp; Details</string>
@@ -15,4 +15,22 @@
     <string name="title_activity_project_details">Map</string>
     <string name="div">Division <font color='red'>*</font></string>
     <string name="dist">District <font color='red'>*</font></string>
+    <string name="pc_proj_no"><font color='red'>*</font> Project No (প্রকল্প নং)</string>
+    <string name="pc_proj_appr_date"><font color='red'>*</font> Approval Date (অনুমোদনের তারিখ)</string>
+    <string name="pc_proj_name"><font color='red'>*</font> Project Name (প্রকল্পের নাম)</string>
+    <string name="pc_proj_st_date"><font color='red'>*</font> Start Date (শুরুর তারিখ)</string>
+    <string name="pc_proj_end_date"><font color='red'>*</font> End Date (শেষের তারিখ)</string>
+    <string name="pc_proj_val"><font color='red'>*</font> Project Value (বরাদ্দের পরিমান)</string>
+    <string name="pc_blank_val"><font color='red'>*</font></string>
+    <string name="pc_sanction_cat"><font color='red'>*</font> Sanction Category (বরাদ্দের ধরন)</string>
+    <string name="pc_sanction_sub_cat"><font color='red'>*</font> Sanction Sub Category (বরাদ্দের উপ-ধরন)</string>
+    <string name="pc_fin_year"><font color='red'>*</font> Financial Year (অর্থ বছর)</string>
+    <string name="pc_s_fund"><font color='red'>*</font> Source of Fund (তহবিলের উৎস)</string>
+    <string name="pc_p_type"><font color='red'>*</font> Project Type (প্রকল্পের প্রকারভেদ)</string>
+    <string name="pc_p_sub_type"><font color='red'>*</font> Project Sub Type (কাজের-ধরন)</string>
+    <string name="pc_pic_details"><font color='red'>*</font> PIC/Others Name (পিআইসি/ঠিকাদার/ অন্যান্য নাম)</string>
+    <string name="pc_prj_details"><font color='red'>*</font> Project Details (প্রকল্পের বিস্তারিত বিবরণ)</string>
+    <string name="pc_prj_upazila"><font color='red'>*</font> Project Upazilla (প্রকল্পের উপজেলা)</string>
+    <string name="pc_prj_union"><font color='red'>*</font> Project Union (প্রকল্পের ইউনিয়ন)</string>
+
 </resources>

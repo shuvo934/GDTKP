@@ -73,6 +73,23 @@
 
             </androidx.cardview.widget.CardView>
 
+            <Button
+                android:id="@+id/create_project_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:text="Create new project"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:fontFamily="@font/roboto_condensed_bold"
+                android:textStyle="bold"
+                android:background="@drawable/custom_button"
+                android:gravity="center" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:id="@+id/app_bar_village_selection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/primary_reef"
+        android:padding="6dp">
+
+        <TextView
+            android:id="@+id/gdtk_app_name_main_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            android:layout_alignParentStart="true"
+            android:fontFamily="@font/russo_one"
+            android:text="SET VILLAGE"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/close_set_village_dialogue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_baseline_clear_"
+            tools:ignore="ContentDescription" />
+
+
+    </RelativeLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/set_ward_card_for_village"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_below="@+id/app_bar_village_selection"
+        android:layout_marginTop="15dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/primaryVariant_waterfall">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/project_ward_for_village_spinner_layout_project_creation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                app:boxStrokeColor="@color/primaryVariant_waterfall"
+                app:hintTextColor="#b2bec3"
+                android:textColorHint = "#b2bec3"
+                app:helperTextEnabled="true"
+                app:boxCornerRadiusTopStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxBackgroundColor="@color/white"
+                app:boxBackgroundMode="filled"
+                app:endIconMode="dropdown_menu"
+                app:boxStrokeWidth="0dp"
+                android:hint="Ward"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                >
+
+                <com.rosemaryapp.amazingspinner.AmazingSpinner
+                    android:id="@+id/project_ward_for_village_spinner_project_creation"
+                    style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                    android:layout_width="match_parent"
+                    android:text=""
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="@color/black"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/set_village_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_below="@+id/set_ward_card_for_village"
+        android:layout_marginTop="15dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/primaryVariant_waterfall">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/project_village_spinner_layout_project_creation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                app:boxStrokeColor="@color/primaryVariant_waterfall"
+                app:hintTextColor="#b2bec3"
+                android:textColorHint = "#b2bec3"
+                app:helperTextEnabled="true"
+                app:boxCornerRadiusTopStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxBackgroundColor="@color/white"
+                app:boxBackgroundMode="filled"
+                app:endIconMode="dropdown_menu"
+                app:boxStrokeWidth="0dp"
+                android:hint="Village"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                >
+
+                <com.rosemaryapp.amazingspinner.AmazingSpinner
+                    android:id="@+id/project_village_spinner_project_creation"
+                    style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                    android:layout_width="match_parent"
+                    android:text=""
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="@color/black"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/project_village_missing"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/set_village_card"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="10dp"
+        android:visibility="gone"
+        android:layout_marginBottom="15dp"
+        android:text="Please Select Village Before Set"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold"
+        android:gravity="start" />
+
+    <Button
+        android:id="@+id/set_village_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="@font/roboto_condensed_bold"
+        android:text="SET"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>
