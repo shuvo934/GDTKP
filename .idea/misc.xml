@@ -31,6 +31,7 @@
         <entry key="app/src/main/res/layout/activity_show_in_map.xml" value="0.14868421052631578" />
         <entry key="app/src/main/res/layout/image_captured_view.xml" value="0.335" />
         <entry key="app/src/main/res/layout/image_view.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/project_details_view.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/project_info_creation_layout.xml" value="0.1569078947368421" />
         <entry key="app/src/main/res/layout/project_info_update_layout.xml" value="0.1569078947368421" />
         <entry key="app/src/main/res/layout/village_selection_dialogue_layout.xml" value="0.1569078947368421" />

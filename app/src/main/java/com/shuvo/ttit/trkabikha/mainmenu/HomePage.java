@@ -841,12 +841,20 @@ public class HomePage extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
-                        if (userType.equals("GUEST")) {
-                            finish();
-                        } else if (userType.equals("ADMIN")) {
-                            userInfoLists.clear();
-                            userInfoLists = new ArrayList<>();
-                            finish();
+                        switch (userType) {
+                            case "GUEST":
+                                finish();
+                                break;
+                            case "ADMIN":
+                                userInfoLists.clear();
+                                userInfoLists = new ArrayList<>();
+                                finish();
+                                break;
+                            case "PIC_USER":
+                                picUserDetails.clear();
+                                picUserDetails = new ArrayList<>();
+                                finish();
+                                break;
                         }
                     }
                 });
@@ -1705,66 +1713,130 @@ public class HomePage extends AppCompatActivity {
 
             if (userType.equals("PIC_USER")) {
                 int count = 0;
-                ResultSet resultSet = stmt.executeQuery("SELECT * FROM (\n" +
-                        "            SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
-                        "        SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
-                        "        TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
-                        "        PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
-                        "        PROJECT_CREATION_MST.PCM_USER,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJECT_DATE,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
-                        "        PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
-                        "        FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
-                        "        FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
-                        "        PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
-                        "        PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
-                        "        PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
-                        "        PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
-                        "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
-                        "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                        "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
-                        "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
-                        "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
-                        "    FROM\n" +
-                        "        PROJECT_CREATION_MST,\n" +
-                        "        PROJECT_CREATION_UPOZILA,\n" +
-                        "        PROJECT_CREATION_UNION,\n" +
-                        "        PROJECT_CREATION_VILLAGE,\n" +
-                        "        PROJECT_CREATION_WARD,\n" +
-                        "        FINANCIAL_YEAR,\n" +
-                        "        FUND_SOURCE_MST,\n" +
-                        "        PROJECT_TYPE_MST,\n" +
-                        "        PROJECT_TYPE_DTL,\n" +
-                        "        PROJECT_SANCTION_CATEGORY,\n" +
-                        "        PROJECT_CATEGORY_MST,\n" +
-                        "        PROJECT_CREATION_MST_GPS_DTL\n" +
-                        "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
-                        "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
-                        "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
-                        "        AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
-                        "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
-                        "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
-                        "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG = 1 \n" +
-                        "        AND PROJECT_CREATION_MST.PCM_USER = '"+pcmUser+"'\n" +
-                        "        AND (PROJECT_CREATION_MST.PCM_PTD_ID = "+ptd_Id+" OR "+ptd_Id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_MST.PCM_PTM_ID = "+ptm_id+" OR "+ptm_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_MST.PCM_FSM_ID = "+fsm_id+" OR "+fsm_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = "+ddu_id+" OR "+ddu_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = "+dd_id+" OR "+dd_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = "+dist_id+" OR "+dist_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = "+div_id+" OR "+div_id+" IS NULL )\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN "+fys_id+" AND "+fye_id+" ) p\n" +
-                        "    ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC )\n");
+                ResultSet resultSet;
+                if (pcmUser.equals("admin")) {
+                    resultSet = stmt.executeQuery("SELECT * FROM (\n" +
+                            "            SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
+                            "        SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_USER,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_DATE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
+                            "        PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
+                            "        FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
+                            "        FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
+                            "        PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
+                            "        PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
+                            "        PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
+                            "        PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
+                            "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
+                            "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
+                            "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
+                            "    FROM\n" +
+                            "        PROJECT_CREATION_MST,\n" +
+                            "        PROJECT_CREATION_UPOZILA,\n" +
+                            "        PROJECT_CREATION_UNION,\n" +
+                            "        PROJECT_CREATION_VILLAGE,\n" +
+                            "        PROJECT_CREATION_WARD,\n" +
+                            "        FINANCIAL_YEAR,\n" +
+                            "        FUND_SOURCE_MST,\n" +
+                            "        PROJECT_TYPE_MST,\n" +
+                            "        PROJECT_TYPE_DTL,\n" +
+                            "        PROJECT_SANCTION_CATEGORY,\n" +
+                            "        PROJECT_CATEGORY_MST,\n" +
+                            "        PROJECT_CREATION_MST_GPS_DTL\n" +
+                            "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
+                            "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
+                            "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
+                            "        AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
+                            "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
+                            "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
+                            "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG = 1 \n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_PTD_ID = "+ptd_Id+" OR "+ptd_Id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_PTM_ID = "+ptm_id+" OR "+ptm_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_FSM_ID = "+fsm_id+" OR "+fsm_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = "+ddu_id+" OR "+ddu_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = "+dd_id+" OR "+dd_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = "+dist_id+" OR "+dist_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = "+div_id+" OR "+div_id+" IS NULL )\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN "+fys_id+" AND "+fye_id+" ) p\n" +
+                            "    ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC )\n");
+                }
+                else {
+                    resultSet = stmt.executeQuery("SELECT * FROM (\n" +
+                            "            SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
+                            "        SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_USER,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_DATE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
+                            "        PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
+                            "        FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
+                            "        FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
+                            "        PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
+                            "        PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
+                            "        PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
+                            "        PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
+                            "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
+                            "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
+                            "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
+                            "    FROM\n" +
+                            "        PROJECT_CREATION_MST,\n" +
+                            "        PROJECT_CREATION_UPOZILA,\n" +
+                            "        PROJECT_CREATION_UNION,\n" +
+                            "        PROJECT_CREATION_VILLAGE,\n" +
+                            "        PROJECT_CREATION_WARD,\n" +
+                            "        FINANCIAL_YEAR,\n" +
+                            "        FUND_SOURCE_MST,\n" +
+                            "        PROJECT_TYPE_MST,\n" +
+                            "        PROJECT_TYPE_DTL,\n" +
+                            "        PROJECT_SANCTION_CATEGORY,\n" +
+                            "        PROJECT_CATEGORY_MST,\n" +
+                            "        PROJECT_CREATION_MST_GPS_DTL\n" +
+                            "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
+                            "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
+                            "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
+                            "        AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
+                            "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
+                            "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
+                            "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG = 1 \n" +
+                            "        AND PROJECT_CREATION_MST.PCM_USER = '" + pcmUser + "'\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_PTD_ID = " + ptd_Id + " OR " + ptd_Id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_PTM_ID = " + ptm_id + " OR " + ptm_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_FSM_ID = " + fsm_id + " OR " + fsm_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = " + ddu_id + " OR " + ddu_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = " + dd_id + " OR " + dd_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = " + dist_id + " OR " + dist_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = " + div_id + " OR " + div_id + " IS NULL )\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN " + fys_id + " AND " + fye_id + " ) p\n" +
+                            "    ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC )\n");
+                }
 
                 while (resultSet.next()) {
                     count++;
@@ -2043,66 +2115,130 @@ public class HomePage extends AppCompatActivity {
 
             if (userType.equals("PIC_USER")) {
                 int count = 0;
-                ResultSet resultSet = stmt.executeQuery("SELECT * FROM (\n" +
-                        "            SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
-                        "        SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
-                        "        TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
-                        "        PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
-                        "        PROJECT_CREATION_MST.PCM_USER,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJECT_DATE,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
-                        "        PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
-                        "        FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
-                        "        FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
-                        "        PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
-                        "        PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
-                        "        PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
-                        "        PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
-                        "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
-                        "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
-                        "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                        "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
-                        "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
-                        "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
-                        "    FROM\n" +
-                        "        PROJECT_CREATION_MST,\n" +
-                        "        PROJECT_CREATION_UPOZILA,\n" +
-                        "        PROJECT_CREATION_UNION,\n" +
-                        "        PROJECT_CREATION_VILLAGE,\n" +
-                        "        PROJECT_CREATION_WARD,\n" +
-                        "        FINANCIAL_YEAR,\n" +
-                        "        FUND_SOURCE_MST,\n" +
-                        "        PROJECT_TYPE_MST,\n" +
-                        "        PROJECT_TYPE_DTL,\n" +
-                        "        PROJECT_SANCTION_CATEGORY,\n" +
-                        "        PROJECT_CATEGORY_MST,\n" +
-                        "        PROJECT_CREATION_MST_GPS_DTL\n" +
-                        "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
-                        "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
-                        "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
-                        "        AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
-                        "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
-                        "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
-                        "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG = 1 \n" +
-                        "        AND PROJECT_CREATION_MST.PCM_USER = '"+pcmUser+"'\n" +
-                        "        AND (PROJECT_CREATION_MST.PCM_PTD_ID = "+ptd_Id+" OR "+ptd_Id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_MST.PCM_PTM_ID = "+ptm_id+" OR "+ptm_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_MST.PCM_FSM_ID = "+fsm_id+" OR "+fsm_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = "+ddu_id+" OR "+ddu_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = "+dd_id+" OR "+dd_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = "+dist_id+" OR "+dist_id+" IS NULL )\n" +
-                        "        AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = "+div_id+" OR "+div_id+" IS NULL )\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN "+fys_id+" AND "+fye_id+" ) p\n" +
-                        "    ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC )\n");
+                ResultSet resultSet;
+                if (pcmUser.equals("admin")) {
+                    resultSet = stmt.executeQuery("SELECT * FROM (\n" +
+                            "            SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
+                            "        SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_USER,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_DATE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
+                            "        PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
+                            "        FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
+                            "        FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
+                            "        PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
+                            "        PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
+                            "        PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
+                            "        PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
+                            "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
+                            "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
+                            "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
+                            "    FROM\n" +
+                            "        PROJECT_CREATION_MST,\n" +
+                            "        PROJECT_CREATION_UPOZILA,\n" +
+                            "        PROJECT_CREATION_UNION,\n" +
+                            "        PROJECT_CREATION_VILLAGE,\n" +
+                            "        PROJECT_CREATION_WARD,\n" +
+                            "        FINANCIAL_YEAR,\n" +
+                            "        FUND_SOURCE_MST,\n" +
+                            "        PROJECT_TYPE_MST,\n" +
+                            "        PROJECT_TYPE_DTL,\n" +
+                            "        PROJECT_SANCTION_CATEGORY,\n" +
+                            "        PROJECT_CATEGORY_MST,\n" +
+                            "        PROJECT_CREATION_MST_GPS_DTL\n" +
+                            "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
+                            "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
+                            "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
+                            "        AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
+                            "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
+                            "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
+                            "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG = 1 \n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_PTD_ID = "+ptd_Id+" OR "+ptd_Id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_PTM_ID = "+ptm_id+" OR "+ptm_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_FSM_ID = "+fsm_id+" OR "+fsm_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = "+ddu_id+" OR "+ddu_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = "+dd_id+" OR "+dd_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = "+dist_id+" OR "+dist_id+" IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = "+div_id+" OR "+div_id+" IS NULL )\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN "+fys_id+" AND "+fye_id+" ) p\n" +
+                            "    ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC )\n");
+                }
+                else {
+                    resultSet = stmt.executeQuery("SELECT * FROM (\n" +
+                            "            SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
+                            "        SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_USER,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJECT_DATE,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
+                            "        PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
+                            "        FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
+                            "        FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
+                            "        PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
+                            "        PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
+                            "        PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
+                            "        PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
+                            "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
+                            "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
+                            "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
+                            "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
+                            "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
+                            "    FROM\n" +
+                            "        PROJECT_CREATION_MST,\n" +
+                            "        PROJECT_CREATION_UPOZILA,\n" +
+                            "        PROJECT_CREATION_UNION,\n" +
+                            "        PROJECT_CREATION_VILLAGE,\n" +
+                            "        PROJECT_CREATION_WARD,\n" +
+                            "        FINANCIAL_YEAR,\n" +
+                            "        FUND_SOURCE_MST,\n" +
+                            "        PROJECT_TYPE_MST,\n" +
+                            "        PROJECT_TYPE_DTL,\n" +
+                            "        PROJECT_SANCTION_CATEGORY,\n" +
+                            "        PROJECT_CATEGORY_MST,\n" +
+                            "        PROJECT_CREATION_MST_GPS_DTL\n" +
+                            "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
+                            "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
+                            "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
+                            "        AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
+                            "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
+                            "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
+                            "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG = 1 \n" +
+                            "        AND PROJECT_CREATION_MST.PCM_USER = '" + pcmUser + "'\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_PTD_ID = " + ptd_Id + " OR " + ptd_Id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_PTM_ID = " + ptm_id + " OR " + ptm_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_MST.PCM_FSM_ID = " + fsm_id + " OR " + fsm_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = " + ddu_id + " OR " + ddu_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = " + dd_id + " OR " + dd_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = " + dist_id + " OR " + dist_id + " IS NULL )\n" +
+                            "        AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = " + div_id + " OR " + div_id + " IS NULL )\n" +
+                            "        AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN " + fys_id + " AND " + fye_id + " ) p\n" +
+                            "    ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC )\n");
+                }
 
                 while (resultSet.next()) {
 
@@ -2382,68 +2518,134 @@ public class HomePage extends AppCompatActivity {
 
             if (userType.equals("PIC_USER")) {
                 int count = 0;
-                ResultSet resultSet = stmt.executeQuery("SELECT * FROM (\n" +
-                        "                                SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
-                        "                            SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
-                        "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_USER,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
-                        "                            TO_CHAR(PROJECT_CREATION_MST.PCM_PROJECT_DATE,'DD-MON-RR') PCM_PROJECT_DATE,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
-                        "                            FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
-                        "                            FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
-                        "                            PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
-                        "                            PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
-                        "                            PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
-                        "                            PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
-                        "                            PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
-                        "                            PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                        "                            NULL, --PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
-                        "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
-                        "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE,\n" +
-                        "                            PROJECT_CREATION_MST.PCM_PSC_ID, PROJECT_CREATION_MST.PCM_PCM_ID\n" +
-                        "                        FROM\n" +
-                        "                            PROJECT_CREATION_MST,\n" +
-                        "                            PROJECT_CREATION_UPOZILA,\n" +
-                        "                            PROJECT_CREATION_UNION,\n" +
-                        "                            PROJECT_CREATION_VILLAGE,\n" +
-                        "                            PROJECT_CREATION_WARD,\n" +
-                        "                            FINANCIAL_YEAR,\n" +
-                        "                            FUND_SOURCE_MST,\n" +
-                        "                            PROJECT_TYPE_MST,\n" +
-                        "                            PROJECT_TYPE_DTL,\n" +
-                        "                            PROJECT_SANCTION_CATEGORY,\n" +
-                        "                            PROJECT_CATEGORY_MST--,\n" +
-                        "                            --PROJECT_CREATION_MST_GPS_DTL\n" +
-                        "                        WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
-                        "                            AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
-                        "                            AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
-                        "                            AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
-                        "                            AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
-                        "                            AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
-                        "                            AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
-                        "                            --AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID (+)\n" +
-                        "                            AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
-                        "                            AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
-                        "                            AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
-                        "                            AND (PROJECT_CREATION_MST.PCM_PROJ_SUBMISSION_FLAG_PIC is NULL OR PROJECT_CREATION_MST.PCM_PROJ_SUBMISSION_FLAG_PIC = 0)\n" +
-                        "                            AND PROJECT_CREATION_MST.PCM_USER = '"+pcmUser+"'\n" +
-                        "                            AND (PROJECT_CREATION_MST.PCM_PTD_ID = " + ptd_Id + " OR " + ptd_Id + " IS NULL )\n" +
-                        "                            AND (PROJECT_CREATION_MST.PCM_PTM_ID = " + ptm_id + " OR " + ptm_id + " IS NULL )\n" +
-                        "                            AND (PROJECT_CREATION_MST.PCM_FSM_ID = " + fsm_id + " OR " + fsm_id + " IS NULL )\n" +
-                        "                            AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = " + ddu_id + " OR " + ddu_id + " IS NULL )\n" +
-                        "                            AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = " + dd_id + " OR " + dd_id + " IS NULL )\n" +
-                        "                            AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = " + dist_id + " OR " + dist_id + " IS NULL )\n" +
-                        "                            AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = " + div_id + " OR " + div_id + " IS NULL )\n" +
-                        "                            AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN " + fys_id + " AND " + fye_id + " ) p\n" +
-                        "                        ORDER BY p.PCM_ID DESC )");
+                ResultSet resultSet;
+                if (pcmUser.equals("admin")) {
+                    resultSet = stmt.executeQuery("SELECT * FROM (\n" +
+                            "                                SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
+                            "                            SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
+                            "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_USER,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
+                            "                            TO_CHAR(PROJECT_CREATION_MST.PCM_PROJECT_DATE,'DD-MON-RR') PCM_PROJECT_DATE,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
+                            "                            FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
+                            "                            FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
+                            "                            PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
+                            "                            PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
+                            "                            PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
+                            "                            PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
+                            "                            PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
+                            "                            PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
+                            "                            NULL,--PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
+                            "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PSC_ID, PROJECT_CREATION_MST.PCM_PCM_ID\n" +
+                            "                        FROM\n" +
+                            "                            PROJECT_CREATION_MST,\n" +
+                            "                            PROJECT_CREATION_UPOZILA,\n" +
+                            "                            PROJECT_CREATION_UNION,\n" +
+                            "                            PROJECT_CREATION_VILLAGE,\n" +
+                            "                            PROJECT_CREATION_WARD,\n" +
+                            "                            FINANCIAL_YEAR,\n" +
+                            "                            FUND_SOURCE_MST,\n" +
+                            "                            PROJECT_TYPE_MST,\n" +
+                            "                            PROJECT_TYPE_DTL,\n" +
+                            "                            PROJECT_SANCTION_CATEGORY,\n" +
+                            "                            PROJECT_CATEGORY_MST--,\n" +
+                            "                            --PROJECT_CREATION_MST_GPS_DTL\n" +
+                            "                        WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
+                            "                            AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
+                            "                            AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
+                            "                            AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
+                            "                            --AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID (+)\n" +
+                            "                            AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
+                            "                            AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
+                            "                            AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
+                            "                            AND (PROJECT_CREATION_MST.PCM_PROJ_SUBMISSION_FLAG_PIC is NULL OR PROJECT_CREATION_MST.PCM_PROJ_SUBMISSION_FLAG_PIC = 0)\n" +
+                            "                            AND (PROJECT_CREATION_MST.PCM_PTD_ID = " + ptd_Id + " OR " + ptd_Id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_MST.PCM_PTM_ID = " + ptm_id + " OR " + ptm_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_MST.PCM_FSM_ID = " + fsm_id + " OR " + fsm_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = " + ddu_id + " OR " + ddu_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = " + dd_id + " OR " + dd_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = " + dist_id + " OR " + dist_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = " + div_id + " OR " + div_id + " IS NULL )\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN " + fys_id + " AND " + fye_id + " ) p\n" +
+                            "                        ORDER BY p.PCM_ID DESC )");
+                }
+                else {
+                    resultSet = stmt.executeQuery("SELECT * FROM (\n" +
+                            "                                SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.PCM_PROJECT_DATE DESC, p.PCM_ID DESC) as ROWNUMBER_ FROM ( \n" +
+                            "                            SELECT DISTINCT PROJECT_CREATION_MST.PCM_ID,\n" +
+                            "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'DD-MON-RR') ENTRY_DATE,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_INTERNAL_NO,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJECT_CODE,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_USER,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJECT_NAME,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJECT_NO,\n" +
+                            "                            TO_CHAR(PROJECT_CREATION_MST.PCM_PROJECT_DATE,'DD-MON-RR') PCM_PROJECT_DATE,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_NAME,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PIC_CHAIRMAN_DETAILS,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_ESTIMATE_PROJECT_VALUE,\n" +
+                            "                            FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME,\n" +
+                            "                            FUND_SOURCE_MST.FSM_FUND_NAME,\n" +
+                            "                            PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME,\n" +
+                            "                            PROJECT_TYPE_DTL.PTD_PROJECT_SUBTYPE_NAME,\n" +
+                            "                            PROJECT_SANCTION_CATEGORY.PSC_SANCTION_CAT_NAME,\n" +
+                            "                            PROJECT_CATEGORY_MST.PCM_CATEGORY_NAME,\n" +
+                            "                            PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
+                            "                            PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
+                            "                            NULL, --PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
+                            "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE,\n" +
+                            "                            PROJECT_CREATION_MST.PCM_PSC_ID, PROJECT_CREATION_MST.PCM_PCM_ID\n" +
+                            "                        FROM\n" +
+                            "                            PROJECT_CREATION_MST,\n" +
+                            "                            PROJECT_CREATION_UPOZILA,\n" +
+                            "                            PROJECT_CREATION_UNION,\n" +
+                            "                            PROJECT_CREATION_VILLAGE,\n" +
+                            "                            PROJECT_CREATION_WARD,\n" +
+                            "                            FINANCIAL_YEAR,\n" +
+                            "                            FUND_SOURCE_MST,\n" +
+                            "                            PROJECT_TYPE_MST,\n" +
+                            "                            PROJECT_TYPE_DTL,\n" +
+                            "                            PROJECT_SANCTION_CATEGORY,\n" +
+                            "                            PROJECT_CATEGORY_MST--,\n" +
+                            "                            --PROJECT_CREATION_MST_GPS_DTL\n" +
+                            "                        WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
+                            "                            AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
+                            "                            AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
+                            "                            AND PROJECT_TYPE_DTL.PTD_ID = PROJECT_CREATION_MST.PCM_PTD_ID\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
+                            "                            --AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID (+)\n" +
+                            "                            AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
+                            "                            AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
+                            "                            AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
+                            "                            AND (PROJECT_CREATION_MST.PCM_PROJ_SUBMISSION_FLAG_PIC is NULL OR PROJECT_CREATION_MST.PCM_PROJ_SUBMISSION_FLAG_PIC = 0)\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_USER = '" + pcmUser + "'\n" +
+                            "                            AND (PROJECT_CREATION_MST.PCM_PTD_ID = " + ptd_Id + " OR " + ptd_Id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_MST.PCM_PTM_ID = " + ptm_id + " OR " + ptm_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_MST.PCM_FSM_ID = " + fsm_id + " OR " + fsm_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_UNION.PCUN_DDU_ID = " + ddu_id + " OR " + ddu_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_UPOZILA.PCU_DD_ID = " + dd_id + " OR " + dd_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_UPOZILA.PCU_DIST_ID = " + dist_id + " OR " + dist_id + " IS NULL )\n" +
+                            "                            AND (PROJECT_CREATION_UPOZILA.PCU_DIV_ID = " + div_id + " OR " + div_id + " IS NULL )\n" +
+                            "                            AND PROJECT_CREATION_MST.PCM_FY_ID BETWEEN " + fys_id + " AND " + fye_id + " ) p\n" +
+                            "                        ORDER BY p.PCM_ID DESC )");
+                }
 
                 while (resultSet.next()) {
                     count++;
