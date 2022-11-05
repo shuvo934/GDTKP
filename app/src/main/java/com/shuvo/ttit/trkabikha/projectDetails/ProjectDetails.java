@@ -136,6 +136,8 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
 
     public static String URL_360 = "";
 
+    LinearLayout noMap;
+
 //    boolean enable = false;
 
     @Override
@@ -184,6 +186,9 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
         projectPic = findViewById(R.id.picture_show_button);
         pic360 = findViewById(R.id.three_sixty_image_show_button);
         pic360.setVisibility(View.GONE);
+
+        noMap = findViewById(R.id.no_map_layout);
+        noMap.setVisibility(View.GONE);
 
         commentLists = new ArrayList<>();
 
@@ -428,6 +433,7 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
         });
 
         if (locationListsDial.size() != 0) {
+            noMap.setVisibility(View.GONE);
             if (locationListsDial.size() == 1 ) {
                 LatLng latLng = new LatLng(Double.parseDouble(locationListsDial.get(0).getLatitude()),Double.parseDouble(locationListsDial.get(0).getLongitude()));
                 Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(P_NAME)
@@ -518,6 +524,9 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
                 }
 
             }
+        }
+        else {
+            noMap.setVisibility(View.VISIBLE);
         }
     }
 

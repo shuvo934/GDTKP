@@ -2,6 +2,7 @@ package com.shuvo.ttit.trkabikha.projects;
 
 import android.os.Bundle;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -21,12 +22,15 @@ public class Projects extends AppCompatActivity implements ProjectAdapter.Clicke
     ProjectAdapter projectAdapter;
     RecyclerView.LayoutManager layoutManager;
 
+    TextView totalProjects;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_projects);
 
         itemView = findViewById(R.id.project_details_report_view);
+        totalProjects = findViewById(R.id.total_projects_no_project);
 
         itemView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -43,6 +47,9 @@ public class Projects extends AppCompatActivity implements ProjectAdapter.Clicke
         animationAdapter.setInterpolator(new AccelerateDecelerateInterpolator());
         animationAdapter.setFirstOnly(false);
         itemView.setAdapter(animationAdapter);
+
+        String text = "Total " + projectlists.size() + " Projects";
+        totalProjects.setText(text);
 
     }
 

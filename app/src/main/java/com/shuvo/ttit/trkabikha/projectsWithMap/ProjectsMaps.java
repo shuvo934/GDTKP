@@ -15,7 +15,6 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -45,7 +44,6 @@ import com.google.maps.android.data.Layer;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonPolygonStyle;
-import com.google.maps.android.data.kml.KmlLayer;
 import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.adapter.ProjectMapAdapter;
 import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
@@ -76,6 +74,7 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
     RecyclerView itemView;
     ProjectMapAdapter projectMapAdapter;
     RecyclerView.LayoutManager layoutManager;
+    TextView totalProjects;
 
     ArrayList<MarkerData> markerData;
     ArrayList<PolyLindata> polyLindata;
@@ -119,6 +118,7 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
         selection = findViewById(R.id.spinnnnn_multi);
         projectCard = findViewById(R.id.project_card);
         imageView = findViewById(R.id.full_screen_changer_map_view);
+        totalProjects = findViewById(R.id.total_projects_number_projects_map);
 
         itemView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -171,6 +171,9 @@ public class ProjectsMaps extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
+
+        String text = "Total " + projectMapsLists.size() + " Projects";
+        totalProjects.setText(text);
     }
 
     /**

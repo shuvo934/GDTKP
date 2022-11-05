@@ -37,6 +37,20 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/total_projects_no_project"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_marginTop="10dp"
+        android:gravity="end"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:textStyle="bold"
+        android:textColor="@color/red_new"
+        android:textSize="15sp"
+        android:fontFamily="@font/cantora_one"/>
+
     <HorizontalScrollView
         android:id="@+id/horizontal_scroll_cva"
         android:layout_width="match_parent"

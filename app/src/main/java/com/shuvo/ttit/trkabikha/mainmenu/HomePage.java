@@ -1197,7 +1197,7 @@ public class HomePage extends AppCompatActivity {
                     startActivity(intent);
                 }
                 else {
-                    Toast.makeText(getApplicationContext(),"No Projects Found",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"No Project Found",Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -1275,7 +1275,7 @@ public class HomePage extends AppCompatActivity {
                     startActivity(intent);
                 }
                 else {
-                    Toast.makeText(getApplicationContext(),"No Results Found",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"No Project Found",Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -1348,7 +1348,7 @@ public class HomePage extends AppCompatActivity {
                     startActivity(intent);
                 }
                 else {
-                    Toast.makeText(getApplicationContext(),"No Results Found",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"No Project Found",Toast.LENGTH_SHORT).show();
                 }
 
                 conn = false;
@@ -1737,7 +1737,7 @@ public class HomePage extends AppCompatActivity {
                             "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
                             "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
                             "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                            "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "        NULL,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" + //PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG is NULL
                             "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
                             "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
                             "    FROM\n" +
@@ -1751,8 +1751,8 @@ public class HomePage extends AppCompatActivity {
                             "        PROJECT_TYPE_MST,\n" +
                             "        PROJECT_TYPE_DTL,\n" +
                             "        PROJECT_SANCTION_CATEGORY,\n" +
-                            "        PROJECT_CATEGORY_MST,\n" +
-                            "        PROJECT_CREATION_MST_GPS_DTL\n" +
+                            "        PROJECT_CATEGORY_MST--,\n" +
+                            "        --PROJECT_CREATION_MST_GPS_DTL\n" +
                             "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
                             "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
                             "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
@@ -1760,7 +1760,7 @@ public class HomePage extends AppCompatActivity {
                             "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
                             "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
                             "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
-                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
+                            "        --AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
                             "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
                             "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
                             "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
@@ -1798,7 +1798,7 @@ public class HomePage extends AppCompatActivity {
                             "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
                             "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
                             "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                            "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "        NULL,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" + //PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG is NULL
                             "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
                             "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
                             "    FROM\n" +
@@ -1812,8 +1812,8 @@ public class HomePage extends AppCompatActivity {
                             "        PROJECT_TYPE_MST,\n" +
                             "        PROJECT_TYPE_DTL,\n" +
                             "        PROJECT_SANCTION_CATEGORY,\n" +
-                            "        PROJECT_CATEGORY_MST,\n" +
-                            "        PROJECT_CREATION_MST_GPS_DTL\n" +
+                            "        PROJECT_CATEGORY_MST--,\n" +
+                            "        --PROJECT_CREATION_MST_GPS_DTL\n" +
                             "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
                             "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
                             "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
@@ -1821,7 +1821,7 @@ public class HomePage extends AppCompatActivity {
                             "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
                             "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
                             "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
-                            "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
+                            "        --AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
                             "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
                             "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
                             "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
@@ -1923,7 +1923,7 @@ public class HomePage extends AppCompatActivity {
                         "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
                         "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
                         "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                        "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                        "        NULL,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" + // PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG is NULL
                         "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
                         "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
                         "    FROM\n" +
@@ -1937,8 +1937,8 @@ public class HomePage extends AppCompatActivity {
                         "        PROJECT_TYPE_MST,\n" +
                         "        PROJECT_TYPE_DTL,\n" +
                         "        PROJECT_SANCTION_CATEGORY,\n" +
-                        "        PROJECT_CATEGORY_MST,\n" +
-                        "        PROJECT_CREATION_MST_GPS_DTL\n" +
+                        "        PROJECT_CATEGORY_MST--,\n" +
+                        "        --PROJECT_CREATION_MST_GPS_DTL\n" +
                         "    WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
                         "        AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
                         "        AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
@@ -1946,7 +1946,7 @@ public class HomePage extends AppCompatActivity {
                         "        AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
                         "        AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
                         "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
-                        "        AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
+                        "        --AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID\n" +
                         "        AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
                         "        AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
                         "        AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
@@ -2139,7 +2139,7 @@ public class HomePage extends AppCompatActivity {
                             "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
                             "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
                             "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                            "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "        NULL,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" + //PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG is NULL
                             "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
                             "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
                             "    FROM\n" +
@@ -2200,7 +2200,7 @@ public class HomePage extends AppCompatActivity {
                             "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
                             "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
                             "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                            "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                            "        NULL,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" + //PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG is NULL
                             "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
                             "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
                             "    FROM\n" +
@@ -2326,7 +2326,7 @@ public class HomePage extends AppCompatActivity {
                         "        PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
                         "        PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
                         "        PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                        "        PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                        "        NULL,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" + //PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG is NULL
                         "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
                         "        TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE\n" +
                         "    FROM\n" +
@@ -2724,7 +2724,7 @@ public class HomePage extends AppCompatActivity {
                         "                            PROJECT_CREATION_UNION.PCUN_DDU_ID,\n" +
                         "                            PROJECT_CREATION_UPOZILA.PCU_DD_ID,\n" +
                         "                            PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_REMARKS,\n" +
-                        "                            PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" +
+                        "                            NULL,PROJECT_CREATION_MST.PCM_PROJECT_DETAILS,\n" + //PROJECT_CREATION_MST_GPS_DTL.PCMGD_TYPE_FLAG is NULL
                         "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_START_DATE,'DD-MON-RR') START_DATE,\n" +
                         "                            TO_CHAR(PROJECT_CREATION_MST.PCM_ESTIMATE_END_DATE,'DD-MON-RR') END_DATE,PROJECT_CREATION_MST.PCM_PROJECT_SANCTION_TYPE,\n" +
                         "                            PROJECT_CREATION_MST.PCM_PSC_ID, PROJECT_CREATION_MST.PCM_PCM_ID\n" +
@@ -2739,8 +2739,8 @@ public class HomePage extends AppCompatActivity {
                         "                            PROJECT_TYPE_MST,\n" +
                         "                            PROJECT_TYPE_DTL,\n" +
                         "                            PROJECT_SANCTION_CATEGORY,\n" +
-                        "                            PROJECT_CATEGORY_MST,\n" +
-                        "                            PROJECT_CREATION_MST_GPS_DTL\n" +
+                        "                            PROJECT_CATEGORY_MST--,\n" +
+                        "                            --PROJECT_CREATION_MST_GPS_DTL\n" +
                         "                        WHERE FINANCIAL_YEAR.FY_ID = PROJECT_CREATION_MST.PCM_FY_ID\n" +
                         "                            AND FUND_SOURCE_MST.FSM_ID = PROJECT_CREATION_MST.PCM_FSM_ID\n" +
                         "                            AND PROJECT_TYPE_MST.PTM_ID = PROJECT_CREATION_MST.PCM_PTM_ID\n" +
@@ -2748,11 +2748,11 @@ public class HomePage extends AppCompatActivity {
                         "                            AND PROJECT_CREATION_MST.PCM_PSC_ID = PROJECT_SANCTION_CATEGORY.PSC_ID\n" +
                         "                            AND PROJECT_CREATION_MST.PCM_PCM_ID = PROJECT_CATEGORY_MST.PCM_ID\n" +
                         "                            AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_UPOZILA.PCU_PCM_ID\n" +
-                        "                            AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID (+)\n" +
+                        "                            --AND PROJECT_CREATION_MST.PCM_ID = PROJECT_CREATION_MST_GPS_DTL.PCMGD_PCM_ID (+)\n" +
                         "                            AND PROJECT_CREATION_UNION.PCUN_PCU_ID = PROJECT_CREATION_UPOZILA.PCU_ID\n" +
                         "                            AND PROJECT_CREATION_UNION.PCUN_ID = PROJECT_CREATION_WARD.PCW_PCUN_ID (+)\n" +
                         "                            AND PROJECT_CREATION_WARD.PCW_ID = PROJECT_CREATION_VILLAGE.PCV_PCW_ID (+)\n" +
-                        "                            AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG IS NULL\n" +
+                        "                            AND (PROJECT_CREATION_MST.PCM_PROJ_SUBMISSION_FLAG_PIC is NULL OR PROJECT_CREATION_MST.PCM_PROJ_SUBMISSION_FLAG_PIC = 0)\n" + //AND PROJECT_CREATION_MST.PCM_PROJ_EVALUATION_FLAG IS NULL
                         "                            AND (PROJECT_CREATION_MST.PCM_PTD_ID = " + ptd_Id + " OR " + ptd_Id + " IS NULL )\n" +
                         "                            AND (PROJECT_CREATION_MST.PCM_PTM_ID = " + ptm_id + " OR " + ptm_id + " IS NULL )\n" +
                         "                            AND (PROJECT_CREATION_MST.PCM_FSM_ID = " + fsm_id + " OR " + fsm_id + " IS NULL )\n" +
