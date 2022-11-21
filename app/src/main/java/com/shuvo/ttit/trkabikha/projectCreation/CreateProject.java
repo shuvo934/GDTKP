@@ -1,7 +1,6 @@
 package com.shuvo.ttit.trkabikha.projectCreation;
 
 import static com.shuvo.ttit.trkabikha.connection.OracleConnection.createConnection;
-import static com.shuvo.ttit.trkabikha.login.Login.userInfoLists;
 import static com.shuvo.ttit.trkabikha.login.PICLogin.picUserDetails;
 
 import androidx.annotation.NonNull;
@@ -84,7 +83,6 @@ import com.shuvo.ttit.trkabikha.adapter.ImageCapturedAdapter;
 import com.shuvo.ttit.trkabikha.adapter.SelectedVillageAdapter;
 import com.shuvo.ttit.trkabikha.adapter.SelectedWardAdapter;
 import com.shuvo.ttit.trkabikha.arraylist.ChoiceList;
-import com.shuvo.ttit.trkabikha.arraylist.DistrictLists;
 import com.shuvo.ttit.trkabikha.arraylist.FinancialYearLists;
 import com.shuvo.ttit.trkabikha.arraylist.ImageCapturedList;
 import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
@@ -94,14 +92,11 @@ import com.shuvo.ttit.trkabikha.arraylist.SelectedVillageList;
 import com.shuvo.ttit.trkabikha.arraylist.SelectedWardList;
 import com.shuvo.ttit.trkabikha.arraylist.SourceFundLists;
 import com.shuvo.ttit.trkabikha.arraylist.UnionLists;
-import com.shuvo.ttit.trkabikha.dialogue.ImageDialogue;
 import com.shuvo.ttit.trkabikha.dialogue.ImageDialoguePC;
 import com.shuvo.ttit.trkabikha.dialogue.SetVillageDialogue;
 import com.shuvo.ttit.trkabikha.dialogue.SetWardDialogue;
 import com.shuvo.ttit.trkabikha.gpxCreation.GpxCreationMap;
-import com.shuvo.ttit.trkabikha.mainmenu.HomePage;
 import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
-import com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -364,84 +359,81 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
 
         entryDate.setText(entry_date);
 
-        approvalDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeKeyBoard();
-                final Calendar c = Calendar.getInstance();
-                if(approval_date.isEmpty()) {
-                    mYear = c.get(Calendar.YEAR);
-                    mMonth = c.get(Calendar.MONTH);
-                    mDay = c.get(Calendar.DAY_OF_MONTH);
+        approvalDate.setOnClickListener(v -> {
+            closeKeyBoard();
+            final Calendar c = Calendar.getInstance();
+            if(approval_date.isEmpty()) {
+                mYear = c.get(Calendar.YEAR);
+                mMonth = c.get(Calendar.MONTH);
+                mDay = c.get(Calendar.DAY_OF_MONTH);
+            }
+            else {
+                SimpleDateFormat simpleDateFormat12 = new SimpleDateFormat("dd-MMM-yy",Locale.getDefault());
+                Date date12 = null;
+                try {
+                    date12 = simpleDateFormat12.parse(approval_date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
-                else {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.getDefault());
-                    Date date = null;
-                    try {
-                        date = simpleDateFormat.parse(approval_date);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    if (date != null) {
-                        c.setTime(date);
-                    }
-
-                    mYear = c.get(Calendar.YEAR);
-                    mMonth = c.get(Calendar.MONTH);
-                    mDay = c.get(Calendar.DAY_OF_MONTH);
+                if (date12 != null) {
+                    c.setTime(date12);
                 }
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(CreateProject.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                mYear = c.get(Calendar.YEAR);
+                mMonth = c.get(Calendar.MONTH);
+                mDay = c.get(Calendar.DAY_OF_MONTH);
+            }
 
-                            String monthName = "";
-                            String dayOfMonthName = "";
-                            String yearName = "";
-                            month = month + 1;
-                            if (month == 1) {
-                                monthName = "JAN";
-                            } else if (month == 2) {
-                                monthName = "FEB";
-                            } else if (month == 3) {
-                                monthName = "MAR";
-                            } else if (month == 4) {
-                                monthName = "APR";
-                            } else if (month == 5) {
-                                monthName = "MAY";
-                            } else if (month == 6) {
-                                monthName = "JUN";
-                            } else if (month == 7) {
-                                monthName = "JUL";
-                            } else if (month == 8) {
-                                monthName = "AUG";
-                            } else if (month == 9) {
-                                monthName = "SEP";
-                            } else if (month == 10) {
-                                monthName = "OCT";
-                            } else if (month == 11) {
-                                monthName = "NOV";
-                            } else if (month == 12) {
-                                monthName = "DEC";
-                            }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(CreateProject.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
-                            if (dayOfMonth <= 9) {
-                                dayOfMonthName = "0" + String.valueOf(dayOfMonth);
-                            } else {
-                                dayOfMonthName = String.valueOf(dayOfMonth);
-                            }
-                            yearName  = String.valueOf(year);
-                            yearName = yearName.substring(yearName.length()-2);
-                            System.out.println(yearName);
-                            System.out.println(dayOfMonthName);
-                            String a_d = dayOfMonthName + "-" + monthName + "-" + yearName;
-                            approvalDate.setText(a_d);
-                            approval_date = Objects.requireNonNull(approvalDate.getText()).toString();
+                        String monthName = "";
+                        String dayOfMonthName = "";
+                        String yearName = "";
+                        month = month + 1;
+                        if (month == 1) {
+                            monthName = "JAN";
+                        } else if (month == 2) {
+                            monthName = "FEB";
+                        } else if (month == 3) {
+                            monthName = "MAR";
+                        } else if (month == 4) {
+                            monthName = "APR";
+                        } else if (month == 5) {
+                            monthName = "MAY";
+                        } else if (month == 6) {
+                            monthName = "JUN";
+                        } else if (month == 7) {
+                            monthName = "JUL";
+                        } else if (month == 8) {
+                            monthName = "AUG";
+                        } else if (month == 9) {
+                            monthName = "SEP";
+                        } else if (month == 10) {
+                            monthName = "OCT";
+                        } else if (month == 11) {
+                            monthName = "NOV";
+                        } else if (month == 12) {
+                            monthName = "DEC";
                         }
-                    }, mYear, mMonth, mDay);
-                    datePickerDialog.show();
-                }
+
+                        if (dayOfMonth <= 9) {
+                            dayOfMonthName = "0" + String.valueOf(dayOfMonth);
+                        } else {
+                            dayOfMonthName = String.valueOf(dayOfMonth);
+                        }
+                        yearName  = String.valueOf(year);
+                        yearName = yearName.substring(yearName.length()-2);
+                        System.out.println(yearName);
+                        System.out.println(dayOfMonthName);
+                        String a_d = dayOfMonthName + "-" + monthName + "-" + yearName;
+                        approvalDate.setText(a_d);
+                        approval_date = Objects.requireNonNull(approvalDate.getText()).toString();
+                    }
+                }, mYear, mMonth, mDay);
+                datePickerDialog.show();
             }
         });
 
@@ -449,87 +441,116 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
             @Override
             public void onClick(View v) {
                 closeKeyBoard();
-                final Calendar c = Calendar.getInstance();
-                if(start_date.isEmpty()) {
-                    mYear = c.get(Calendar.YEAR);
-                    mMonth = c.get(Calendar.MONTH);
-                    mDay = c.get(Calendar.DAY_OF_MONTH);
+                String aD = Objects.requireNonNull(approvalDate.getText()).toString();
+                if (aD.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),"Please Select Approval Date First.",Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.getDefault());
-                    Date date = null;
-                    try {
-                        date = simpleDateFormat.parse(start_date);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                    final Calendar c = Calendar.getInstance();
+                    if(start_date.isEmpty()) {
+                        mYear = c.get(Calendar.YEAR);
+                        mMonth = c.get(Calendar.MONTH);
+                        mDay = c.get(Calendar.DAY_OF_MONTH);
                     }
-                    if (date != null) {
-                        c.setTime(date);
-                    }
-
-                    mYear = c.get(Calendar.YEAR);
-                    mMonth = c.get(Calendar.MONTH);
-                    mDay = c.get(Calendar.DAY_OF_MONTH);
-                }
-
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(CreateProject.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-
-                            String monthName = "";
-                            String dayOfMonthName = "";
-                            String yearName = "";
-                            month = month + 1;
-                            if (month == 1) {
-                                monthName = "JAN";
-                            } else if (month == 2) {
-                                monthName = "FEB";
-                            } else if (month == 3) {
-                                monthName = "MAR";
-                            } else if (month == 4) {
-                                monthName = "APR";
-                            } else if (month == 5) {
-                                monthName = "MAY";
-                            } else if (month == 6) {
-                                monthName = "JUN";
-                            } else if (month == 7) {
-                                monthName = "JUL";
-                            } else if (month == 8) {
-                                monthName = "AUG";
-                            } else if (month == 9) {
-                                monthName = "SEP";
-                            } else if (month == 10) {
-                                monthName = "OCT";
-                            } else if (month == 11) {
-                                monthName = "NOV";
-                            } else if (month == 12) {
-                                monthName = "DEC";
-                            }
-
-                            if (dayOfMonth <= 9) {
-                                dayOfMonthName = "0" + String.valueOf(dayOfMonth);
-                            } else {
-                                dayOfMonthName = String.valueOf(dayOfMonth);
-                            }
-                            yearName  = String.valueOf(year);
-                            yearName = yearName.substring(yearName.length()-2);
-                            System.out.println(yearName);
-                            System.out.println(dayOfMonthName);
-                            String s_d = dayOfMonthName + "-" + monthName + "-" + yearName;
-                            startDate.setText(s_d);
-                            start_date = Objects.requireNonNull(startDate.getText()).toString();
+                    else {
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.getDefault());
+                        Date date = null;
+                        try {
+                            date = simpleDateFormat.parse(start_date);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
                         }
-                    }, mYear, mMonth, mDay);
-                    datePickerDialog.show();
+                        if (date != null) {
+                            c.setTime(date);
+                        }
+
+                        mYear = c.get(Calendar.YEAR);
+                        mMonth = c.get(Calendar.MONTH);
+                        mDay = c.get(Calendar.DAY_OF_MONTH);
+                    }
+
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                        DatePickerDialog datePickerDialog = new DatePickerDialog(CreateProject.this, new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
+                                String monthName = "";
+                                String dayOfMonthName = "";
+                                String yearName = "";
+                                month = month + 1;
+                                if (month == 1) {
+                                    monthName = "JAN";
+                                } else if (month == 2) {
+                                    monthName = "FEB";
+                                } else if (month == 3) {
+                                    monthName = "MAR";
+                                } else if (month == 4) {
+                                    monthName = "APR";
+                                } else if (month == 5) {
+                                    monthName = "MAY";
+                                } else if (month == 6) {
+                                    monthName = "JUN";
+                                } else if (month == 7) {
+                                    monthName = "JUL";
+                                } else if (month == 8) {
+                                    monthName = "AUG";
+                                } else if (month == 9) {
+                                    monthName = "SEP";
+                                } else if (month == 10) {
+                                    monthName = "OCT";
+                                } else if (month == 11) {
+                                    monthName = "NOV";
+                                } else if (month == 12) {
+                                    monthName = "DEC";
+                                }
+
+                                if (dayOfMonth <= 9) {
+                                    dayOfMonthName = "0" + String.valueOf(dayOfMonth);
+                                } else {
+                                    dayOfMonthName = String.valueOf(dayOfMonth);
+                                }
+                                yearName  = String.valueOf(year);
+                                yearName = yearName.substring(yearName.length()-2);
+                                System.out.println(yearName);
+                                System.out.println(dayOfMonthName);
+                                String s_d = dayOfMonthName + "-" + monthName + "-" + yearName;
+                                start_date = s_d;
+                                Date sDate = null;
+                                Date aDate = null;
+
+                                SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+
+                                try {
+                                    sDate = sdf.parse(start_date);
+                                    aDate = sdf.parse(approval_date);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                if (sDate != null && aDate != null) {
+                                    if (sDate.after(aDate)) {
+                                        startDate.setText(s_d);
+                                        start_date = Objects.requireNonNull(startDate.getText()).toString();
+                                    }
+                                    else {
+                                        startDate.setText("");
+                                        start_date = "";
+                                        Toast.makeText(getApplicationContext(), "Project Start Date can not be before Approval Date!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }
+                        }, mYear, mMonth, mDay);
+                        datePickerDialog.show();
+                    }
                 }
             }
         });
 
-        endDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeKeyBoard();
+        endDate.setOnClickListener(v -> {
+            closeKeyBoard();
+            if (start_date.isEmpty()) {
+                Toast.makeText(getApplicationContext(),"Please Select Project Start Date First.",Toast.LENGTH_SHORT).show();
+            }
+            else {
                 final Calendar c = Calendar.getInstance();
                 if(end_date.isEmpty()) {
                     mYear = c.get(Calendar.YEAR);
@@ -537,15 +558,15 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                     mDay = c.get(Calendar.DAY_OF_MONTH);
                 }
                 else {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.getDefault());
-                    Date date = null;
+                    SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("dd-MMM-yy",Locale.getDefault());
+                    Date date1 = null;
                     try {
-                        date = simpleDateFormat.parse(end_date);
+                        date1 = simpleDateFormat1.parse(end_date);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                    if (date != null) {
-                        c.setTime(date);
+                    if (date1 != null) {
+                        c.setTime(date1);
                     }
 
                     mYear = c.get(Calendar.YEAR);
@@ -554,52 +575,72 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                 }
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(CreateProject.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(CreateProject.this, (view, year, month, dayOfMonth) -> {
 
-                            String monthName = "";
-                            String dayOfMonthName = "";
-                            String yearName = "";
-                            month = month + 1;
-                            if (month == 1) {
-                                monthName = "JAN";
-                            } else if (month == 2) {
-                                monthName = "FEB";
-                            } else if (month == 3) {
-                                monthName = "MAR";
-                            } else if (month == 4) {
-                                monthName = "APR";
-                            } else if (month == 5) {
-                                monthName = "MAY";
-                            } else if (month == 6) {
-                                monthName = "JUN";
-                            } else if (month == 7) {
-                                monthName = "JUL";
-                            } else if (month == 8) {
-                                monthName = "AUG";
-                            } else if (month == 9) {
-                                monthName = "SEP";
-                            } else if (month == 10) {
-                                monthName = "OCT";
-                            } else if (month == 11) {
-                                monthName = "NOV";
-                            } else if (month == 12) {
-                                monthName = "DEC";
-                            }
+                        String monthName = "";
+                        String dayOfMonthName = "";
+                        String yearName = "";
+                        month = month + 1;
+                        if (month == 1) {
+                            monthName = "JAN";
+                        } else if (month == 2) {
+                            monthName = "FEB";
+                        } else if (month == 3) {
+                            monthName = "MAR";
+                        } else if (month == 4) {
+                            monthName = "APR";
+                        } else if (month == 5) {
+                            monthName = "MAY";
+                        } else if (month == 6) {
+                            monthName = "JUN";
+                        } else if (month == 7) {
+                            monthName = "JUL";
+                        } else if (month == 8) {
+                            monthName = "AUG";
+                        } else if (month == 9) {
+                            monthName = "SEP";
+                        } else if (month == 10) {
+                            monthName = "OCT";
+                        } else if (month == 11) {
+                            monthName = "NOV";
+                        } else if (month == 12) {
+                            monthName = "DEC";
+                        }
 
-                            if (dayOfMonth <= 9) {
-                                dayOfMonthName = "0" + String.valueOf(dayOfMonth);
-                            } else {
-                                dayOfMonthName = String.valueOf(dayOfMonth);
+                        if (dayOfMonth <= 9) {
+                            dayOfMonthName = "0" + String.valueOf(dayOfMonth);
+                        } else {
+                            dayOfMonthName = String.valueOf(dayOfMonth);
+                        }
+                        yearName  = String.valueOf(year);
+                        yearName = yearName.substring(yearName.length()-2);
+                        System.out.println(yearName);
+                        System.out.println(dayOfMonthName);
+                        String e_d = dayOfMonthName + "-" + monthName + "-" + yearName;
+                        end_date = e_d;
+
+                        Date sDate = null;
+                        Date eDate = null;
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+
+                        try {
+                            sDate = sdf.parse(start_date);
+                            eDate = sdf.parse(end_date);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (sDate != null && eDate != null) {
+                            if (eDate.after(sDate)) {
+                                endDate.setText(e_d);
+                                end_date = Objects.requireNonNull(endDate.getText()).toString();
                             }
-                            yearName  = String.valueOf(year);
-                            yearName = yearName.substring(yearName.length()-2);
-                            System.out.println(yearName);
-                            System.out.println(dayOfMonthName);
-                            String e_d = dayOfMonthName + "-" + monthName + "-" + yearName;
-                            endDate.setText(e_d);
-                            end_date = Objects.requireNonNull(endDate.getText()).toString();
+                            else {
+                                endDate.setText("");
+                                end_date = "";
+                                Toast.makeText(getApplicationContext(), "Project End Date can not be before Project Start Date!", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }, mYear, mMonth, mDay);
                     datePickerDialog.show();
