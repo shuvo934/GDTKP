@@ -106,24 +106,24 @@ public class ProjectMapAdapter extends RecyclerView.Adapter<ProjectMapAdapter.PM
                     START_DATE = mCategoryItem.get(getAdapterPosition()).getProjectStartDate();
                     END_DATE = mCategoryItem.get(getAdapterPosition()).getProjectEndDate();
                     SUBMITTER = mCategoryItem.get(getAdapterPosition()).getPcmUser();
-                    String dateC = mCategoryItem.get(getAdapterPosition()).getPcmProjectDate().substring(0, 10);
-                    System.out.println(dateC);
-
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
-
-                    String formattedDate = "";
-                    Date date = null;
-
-                    try {
-                        date = df.parse(dateC);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    if (date != null) {
-                        formattedDate = sdf.format(date);
-                    }
-                    P_DATE = formattedDate;
+//                    String dateC = mCategoryItem.get(getAdapterPosition()).getPcmProjectDate().substring(0, 10);
+//                    System.out.println(dateC);
+//
+//                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+//                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+//
+//                    String formattedDate = "";
+//                    Date date = null;
+//
+//                    try {
+//                        date = df.parse(dateC);
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
+//                    if (date != null) {
+//                        formattedDate = sdf.format(date);
+//                    }
+                    P_DATE = mCategoryItem.get(getAdapterPosition()).getPcmProjectDate();
                     F_YEAR = mCategoryItem.get(getAdapterPosition()).getFyFinancialYearName();
                     String stype = mCategoryItem.get(getAdapterPosition()).getSanctionType();
                     String totalVal = "";

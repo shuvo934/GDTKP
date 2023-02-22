@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,7 +30,7 @@ public class ProjectUpdateAdapter extends RecyclerView.Adapter<ProjectUpdateAdap
 
     private ArrayList<ProjectUpdateLists> mCategoryItem;
     private final Context myContext;
-    private final ProjectAdapter.ClickedItem myClickedItem;
+    private final ClickedItem myClickedItem;
 
     public String INTERNAL_NO = "";
     public String P_NO = "";
@@ -55,11 +56,13 @@ public class ProjectUpdateAdapter extends RecyclerView.Adapter<ProjectUpdateAdap
     public String S_TYPE_ID = "";
     public String PSC_SANCTION_CAT_ID = "";
     public String PCM_CATEGORY_ID = "";
+    public Boolean IMAGE_DATA = false;
+    public String DISTANCE_METER = "";
     public static ArrayList<LocationLists> locationListsAdapterPU;
 
     int selectedPosition = -1 ;
 
-    public ProjectUpdateAdapter(ArrayList<ProjectUpdateLists> mCategoryItem, Context myContext, ProjectAdapter.ClickedItem myClickedItem) {
+    public ProjectUpdateAdapter(ArrayList<ProjectUpdateLists> mCategoryItem, Context myContext, ClickedItem myClickedItem) {
         this.mCategoryItem = mCategoryItem;
         this.myContext = myContext;
         this.myClickedItem = myClickedItem;
@@ -121,6 +124,20 @@ public class ProjectUpdateAdapter extends RecyclerView.Adapter<ProjectUpdateAdap
         holder.finanYear.setText(categoryItem.getFyFinancialYearName());
         holder.internalNo.setText(categoryItem.getPcmInternalNo());
 
+        if (categoryItem.isImageData()) {
+            holder.imageDataImage.setBackgroundResource(R.drawable.check_circle_24);
+        }
+        else {
+            holder.imageDataImage.setBackgroundResource(R.drawable.horizontal_rule_24);
+        }
+
+        if (categoryItem.isMapData()) {
+            holder.mapDataImage.setBackgroundResource(R.drawable.check_circle_24);
+        }
+        else {
+            holder.mapDataImage.setBackgroundResource(R.drawable.horizontal_rule_24);
+        }
+
         if (selectedPosition == position) {
             holder.linearLayout.setBackgroundColor(Color.parseColor("#dfe6e9"));
         } else {
@@ -145,11 +162,13 @@ public class ProjectUpdateAdapter extends RecyclerView.Adapter<ProjectUpdateAdap
         public TextView fundName;
         public TextView finanYear;
         public TextView internalNo;
+        public ImageView mapDataImage;
+        public ImageView imageDataImage;
 
         LinearLayout linearLayout;
-        ProjectAdapter.ClickedItem mClickedItem;
+        ClickedItem mClickedItem;
 
-        public PUAHolder(@NonNull View itemView, ProjectAdapter.ClickedItem ci) {
+        public PUAHolder(@NonNull View itemView, ClickedItem ci) {
             super(itemView);
             projectCount = itemView.findViewById(R.id.project_count);
             projectName = itemView.findViewById(R.id.project_name);
@@ -162,6 +181,8 @@ public class ProjectUpdateAdapter extends RecyclerView.Adapter<ProjectUpdateAdap
             finanYear = itemView.findViewById(R.id.financial_year);
             internalNo = itemView.findViewById(R.id.project_internal_no);
             linearLayout = itemView.findViewById(R.id.background_of_p_d);
+            mapDataImage = itemView.findViewById(R.id.map_data_checked_pic);
+            imageDataImage = itemView.findViewById(R.id.image_data_checked_pic);
 
             this.mClickedItem = ci;
             itemView.setOnClickListener(this);
@@ -230,6 +251,8 @@ public class ProjectUpdateAdapter extends RecyclerView.Adapter<ProjectUpdateAdap
                     locationListsAdapterPU = mCategoryItem.get(getAdapterPosition()).getLocationLists();
                     PSC_SANCTION_CAT_ID = mCategoryItem.get(getAdapterPosition()).getPscSanctionCatId();
                     PCM_CATEGORY_ID = mCategoryItem.get(getAdapterPosition()).getPcmCategoryId();
+                    IMAGE_DATA = mCategoryItem.get(getAdapterPosition()).isImageData();
+                    DISTANCE_METER = mCategoryItem.get(getAdapterPosition()).getDistanceMeter();
 
                     Intent intent = new Intent(myContext, ProjectEdit.class);
                     intent.putExtra("INTERNAL_NO", INTERNAL_NO);
@@ -256,6 +279,8 @@ public class ProjectUpdateAdapter extends RecyclerView.Adapter<ProjectUpdateAdap
                     intent.putExtra("S_TYPE_ID",S_TYPE_ID);
                     intent.putExtra("PSC_SANCTION_CAT_ID",PSC_SANCTION_CAT_ID);
                     intent.putExtra("PCM_CATEGORY_ID",PCM_CATEGORY_ID);
+                    intent.putExtra("IMAGE_DATA",IMAGE_DATA);
+                    intent.putExtra("DISTANCE_METER",DISTANCE_METER);
                     intent.putExtra("FROM_MAP",false);
                     activity.startActivity(intent);
 

@@ -1,14 +1,12 @@
 package com.shuvo.ttit.trkabikha.projectDetails;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -28,6 +26,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -49,15 +51,12 @@ import com.shuvo.ttit.trkabikha.projectPicture.ProjectPicture;
 import com.shuvo.ttit.trkabikha.threesixtyimage.ThreeSixtyImage;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.shuvo.ttit.trkabikha.adapter.ProjectAdapter.locationListsAdapter;
-import static com.shuvo.ttit.trkabikha.adapter.ProjectMapAdapter.locationListsMapAdapter;
-import static com.shuvo.ttit.trkabikha.connection.OracleConnection.createConnection;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -114,11 +113,8 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
     Boolean fullScreen = false;
 
     WaitProgress waitProgress = new WaitProgress();
-    private String message = null;
     private Boolean conn = false;
-    private Boolean connected = false;
 
-    private Connection connection;
 
     public static ArrayList<CommentList> commentLists;
 
@@ -198,11 +194,11 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
 
         FROM_MAP = intent.getBooleanExtra("FROM_MAP",false);
 
-        if (FROM_MAP) {
-            locationListsDial = locationListsMapAdapter;
-        } else {
-            locationListsDial = locationListsAdapter;
-        }
+//        if (FROM_MAP) {
+//            locationListsDial = locationListsMapAdapter;
+//        } else {
+//            locationListsDial = locationListsAdapter;
+//        }
 
         INTERNAL_NO = intent.getStringExtra("INTERNAL_NO");
         P_NO = intent.getStringExtra("P_NO");
@@ -327,7 +323,7 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
             }
         });
 
-        new CommentCheck().execute();
+//        new CommentCheck().execute();
     }
 
     /**
@@ -339,6 +335,7 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+    @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -432,18 +429,134 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
             }
         });
 
-        if (locationListsDial.size() != 0) {
-            noMap.setVisibility(View.GONE);
-            if (locationListsDial.size() == 1 ) {
-                LatLng latLng = new LatLng(Double.parseDouble(locationListsDial.get(0).getLatitude()),Double.parseDouble(locationListsDial.get(0).getLongitude()));
-                Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(P_NAME)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_36_2))
-                        .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE+
-                                "\nEstimated Value: " + ES_VAL + "\nFinancial Year: " + F_YEAR));
-                //markerData.add(new MarkerData(marker,pcmId,false));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+        getData();
+    }
+
+    public void getData() {
+
+        waitProgress.show(getSupportFragmentManager(), "WaitBar");
+        waitProgress.setCancelable(false);
+        conn = false;
+        available360 = false;
+
+        commentLists = new ArrayList<>();
+        locationListsDial = new ArrayList<>();
+
+        String comments_url = "http://103.56.208.123:8086/terrain/tr_kabikha/comments/getComments?pcm_id="+PCM_ID_PD;
+        String location_url = "http://103.56.208.123:8086/terrain/tr_kabikha/projects/projectLocation?pcm_id="+PCM_ID_PD;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(ProjectDetails.this);
+
+        StringRequest locationRequest = new StringRequest(Request.Method.GET, location_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject locationObject = jsonArray.getJSONObject(i);
+                        String pcmgd_latitude = locationObject.getString("pcmgd_latitude");
+                        String pcmgd_longitude = locationObject.getString("pcmgd_longitude");
+                        int segment = locationObject.getInt("segment");
+                        locationListsDial.add(new LocationLists(pcmgd_latitude,pcmgd_longitude,segment));
+
+                    }
+                }
+                conn = true;
+                updateUI();
+
+            } catch (JSONException e) {
+                conn = false;
+                updateUI();
+            }
+        }, error -> {
+            conn = false;
+            updateUI();
+        });
+
+        StringRequest commentRequest = new StringRequest(Request.Method.GET, comments_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject commentObject = jsonArray.getJSONObject(i);
+
+                        String pcof_id = commentObject.getString("pcof_id");
+                        String pcof_pcm_id = commentObject.getString("pcof_pcm_id");
+                        String pcof_submitter_name = commentObject.getString("pcof_submitter_name");
+                        String pcof_submitter_email = commentObject.getString("pcof_submitter_email");
+                        String pcof_submitter_message = commentObject.getString("pcof_submitter_message");
+                        String c_date = commentObject.getString("c_date");
+
+                        commentLists.add(new CommentList(pcof_id,pcof_pcm_id,pcof_submitter_name,
+                                pcof_submitter_email,pcof_submitter_message,c_date));
+                    }
+                }
+                requestQueue.add(locationRequest);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateUI();
+            }
+        }, error -> {
+            conn = false;
+            updateUI();
+        });
+
+        requestQueue.add(commentRequest);
+    }
+
+    public void updateUI() {
+        waitProgress.dismiss();
+        if (conn) {
+
+            if (commentLists.size() == 0) {
+                noCommentMsg.setVisibility(View.VISIBLE);
+                commLay.setVisibility(View.GONE);
+                showAllComm.setVisibility(View.GONE);
+            }
+            else if (commentLists.size() == 1) {
+                noCommentMsg.setVisibility(View.GONE);
+                commLay.setVisibility(View.VISIBLE);
+                int index = commentLists.size() - 1;
+                nameOfCommentator.setText(commentLists.get(index).getCommentator());
+                timeOfCommentator.setText(commentLists.get(index).getComment_time());
+                msgOfCommentator.setText(commentLists.get(index).getComment());
+                showAllComm.setVisibility(View.GONE);
             }
             else {
+                int index = commentLists.size() - 1;
+                noCommentMsg.setVisibility(View.GONE);
+                commLay.setVisibility(View.VISIBLE);
+                nameOfCommentator.setText(commentLists.get(index).getCommentator());
+                timeOfCommentator.setText(commentLists.get(index).getComment_time());
+                msgOfCommentator.setText(commentLists.get(index).getComment());
+                showAllComm.setVisibility(View.VISIBLE);
+            }
+
+            if (available360) {
+                pic360.setVisibility(View.VISIBLE);
+            } else {
+                pic360.setVisibility(View.GONE);
+            }
+
+            if (locationListsDial.size() != 0) {
+                noMap.setVisibility(View.GONE);
+                if (locationListsDial.size() == 1 ) {
+                    LatLng latLng = new LatLng(Double.parseDouble(locationListsDial.get(0).getLatitude()),Double.parseDouble(locationListsDial.get(0).getLongitude()));
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(P_NAME)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_36_2))
+                            .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE+
+                                    "\nEstimated Value: " + ES_VAL + "\nFinancial Year: " + F_YEAR));
+                    //markerData.add(new MarkerData(marker,pcmId,false));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+                }
+                else {
 
 
 //                PolylineOptions option = new PolylineOptions().width(16)
@@ -471,260 +584,94 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
 //                        .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE));
 //                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
 
-                int segment = 0;
-                for (int j = 0; j < locationListsDial.size(); j++) {
-                    if (locationListsDial.get(j).getSegment() > segment) {
-                        segment = locationListsDial.get(j).getSegment();
-                    }
-                }
-
-                for (int s = 0; s <= segment; s++) {
-                    int pointNumber = 0;
-                    LatLng point = null;
-                    PolylineOptions option = new PolylineOptions().width(16)
-                            .color(Color.BLACK)
-                            .geodesic(true).clickable(true);
-                    PolylineOptions option1 = new PolylineOptions().width(10)
-                            .color(Color.CYAN)
-                            .geodesic(true).clickable(true);
-
+                    int segment = 0;
                     for (int j = 0; j < locationListsDial.size(); j++) {
-
-                        if (s == locationListsDial.get(j).getSegment()) {
-                            pointNumber++;
-                            point = new LatLng(Double.parseDouble(locationListsDial.get(j).getLatitude()), Double.parseDouble(locationListsDial.get(j).getLongitude()));
-                            option.add(point);
-                            option1.add(point);
+                        if (locationListsDial.get(j).getSegment() > segment) {
+                            segment = locationListsDial.get(j).getSegment();
                         }
                     }
 
-                    if (pointNumber == 1) {
-                        Marker marker = mMap.addMarker(new MarkerOptions().position(point).title(P_NAME)
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_36_2))
-                                .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE+
-                                        "\nEstimated Value: " + ES_VAL + "\nFinancial Year: " + F_YEAR));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 17));
-                    }
-                    else if (pointNumber > 1) {
+                    for (int s = 0; s <= segment; s++) {
+                        int pointNumber = 0;
+                        LatLng point = null;
+                        PolylineOptions option = new PolylineOptions().width(16)
+                                .color(Color.BLACK)
+                                .geodesic(true).clickable(true);
+                        PolylineOptions option1 = new PolylineOptions().width(10)
+                                .color(Color.CYAN)
+                                .geodesic(true).clickable(true);
 
-                        Polyline polyline = mMap.addPolyline(option);
-                        Polyline polyline1 = mMap.addPolyline(option1);
+                        for (int j = 0; j < locationListsDial.size(); j++) {
 
-                        int a = polyline.getPoints().size()/2;
+                            if (s == locationListsDial.get(j).getSegment()) {
+                                pointNumber++;
+                                point = new LatLng(Double.parseDouble(locationListsDial.get(j).getLatitude()), Double.parseDouble(locationListsDial.get(j).getLongitude()));
+                                option.add(point);
+                                option1.add(point);
+                            }
+                        }
 
-                        LatLng latLng = new LatLng(polyline.getPoints().get(a).latitude,polyline.getPoints().get(a).longitude);
-                        Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(P_NAME)
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.transparent_circle))
-                                .anchor((float) 0.5,(float) 0.5)
-                                .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE+
-                                        "\nEstimated Value: " + ES_VAL + "\nFinancial Year: " + F_YEAR));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                        if (pointNumber == 1) {
+                            Marker marker = mMap.addMarker(new MarkerOptions().position(point).title(P_NAME)
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_36_2))
+                                    .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE+
+                                            "\nEstimated Value: " + ES_VAL + "\nFinancial Year: " + F_YEAR));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 17));
+                        }
+                        else if (pointNumber > 1) {
+
+                            Polyline polyline = mMap.addPolyline(option);
+                            Polyline polyline1 = mMap.addPolyline(option1);
+
+                            int a = polyline.getPoints().size()/2;
+
+                            LatLng latLng = new LatLng(polyline.getPoints().get(a).latitude,polyline.getPoints().get(a).longitude);
+                            Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(P_NAME)
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.transparent_circle))
+                                    .anchor((float) 0.5,(float) 0.5)
+                                    .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE+
+                                            "\nEstimated Value: " + ES_VAL + "\nFinancial Year: " + F_YEAR));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                        }
+
                     }
 
                 }
-
             }
+            else {
+                noMap.setVisibility(View.VISIBLE);
+            }
+            conn = false;
+
         }
         else {
-            noMap.setVisibility(View.VISIBLE);
-        }
-    }
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+            AlertDialog dialog = new AlertDialog.Builder(ProjectDetails.this)
+                    .setMessage("Please Check Your Internet Connection")
+                    .setPositiveButton("Retry", null)
+                    .setNegativeButton("Cancel",null)
+                    .show();
 
-    public boolean isConnected () {
-        boolean connected = false;
-        boolean isMobile = false;
-        try {
-            ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo nInfo = cm.getActiveNetworkInfo();
-            connected = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
-            return connected;
-        } catch (Exception e) {
-            Log.e("Connectivity Exception", e.getMessage());
-        }
-        return connected;
-    }
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-    public boolean isOnline () {
-
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    public class CommentCheck extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            waitProgress.show(getSupportFragmentManager(), "WaitBar");
-            waitProgress.setCancelable(false);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (isConnected() && isOnline()) {
-
-                CommentQuery();
-                if (connected) {
-                    conn = true;
-                    message = "Internet Connected";
+                    getData();
+                    dialog.dismiss();
                 }
+            });
 
-            } else {
-                conn = false;
-                message = "Not Connected";
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            waitProgress.dismiss();
-            if (conn) {
-
-
-
-                if (commentLists.size() == 0) {
-
-                    noCommentMsg.setVisibility(View.VISIBLE);
-                    commLay.setVisibility(View.GONE);
-                    showAllComm.setVisibility(View.GONE);
+            Button negative = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+            negative.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                    finish();
                 }
-                else if (commentLists.size() == 1) {
-                    noCommentMsg.setVisibility(View.GONE);
-                    commLay.setVisibility(View.VISIBLE);
-                    int index = commentLists.size() - 1;
-                    nameOfCommentator.setText(commentLists.get(index).getCommentator());
-                    timeOfCommentator.setText(commentLists.get(index).getComment_time());
-                    msgOfCommentator.setText(commentLists.get(index).getComment());
-                    showAllComm.setVisibility(View.GONE);
-                }
-                else if (commentLists.size() > 1) {
-                    int index = commentLists.size() - 1;
-                    noCommentMsg.setVisibility(View.GONE);
-                    commLay.setVisibility(View.VISIBLE);
-                    nameOfCommentator.setText(commentLists.get(index).getCommentator());
-                    timeOfCommentator.setText(commentLists.get(index).getComment_time());
-                    msgOfCommentator.setText(commentLists.get(index).getComment());
-                    showAllComm.setVisibility(View.VISIBLE);
-                }
-
-                if (available360) {
-                    pic360.setVisibility(View.VISIBLE);
-                } else {
-                    pic360.setVisibility(View.GONE);
-                }
-
-
-
-                conn = false;
-                connected = false;
-
-
-
-            } else {
-                Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                AlertDialog dialog = new AlertDialog.Builder(ProjectDetails.this)
-                        .setMessage("Please Check Your Internet Connection")
-                        .setPositiveButton("Retry", null)
-                        .setNegativeButton("Cancel",null)
-                        .show();
-
-                dialog.setCancelable(false);
-                dialog.setCanceledOnTouchOutside(false);
-                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                positive.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        new CommentCheck().execute();
-                        dialog.dismiss();
-                    }
-                });
-
-                Button negative = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                negative.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
-            }
-        }
-    }
-
-    public void CommentQuery() {
-        try {
-            this.connection = createConnection();
-
-
-            Statement stmt = connection.createStatement();
-
-            commentLists = new ArrayList<>();
-
-            ResultSet resultSet = stmt.executeQuery("select pcof_id, PCOF_PCM_ID, PCOF_SUBMITTER_NAME,PCOF_SUBMITTER_EMAIL,PCOF_SUBMITTER_MESSAGE,\n" +
-                    "TO_CHAR(PCOF_TIME, 'DD-MON-RR') as C_Date\n" +
-                    "from project_creation_online_feed \n" +
-                    "where pcof_pcm_id = "+PCM_ID_PD+"\n" +
-                    "and PCOF_APPROVAL_FLAG = 1\n" +
-                    "order by pcof_id --desc");
-
-            while (resultSet.next()) {
-
-
-                commentLists.add(new CommentList(resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),
-                        resultSet.getString(4),resultSet.getString(5),resultSet.getString(6)));
-            }
-
-            resultSet.close();
-
-            available360 = false;
-//            if (USERNAME_CONNECTION.equals("TR_KABIKHA")) {
-//
-//                available360 = false;
-//            } else {
-//                ResultSet resultSet1 = stmt.executeQuery("SELECT UD_DB_GENERATED_FILE_NAME, TO_CHAR(UD_DATE, 'DD-MON-RR'),UD_DOC_UPLOAD_STAGE \n" +
-//                        "                        FROM UPLOADED_DOCS WHERE NVL(UD_THREESIXTY_FLAG,0) = 1\n" +
-//                        "                        AND UD_PCM_ID = "+PCM_ID_PD+"");
-//
-//                while (resultSet1.next()) {
-//
-//                    URL_360 = "http://103.56.208.123:8863/assets/project_image/" +resultSet1.getString(1);
-//
-//                    if (URL_360.isEmpty()) {
-//                        available360 = false;
-//                    } else {
-//                        available360 = true;
-//                    }
-//                }
-//
-//                resultSet1.close();
-//            }
-
-
-            stmt.close();
-
-
-            connected = true;
-
-            connection.close();
-
-
-        } catch (Exception e) {
-            Log.i("ERRRRR", e.getLocalizedMessage());
-            e.printStackTrace();
+            });
         }
     }
 }

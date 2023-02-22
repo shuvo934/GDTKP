@@ -1,15 +1,15 @@
 package com.shuvo.ttit.trkabikha.dialogue;
 
-import static com.shuvo.ttit.trkabikha.connection.OracleConnection.createConnection;
 import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.selectedVillageAdapter;
 import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.selectedVillageLists;
 import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.selectedWardLists;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.app.Dialog;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +27,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputLayout;
 import com.rosemaryapp.amazingspinner.AmazingSpinner;
 import com.shuvo.ttit.trkabikha.R;
@@ -35,10 +39,11 @@ import com.shuvo.ttit.trkabikha.arraylist.SelectedVillageList;
 import com.shuvo.ttit.trkabikha.arraylist.SelectedWardList;
 import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 public class SetVillageDialogue extends AppCompatDialogFragment {
@@ -61,8 +66,6 @@ public class SetVillageDialogue extends AppCompatDialogFragment {
 
     WaitProgress waitProgress = new WaitProgress();
     private Boolean conn = false;
-    private Boolean connected = false;
-    private Connection connection;
 
     @NonNull
     @Override
@@ -127,7 +130,7 @@ public class SetVillageDialogue extends AppCompatDialogFragment {
                 }
                 System.out.println(ward_id);
 
-                new Check().execute();
+                getVillages();
 
             }
         });
@@ -181,144 +184,106 @@ public class SetVillageDialogue extends AppCompatDialogFragment {
         return alertDialog;
     }
 
-    public boolean isConnected() {
-        boolean connected = false;
-        boolean isMobile = false;
-        try {
-            ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo nInfo = cm.getActiveNetworkInfo();
-            connected = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
-            return connected;
-        } catch (Exception e) {
-            Log.e("Connectivity Exception", e.getMessage());
-        }
-        return connected;
-    }
+    public void getVillages() {
+        waitProgress.show(activity.getSupportFragmentManager(),"WaitBar");
+        waitProgress.setCancelable(false);
+        conn = false;
 
-    public boolean isOnline() {
-
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        }
-        catch (IOException | InterruptedException e)          { e.printStackTrace(); }
-
-        return false;
-    }
-
-    public class Check extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            waitProgress.show(activity.getSupportFragmentManager(),"WaitBar");
-            waitProgress.setCancelable(false);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (isConnected() && isOnline()) {
-
-                ItemData();
-                if (connected) {
-                    conn = true;
-                }
-
-            } else {
-                conn = false;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        villageLists = new ArrayList<>();
 
 
-            if (conn) {
+        String dist_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/village_lists?ward_id="+ward_id;
 
-                conn = false;
-                connected = false;
+        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
 
-                projectVillageLay.setEnabled(true);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, dist_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject villaObject = jsonArray.getJSONObject(i);
+                        String ddv_id = villaObject.getString("ddv_id");
+                        String ddw_village_name = villaObject.getString("ddw_village_name");
 
-                ArrayList<String> type = new ArrayList<>();
-                for(int i = 0; i < villageLists.size(); i++) {
-                    type.add(villageLists.get(i).getName());
-                }
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                        ddw_village_name = transformText(ddw_village_name);
 
-                projectVillage.setAdapter(arrayAdapter);
-
-                waitProgress.dismiss();
-
-            }else {
-                waitProgress.dismiss();
-                Toast.makeText(getContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                AlertDialog dialog;
-                dialog = new AlertDialog.Builder(getContext())
-                        .setMessage("Please Check Your Internet Connection")
-                        .setPositiveButton("Retry", null)
-                        .setNegativeButton("Cancel",null)
-                        .show();
-
-                dialog.setCancelable(false);
-                dialog.setCanceledOnTouchOutside(false);
-                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                positive.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        new Check().execute();
-                        dialog.dismiss();
+                        villageLists.add(new ChoiceList(ddv_id,ddw_village_name));
                     }
-                });
+                }
+                conn = true;
+                updateVillages();
 
-                Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                negative.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                        alertDialog.dismiss();
-
-                    }
-                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateVillages();
             }
-        }
+        }, error -> {
+            conn = false;
+            updateVillages();
+        });
+
+        requestQueue.add(stringRequest);
 
     }
 
-    public void ItemData() {
-        try {
-            this.connection = createConnection();
-            //    Toast.makeText(MainActivity.this, "Connected",Toast.LENGTH_SHORT).show();
+    public void updateVillages() {
+        if (conn) {
+            conn = false;
 
-            Statement stmt = connection.createStatement();
-            villageLists = new ArrayList<>();
+            projectVillageLay.setEnabled(true);
 
-            ResultSet resultSet = stmt.executeQuery("Select DDV_ID, DDW_VILLAGE_NAME from DISTRICT_DTL_VILLAGE WHERE DDV_DDW_ID = "+ward_id+"");
-
-            while (resultSet.next()) {
-                villageLists.add(new ChoiceList(resultSet.getString(1),resultSet.getString(2)));
+            ArrayList<String> type = new ArrayList<>();
+            for(int i = 0; i < villageLists.size(); i++) {
+                type.add(villageLists.get(i).getName());
             }
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
 
-            resultSet.close();
-            stmt.close();
+            projectVillage.setAdapter(arrayAdapter);
 
-            connected = true;
-
-            connection.close();
+            waitProgress.dismiss();
 
         }
-        catch (Exception e) {
+        else {
+            waitProgress.dismiss();
+            Toast.makeText(getContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+            AlertDialog dialog;
+            dialog = new AlertDialog.Builder(getContext())
+                    .setMessage("Please Check Your Internet Connection")
+                    .setPositiveButton("Retry", null)
+                    .setNegativeButton("Cancel",null)
+                    .show();
 
-            //   Toast.makeText(MainActivity.this, ""+e,Toast.LENGTH_LONG).show();
-            Log.i("ERRRRR", e.getLocalizedMessage());
-            e.printStackTrace();
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    getVillages();
+                    dialog.dismiss();
+                }
+            });
+
+            Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            negative.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    alertDialog.dismiss();
+
+                }
+            });
         }
+    }
+
+    //    --------------------------Transforming Bangla Text-----------------------------
+    private String transformText(String text) {
+        byte[] bytes = text.getBytes(ISO_8859_1);
+        return new String(bytes, UTF_8);
     }
 }

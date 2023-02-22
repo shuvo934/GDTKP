@@ -1,6 +1,7 @@
 package com.shuvo.ttit.trkabikha.login;
 
-import static com.shuvo.ttit.trkabikha.connection.OracleConnection.createConnection;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,10 +10,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +26,11 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
 import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.arraylist.PICUserDetails;
@@ -35,18 +38,21 @@ import com.shuvo.ttit.trkabikha.arraylist.UserDetails;
 import com.shuvo.ttit.trkabikha.mainmenu.HomePage;
 import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PICLogin extends AppCompatActivity {
 
@@ -234,7 +240,8 @@ public class PICLogin extends AppCompatActivity {
 
                 if (!userName.isEmpty() && !password.isEmpty()) {
 
-                    new CheckLogin().execute();
+//                    new CheckLogin().execute();
+                    getUser();
 
                 } else {
                     Toast.makeText(getApplicationContext(), "Please Give User Name and Password", Toast.LENGTH_SHORT).show();
@@ -309,235 +316,271 @@ public class PICLogin extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    public boolean isConnected () {
-        boolean connected = false;
-        boolean isMobile = false;
-        try {
-            ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo nInfo = cm.getActiveNetworkInfo();
-            connected = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
-            return connected;
-        } catch (Exception e) {
-            Log.e("Connectivity Exception", e.getMessage());
-        }
-        return connected;
-    }
+    public void getUser() {
+        waitProgress.show(getSupportFragmentManager(), "WaitBar");
+        waitProgress.setCancelable(false);
+        conn = false;
+        connected = false;
+        infoConnected = false;
 
-    public boolean isOnline () {
+        String get_pic_url = "http://103.56.208.123:8086/terrain/tr_kabikha/user_login/pic_user/"+userName+"/"+password;
+        picUserDetails = new ArrayList<>();
 
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        RequestQueue requestQueue = Volley.newRequestQueue(PICLogin.this);
 
-        return false;
-    }
+        StringRequest getUserRequest = new StringRequest(Request.Method.GET, get_pic_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    connected = true;
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject userInfo = array.getJSONObject(i);
+                        String usr_id = userInfo.getString("usr_id").equals("null") ? "" : userInfo.getString("usr_id");
+                        String usr_name = userInfo.getString("usr_name").equals("null") ? "" : userInfo.getString("usr_name");
+                        String usr_fname = userInfo.getString("usr_fname").equals("null") ? "" : userInfo.getString("usr_fname");
+                        String usr_lname = userInfo.getString("usr_lname").equals("null") ? "" : userInfo.getString("usr_lname");
+                        String usr_email = userInfo.getString("usr_email").equals("null") ? "" : userInfo.getString("usr_email");
+                        String usr_contact = userInfo.getString("usr_contact").equals("null") ? "" : userInfo.getString("usr_contact");
+                        String usr_emp_id = userInfo.getString("usr_emp_id").equals("null") ? "" : userInfo.getString("usr_emp_id");
+                        String usr_dist_id = userInfo.getString("usr_dist_id").equals("null") ? "" : userInfo.getString("usr_dist_id");
+                        String usr_dd_id = userInfo.getString("usr_dd_id").equals("null") ? "" : userInfo.getString("usr_dd_id");
+                        String usr_access_type = userInfo.getString("usr_access_type").equals("null") ? "" : userInfo.getString("usr_access_type");
+                        String dist_name = userInfo.getString("dist_name").equals("null") ? "" : userInfo.getString("dist_name");
+                        String thana_name = userInfo.getString("thana_name").equals("null") ? "" : userInfo.getString("thana_name");
 
-    public class CheckLogin extends AsyncTask<Void, Void, Void> {
+                        usr_name = transformText(usr_name);
+                        usr_fname = transformText(usr_fname);
+                        usr_lname = transformText(usr_lname);
+                        usr_email = transformText(usr_email);
+                        usr_contact = transformText(usr_contact);
+                        thana_name = transformText(thana_name);
+                        dist_name = transformText(dist_name);
+                        usr_access_type = transformText(usr_access_type);
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            waitProgress.show(getSupportFragmentManager(), "WaitBar");
-            waitProgress.setCancelable(false);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (isConnected() && isOnline()) {
-
-                LoginQuery();
-                if (connected) {
-                    conn = true;
+                        picUserDetails.add(new PICUserDetails(usr_id,usr_name, usr_fname, usr_lname,
+                                usr_email,usr_contact,usr_emp_id,usr_dist_id,
+                                usr_dd_id, usr_access_type,null,null,
+                                dist_name,thana_name));
+                    }
+                    if (picUserDetails.size() != 0) {
+                        updateNewRequest(picUserDetails.get(0).getDist_id());
+                    }
                 }
-
-            } else {
+                else {
+                    connected = false;
+                    Toast.makeText(getApplicationContext(),"Invalid User",Toast.LENGTH_SHORT).show();
+                    updateInterface();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
                 conn = false;
+                updateInterface();
+
             }
 
-            return null;
-        }
+        }, error -> {
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+            conn = false;
+            updateInterface();
+        });
+
+        requestQueue.add(getUserRequest);
 
 
-            if (conn) {
+    }
 
-                if (!userId.equals("-1")) {
-                    if (infoConnected) {
+    public void updateNewRequest(String dist_id) {
+        String get_div_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/div_from_dist?dist_id="+dist_id;
+        String login_log_url = "http://103.56.208.123:8086/terrain/tr_kabikha/user_login/login_log";
 
-                        if (checkBox.isChecked()) {
-                            System.out.println("Remembered");
-                            SharedPreferences.Editor editor = sharedpreferences.edit();
-                            editor.remove(user_emp_code);
-                            editor.remove(user_password);
-                            editor.remove(checked);
-                            editor.putString(user_emp_code,userName);
-                            editor.putString(user_password,password);
-                            editor.putBoolean(checked,true);
-                            editor.apply();
-                            editor.commit();
-                        } else {
-                            System.out.println("Not Remembered");
-                            SharedPreferences.Editor editor = sharedpreferences.edit();
-                            editor.remove(user_emp_code);
-                            editor.remove(user_password);
-                            editor.remove(checked);
+        RequestQueue requestQueue = Volley.newRequestQueue(PICLogin.this);
 
-                            editor.apply();
-                            editor.commit();
+        StringRequest loginLogReq = new StringRequest(Request.Method.POST, login_log_url, response -> {
+            try {
+                conn = true;
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                if (string_out.equals("Successfully Created")) {
+                    infoConnected = true;
+                    updateInterface();
+                }
+                else {
+                    infoConnected = false;
+                    updateInterface();
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateInterface();
+            }
+        }, error -> {
+
+            conn = false;
+            updateInterface();
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                String u_name = picUserDetails.get(0).getUserName();
+                String u_id = picUserDetails.get(0).getUser_id();
+                headers.put("P_IULL_USER_ID",u_name);
+                headers.put("P_IULL_CLIENT_HOST_NAME",brand+" "+model);
+                headers.put("P_IULL_CLIENT_IP_ADDR",ipAddress);
+                headers.put("P_IULL_CLIENT_HOST_USER_NAME",hostUserName);
+                headers.put("P_IULL_SESSION_USER_ID",u_id);
+                headers.put("P_IULL_OS_NAME",osName);
+                return headers;
+            }
+        };
+
+        StringRequest getDivPICRequest = new StringRequest(Request.Method.GET, get_div_url, response -> {
+            try {
+                conn = true;
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject divInfo = array.getJSONObject(i);
+                        String div_name = divInfo.getString("div_name");
+                        String div_id = divInfo.getString("div_id");
+                        if (div_name.equals("null")) {
+                            div_name = "";
+                        }
+                        if (div_id.equals("null")) {
+                            div_id = "";
                         }
 
+                        div_name = transformText(div_name);
 
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(PICLogin.this, HomePage.class);
-                                intent.putExtra("USER","PIC_USER");
-                                waitProgress.dismiss();
-                                startActivity(intent);
-                                finish();
-                            }
-                        }, 2000);
+                        System.out.println(div_id);
+                        System.out.println(div_name);
+                        picUserDetails.get(0).setDiv_id(div_id);
+                        picUserDetails.get(0).setDiv_name(div_name);
+                    }
+                }
+                else {
+                    picUserDetails.get(0).setDiv_id("");
+                    picUserDetails.get(0).setDiv_name("");
+                }
+                requestQueue.add(loginLogReq);
 
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            updateInterface();
+        });
 
+        requestQueue.add(getDivPICRequest);
+    }
+
+    public void updateInterface() {
+
+        if (conn) {
+            if (connected) {
+                if (infoConnected) {
+
+                    if (checkBox.isChecked()) {
+                        System.out.println("Remembered");
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.remove(user_emp_code);
+                        editor.remove(user_password);
+                        editor.remove(checked);
+                        editor.putString(user_emp_code,userName);
+                        editor.putString(user_password,password);
+                        editor.putBoolean(checked,true);
+                        editor.apply();
+                        editor.commit();
                     } else {
-                        waitProgress.dismiss();
-                        new CheckLogin().execute();
+                        System.out.println("Not Remembered");
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.remove(user_emp_code);
+                        editor.remove(user_password);
+                        editor.remove(checked);
+
+                        editor.apply();
+                        editor.commit();
                     }
 
-                } else {
-                    waitProgress.dismiss();
-                    login_failed.setVisibility(View.VISIBLE);
+
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(PICLogin.this, HomePage.class);
+                            intent.putExtra("USER","PIC_USER");
+                            waitProgress.dismiss();
+                            startActivity(intent);
+                            finish();
+                        }
+                    }, 2000);
+
                 }
-                conn = false;
-                connected = false;
-                infoConnected = false;
-
-            } else {
-
-                waitProgress.dismiss();
-                Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                AlertDialog dialog = new AlertDialog.Builder(PICLogin.this)
-                        .setMessage("Please Check Your Internet Connection")
-                        .setPositiveButton("Retry", null)
-                        .show();
+                else {
+                    waitProgress.dismiss();
+                    Toast.makeText(getApplicationContext(), "Failed to Get User", Toast.LENGTH_SHORT).show();
+                    AlertDialog dialog = new AlertDialog.Builder(PICLogin.this)
+                            .setMessage("System Failed to Get User, Please Try Again.")
+                            .setPositiveButton("Retry", null)
+                            .show();
 
 //                dialog.setCancelable(false);
 //                dialog.setCanceledOnTouchOutside(false);
-                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                positive.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    positive.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            getUser();
+                            dialog.dismiss();
+                        }
+                    });
+                }
 
-                        new CheckLogin().execute();
-                        dialog.dismiss();
-                    }
-                });
             }
+            else {
+                waitProgress.dismiss();
+                login_failed.setVisibility(View.VISIBLE);
+            }
+            conn = false;
+            connected = false;
+            infoConnected = false;
+
         }
+        else {
+            waitProgress.dismiss();
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+            AlertDialog dialog = new AlertDialog.Builder(PICLogin.this)
+                    .setMessage("Please Check Your Internet Connection")
+                    .setPositiveButton("Retry", null)
+                    .show();
+
+//                dialog.setCancelable(false);
+//                dialog.setCanceledOnTouchOutside(false);
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    getUser();
+                    dialog.dismiss();
+                }
+            });
+        }
+
     }
 
-    public void LoginQuery () {
-
-        try {
-            this.connection = createConnection();
-
-            picUserDetails = new ArrayList<>();
-
-            Statement stmt = connection.createStatement();
-
-            ResultSet rs = stmt.executeQuery("select VALIDATE_USER_DB('" + userName + "',HAMID_ENCRYPT_DESCRIPTION_PACK.HEDP_ENCRYPT('" + password + "')) val from dual\n");
-
-            while (rs.next()) {
-                userId = rs.getString(1);
-            }
-            rs.close();
-
-            if (!userId.equals("-1")) {
-
-                ResultSet resultSet = stmt.executeQuery("Select USR_NAME, USR_FNAME, USR_LNAME, USR_EMAIL, USR_CONTACT, USR_EMP_ID, \n" +
-                        "USR_DIST_ID,\n" +
-                        "USR_DD_ID,USR_ACCESS_TYPE,\n" +
-                        "(Select DIST_NAME FROM DISTRICT WHERE DIST_ID = USR_DIST_ID) DIST_NAME,\n" +
-                        "(Select DD_THANA_NAME FROM DISTRICT_DTL WHERE DD_ID = USR_DD_ID) THANA_NAME\n" +
-                        "FROM ISP_USER\n" +
-                        "WHERE USR_ID = "+userId+"");
-
-                while (resultSet.next()) {
-                    picUserDetails.add(new PICUserDetails(userId,resultSet.getString(1), resultSet.getString(2), resultSet.getString(3),
-                            resultSet.getString(4),resultSet.getString(5),resultSet.getString(6),resultSet.getString(7),
-                            resultSet.getString(8), resultSet.getString(9),null,null,
-                            resultSet.getString(10),resultSet.getString(11)));
-                }
-                resultSet.close();
-
-                ResultSet resultSet1 = stmt.executeQuery("Select div_name, div_id \n" +
-                            "from DIVISION,DISTRICT\n" +
-                            "where DIVISION.div_id = DISTRICT.DIST_DIV_ID \n" +
-                            "and DISTRICT.DIST_ID  = "+picUserDetails.get(0).getDist_id()+"\n" +
-                            "group by div_name, div_id ");
-                String div_id = "";
-                String div_name = "";
-                while (resultSet1.next()) {
-                    div_name = resultSet1.getString(1);
-                    div_id = resultSet1.getString(2);
-                }
-                resultSet1.close();
-
-                picUserDetails.get(0).setDiv_id(div_id);
-                picUserDetails.get(0).setDiv_name(div_name);
-
-                ResultSet resultSet2 = stmt.executeQuery("SELECT SYS_CONTEXT ('USERENV', 'SESSIONID') --INTO P_IULL_SESSION_ID\n" +
-                        "   FROM DUAL\n");
-
-                while (resultSet2.next()) {
-                    System.out.println("SESSION ID: "+ resultSet2.getString(1));
-                    sessionId = resultSet2.getString(1);
-                }
-
-                resultSet2.close();
-
-                String userName = picUserDetails.get(0).getUserName();
-
-                CallableStatement callableStatement1 = connection.prepareCall("{call USERLOGINDTL(?,?,?,?,?,?,?,?,?)}");
-                callableStatement1.setString(1,userName);
-                callableStatement1.setString(2, brand+" "+model);
-                callableStatement1.setString(3,ipAddress);
-                callableStatement1.setString(4,hostUserName);
-                callableStatement1.setInt(5,Integer.parseInt(userId));
-                callableStatement1.setInt(6,Integer.parseInt(sessionId));
-                callableStatement1.setString(7,"1");
-                callableStatement1.setString(8,osName);
-                callableStatement1.setInt(9,3);
-                callableStatement1.execute();
-
-                callableStatement1.close();
-
-                infoConnected = true;
-
-            }
-
-            stmt.close();
-
-            connected = true;
-
-            connection.close();
-
-        } catch (Exception e) {
-
-            //   Toast.makeText(MainActivity.this, ""+e,Toast.LENGTH_LONG).show();
-            Log.i("ERRRRR", e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-
+    //    --------------------------Transforming Bangla Text-----------------------------
+    private String transformText(String text) {
+        byte[] bytes = text.getBytes(ISO_8859_1);
+        return new String(bytes, UTF_8);
     }
 }

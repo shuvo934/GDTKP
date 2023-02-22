@@ -30,7 +30,7 @@ import java.util.ArrayList;
 
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 
-public class ProjectUpdate extends AppCompatActivity implements ProjectAdapter.ClickedItem {
+public class ProjectUpdate extends AppCompatActivity implements ProjectUpdateAdapter.ClickedItem {
 
     RecyclerView itemView;
     ProjectUpdateAdapter projectUpdateAdapter;

@@ -4,10 +4,12 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/cancel_24.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/check_circle_24.xml" value="0.1535" />
         <entry key="app/src/main/res/drawable/custom_button.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/done_24.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/fullscreen.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/fullscreen_exit.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/horizontal_rule_24.xml" value="0.1535" />
         <entry key="app/src/main/res/drawable/ic_baseline_account.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/ic_baseline_account_box.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/ic_baseline_camera_alt_24.xml" value="0.133" />
@@ -31,6 +33,7 @@
         <entry key="app/src/main/res/layout/activity_show_in_map.xml" value="0.14868421052631578" />
         <entry key="app/src/main/res/layout/image_captured_view.xml" value="0.335" />
         <entry key="app/src/main/res/layout/image_view.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/main_menu_toolbar.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/project_details_view.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/project_info_creation_layout.xml" value="0.1569078947368421" />
         <entry key="app/src/main/res/layout/project_info_update_layout.xml" value="0.1569078947368421" />

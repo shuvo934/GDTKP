@@ -1,6 +1,7 @@
 package com.shuvo.ttit.trkabikha.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PHOTOHOLDER>
     private final Context myContext;
 
     public static String urlFromPhotoAdapter = "";
+    public static Bitmap bitmapFromCompletedPhotoAdapter = null;
 
     public PhotoAdapter(ArrayList<PhotoList> mCategoryItem, Context myContext) {
         this.mCategoryItem = mCategoryItem;
@@ -48,6 +50,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PHOTOHOLDER>
                 public void onClick(View view) {
                     AppCompatActivity activity = (AppCompatActivity) view.getContext();
                     urlFromPhotoAdapter = mCategoryItem.get(getAdapterPosition()).getPhotoName();
+                    bitmapFromCompletedPhotoAdapter = mCategoryItem.get(getAdapterPosition()).getImage();
                     PicDialogue picDialogue = new PicDialogue();
                     picDialogue.show(activity.getSupportFragmentManager(),"PICTURE");
                 }
@@ -69,7 +72,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PHOTOHOLDER>
 
         holder.uploadDate.setText(categoryItem.getUploadDate());
         holder.stage.setText(categoryItem.getStage());
-        Glide.with(myContext).load(categoryItem.getPhotoName()).error(R.drawable.loading_error).placeholder(R.drawable.loading).into(holder.imageView);
+//        Glide.with(myContext)
+//                .load(categoryItem.getImage())
+//                .error(R.drawable.loading_error)
+//                .placeholder(R.drawable.loading)
+//                .into(holder.imageView);
+        Glide.with(myContext).load(categoryItem.getPhotoName()).error(categoryItem.getImage()).placeholder(R.drawable.loading).into(holder.imageView);
 
     }
 

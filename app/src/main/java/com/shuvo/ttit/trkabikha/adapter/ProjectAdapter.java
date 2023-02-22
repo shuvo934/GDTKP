@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -50,7 +51,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.PRAHolde
     public String PIC_DET = "";
     public String EVAL = "";
     public String PCM_ID = "";
-    public static ArrayList<LocationLists> locationListsAdapter;
+//    public static ArrayList<LocationLists> locationListsAdapter;
 
     int selectedPosition = -1 ;
 
@@ -74,6 +75,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.PRAHolde
         public TextView fundName;
         public TextView finanYear;
         public TextView internalNo;
+        public ImageView mapDataImage;
+        public ImageView imageDataImage;
 
         LinearLayout linearLayout;
         ClickedItem mClickedItem;
@@ -91,6 +94,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.PRAHolde
             finanYear = itemView.findViewById(R.id.financial_year);
             internalNo = itemView.findViewById(R.id.project_internal_no);
             linearLayout = itemView.findViewById(R.id.background_of_p_d);
+            mapDataImage = itemView.findViewById(R.id.map_data_checked_pic);
+            imageDataImage = itemView.findViewById(R.id.image_data_checked_pic);
 
             this.mClickedItem = ci;
             itemView.setOnClickListener(this);
@@ -101,7 +106,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.PRAHolde
                 public void onClick(View view) {
                     AppCompatActivity activity = (AppCompatActivity) view.getContext();
 
-                    locationListsAdapter = new ArrayList<>();
+//                    locationListsAdapter = new ArrayList<>();
 
                     INTERNAL_NO = mCategoryItem.get(getAdapterPosition()).getPcmInternalNo();
                     P_NO = mCategoryItem.get(getAdapterPosition()).getPcmProjectNo();
@@ -112,24 +117,24 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.PRAHolde
                     START_DATE = mCategoryItem.get(getAdapterPosition()).getProjectStartDate();
                     END_DATE = mCategoryItem.get(getAdapterPosition()).getProjectEndDate();
                     SUBMITTER = mCategoryItem.get(getAdapterPosition()).getPcmUser();
-                    String dateC = mCategoryItem.get(getAdapterPosition()).getPcmProjectDate().substring(0, 10);
-                    System.out.println(dateC);
-
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
-
-                    String formattedDate = "";
-                    Date date = null;
-
-                    try {
-                        date = df.parse(dateC);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    if (date != null) {
-                        formattedDate = sdf.format(date);
-                    }
-                    P_DATE = formattedDate;
+//                    String dateC = mCategoryItem.get(getAdapterPosition()).getPcmProjectDate().substring(0, 10);
+//                    System.out.println(dateC);
+//
+//                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+//                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+//
+//                    String formattedDate = "";
+//                    Date date = null;
+//
+//                    try {
+//                        date = df.parse(dateC);
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
+//                    if (date != null) {
+//                        formattedDate = sdf.format(date);
+//                    }
+                    P_DATE = mCategoryItem.get(getAdapterPosition()).getPcmProjectDate();
                     F_YEAR = mCategoryItem.get(getAdapterPosition()).getFyFinancialYearName();
                     String stype = mCategoryItem.get(getAdapterPosition()).getSanctionType();
                     String totalVal = "";
@@ -151,10 +156,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.PRAHolde
                     P_TYPE = mCategoryItem.get(getAdapterPosition()).getProjectTypeName() +" > " + mCategoryItem.get(getAdapterPosition()).getProjectSubTypeName();
                     F_NAME = mCategoryItem.get(getAdapterPosition()).getFsmFundName();
                     SANC_CAT = mCategoryItem.get(getAdapterPosition()).getPscSanctionCatName();
-                    PIC_DET = mCategoryItem.get(getAdapterPosition()).getPcmPicChairmanName() + mCategoryItem.get(getAdapterPosition()).getPcmPicChairmanDetails();
+                    PIC_DET = mCategoryItem.get(getAdapterPosition()).getPcmPicChairmanName() +"<br>"+ mCategoryItem.get(getAdapterPosition()).getPcmPicChairmanDetails();
                     EVAL = mCategoryItem.get(getAdapterPosition()).getProjEvaluationRem();
                     PCM_ID = mCategoryItem.get(getAdapterPosition()).getPcmId();
-                    locationListsAdapter = mCategoryItem.get(getAdapterPosition()).getLocationLists();
+//                    locationListsAdapter = mCategoryItem.get(getAdapterPosition()).getLocationLists();
 
                     Intent intent = new Intent(myContext, ProjectDetails.class);
                     intent.putExtra("INTERNAL_NO", INTERNAL_NO);
@@ -214,24 +219,24 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.PRAHolde
         holder.projectName.setText(categoryItem.getPcmProjectName());
         holder.projectNo.setText(categoryItem.getPcmProjectNo());
         holder.projectCode.setText(categoryItem.getPcmProjectCode());
-        String dateC = categoryItem.getPcmProjectDate().substring(0, 10);
-        System.out.println(dateC);
-
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
-
-        String formattedDate = "";
-        Date date = null;
-
-        try {
-            date = df.parse(dateC);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        if (date != null) {
-            formattedDate = sdf.format(date);
-        }
-        holder.projectDate.setText(formattedDate);
+//        String dateC = categoryItem.getPcmProjectDate().substring(0, 10);
+//        System.out.println(dateC);
+//
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+//
+//        String formattedDate = "";
+//        Date date = null;
+//
+//        try {
+//            date = df.parse(dateC);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        if (date != null) {
+//            formattedDate = sdf.format(date);
+//        }
+        holder.projectDate.setText(categoryItem.getPcmProjectDate());
         String stype = categoryItem.getSanctionType();
         if (stype.contains("Taka")) {
             DecimalFormat formatter = new DecimalFormat("##,##,##,###");
@@ -253,6 +258,20 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.PRAHolde
         holder.fundName.setText(categoryItem.getFsmFundName());
         holder.finanYear.setText(categoryItem.getFyFinancialYearName());
         holder.internalNo.setText(categoryItem.getPcmInternalNo());
+
+        if (categoryItem.isImageData()) {
+            holder.imageDataImage.setBackgroundResource(R.drawable.check_circle_24);
+        }
+        else {
+            holder.imageDataImage.setBackgroundResource(R.drawable.horizontal_rule_24);
+        }
+
+        if (categoryItem.isMapData()) {
+            holder.mapDataImage.setBackgroundResource(R.drawable.check_circle_24);
+        }
+        else {
+            holder.mapDataImage.setBackgroundResource(R.drawable.horizontal_rule_24);
+        }
 
         if (selectedPosition == position) {
             holder.linearLayout.setBackgroundColor(Color.parseColor("#dfe6e9"));

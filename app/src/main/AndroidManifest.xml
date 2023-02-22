@@ -30,6 +30,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TRKABIKHA"
         android:usesCleartextTraffic="true"
+        android:largeHeap="true"
         tools:targetApi="n">
         <activity
             android:name=".login.PICLogin"

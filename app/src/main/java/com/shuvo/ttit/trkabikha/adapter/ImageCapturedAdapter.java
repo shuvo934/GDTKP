@@ -1,6 +1,7 @@
 package com.shuvo.ttit.trkabikha.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,12 +9,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.arraylist.ChoiceList;
 import com.shuvo.ttit.trkabikha.arraylist.ImageCapturedList;
+import com.shuvo.ttit.trkabikha.dialogue.PhotoDialogueExtra;
 
 import java.util.ArrayList;
 
@@ -22,6 +25,8 @@ public class ImageCapturedAdapter extends RecyclerView.Adapter<ImageCapturedAdap
     private final Context context;
     private ArrayList<ImageCapturedList> categoryLists;
     private final ClickedItem myClickedItem;
+
+    public static Bitmap bitmapFromCapturedPhotoAdapter = null;
 
     public ImageCapturedAdapter(Context context, ArrayList<ImageCapturedList> categoryLists, ClickedItem myClickedItem) {
         this.context = context;
@@ -92,6 +97,16 @@ public class ImageCapturedAdapter extends RecyclerView.Adapter<ImageCapturedAdap
                 public void onClick(View view) {
                     categoryLists.remove(getAdapterPosition());
                     notifyDataSetChanged();
+                }
+            });
+
+            imageCapture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                    bitmapFromCapturedPhotoAdapter = categoryLists.get(getAdapterPosition()).getBitmap();
+                    PhotoDialogueExtra photoDialoguePE = new PhotoDialogueExtra();
+                    photoDialoguePE.show(activity.getSupportFragmentManager(),"PICTURE_3");
                 }
             });
 

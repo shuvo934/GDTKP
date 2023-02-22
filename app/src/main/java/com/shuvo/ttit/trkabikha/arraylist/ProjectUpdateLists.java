@@ -32,11 +32,14 @@ public class ProjectUpdateLists {
     private String sanctionType_id;
     private String pscSanctionCatId;
     private String pcmCategoryId;
+    private boolean mapData;
+    private boolean imageData;
+    private String distanceMeter;
     private String rowNumber;
     private String count;
     private ArrayList<LocationLists> locationLists;
 
-    public ProjectUpdateLists(String pcmId, String pcmEntryDate, String pcmInternalNo, String pcmProjectCode, String pcmUser, String pcmProjectName, String pcmProjectNo, String pcmProjectDate, String pcmPicChairmanName, String pcmPicChairmanDetails, String pcmEstimateProjectValue, String fyFinancialYearName, String fsmFundName, String projectTypeName, String projectSubTypeName, String pscSanctionCatName, String pcmCategoryName, String dduId, String ddId, String projEvaluationRem, String pcmgdTypeFlag, String projectDetails, String projectStartDate, String projectEndDate, String sanctionType, String sanctionType_id, String pscSanctionCatId, String pcmCategoryId, String rowNumber, String count, ArrayList<LocationLists> locationLists) {
+    public ProjectUpdateLists(String pcmId, String pcmEntryDate, String pcmInternalNo, String pcmProjectCode, String pcmUser, String pcmProjectName, String pcmProjectNo, String pcmProjectDate, String pcmPicChairmanName, String pcmPicChairmanDetails, String pcmEstimateProjectValue, String fyFinancialYearName, String fsmFundName, String projectTypeName, String projectSubTypeName, String pscSanctionCatName, String pcmCategoryName, String dduId, String ddId, String projEvaluationRem, String pcmgdTypeFlag, String projectDetails, String projectStartDate, String projectEndDate, String sanctionType, String sanctionType_id, String pscSanctionCatId, String pcmCategoryId, boolean mapData, boolean imageData, String distanceMeter, String rowNumber, String count, ArrayList<LocationLists> locationLists) {
         this.pcmId = pcmId;
         this.pcmEntryDate = pcmEntryDate;
         this.pcmInternalNo = pcmInternalNo;
@@ -65,6 +68,9 @@ public class ProjectUpdateLists {
         this.sanctionType_id = sanctionType_id;
         this.pscSanctionCatId = pscSanctionCatId;
         this.pcmCategoryId = pcmCategoryId;
+        this.mapData = mapData;
+        this.imageData = imageData;
+        this.distanceMeter = distanceMeter;
         this.rowNumber = rowNumber;
         this.count = count;
         this.locationLists = locationLists;
@@ -316,5 +322,29 @@ public class ProjectUpdateLists {
 
     public void setPcmCategoryId(String pcmCategoryId) {
         this.pcmCategoryId = pcmCategoryId;
+    }
+
+    public boolean isMapData() {
+        return mapData;
+    }
+
+    public void setMapData(boolean mapData) {
+        this.mapData = mapData;
+    }
+
+    public boolean isImageData() {
+        return imageData;
+    }
+
+    public void setImageData(boolean imageData) {
+        this.imageData = imageData;
+    }
+
+    public String getDistanceMeter() {
+        return distanceMeter;
+    }
+
+    public void setDistanceMeter(String distanceMeter) {
+        this.distanceMeter = distanceMeter;
     }
 }

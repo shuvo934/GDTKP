@@ -1,7 +1,9 @@
 package com.shuvo.ttit.trkabikha.projectCreation;
 
-import static com.shuvo.ttit.trkabikha.connection.OracleConnection.createConnection;
 import static com.shuvo.ttit.trkabikha.login.PICLogin.picUserDetails;
+
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,6 +61,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -92,11 +99,17 @@ import com.shuvo.ttit.trkabikha.arraylist.SelectedVillageList;
 import com.shuvo.ttit.trkabikha.arraylist.SelectedWardList;
 import com.shuvo.ttit.trkabikha.arraylist.SourceFundLists;
 import com.shuvo.ttit.trkabikha.arraylist.UnionLists;
+import com.shuvo.ttit.trkabikha.connection.retrofit.ApiClient;
+import com.shuvo.ttit.trkabikha.connection.retrofit.ProjectResponse;
 import com.shuvo.ttit.trkabikha.dialogue.ImageDialoguePC;
 import com.shuvo.ttit.trkabikha.dialogue.SetVillageDialogue;
 import com.shuvo.ttit.trkabikha.dialogue.SetWardDialogue;
 import com.shuvo.ttit.trkabikha.gpxCreation.GpxCreationMap;
 import com.shuvo.ttit.trkabikha.progressbar.WaitProgress;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -112,9 +125,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CreateProject extends AppCompatActivity implements ImageCapturedAdapter.ClickedItem, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -198,14 +217,10 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
 
     WaitProgress waitProgress = new WaitProgress();
     private Boolean conn = false;
-    private Boolean connected = false;
+
     boolean firstStage = false;
     boolean secondStage = false;
     boolean thirdStage = false;
-    boolean fourthStage = false;
-    boolean fifthStage = false;
-
-    Connection connection;
 
     Button imageCaptureButton;
     private GoogleApiClient googleApiClient;
@@ -251,6 +266,11 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
     public static Button addWaypoint_pc;
     public static Button addTrack_pc;
 
+    private int numberOfLocationRequestsToMake;
+    private boolean hasLocationRequestFailed = false;
+
+    private int numberOfRequestsToMake;
+    private boolean hasRequestFailed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -773,7 +793,8 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                 System.out.println(name);
                 System.out.println(source_of_fund_id);
 
-                new ProjectTypeCheck().execute();
+//                new ProjectTypeCheck().execute();
+                getProjectType();
 
             }
         });
@@ -803,7 +824,8 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                 System.out.println(name);
                 System.out.println(project_type_id);
 
-                new ProjectSubTypeCheck().execute();
+//                new ProjectSubTypeCheck().execute();
+                getProjectSubType();
 
             }
         });
@@ -1006,7 +1028,8 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                                                                                                 @Override
                                                                                                 public void onClick(DialogInterface dialog, int which) {
 
-                                                                                                    new InsertProjectCheck().execute();
+//                                                                                                    new InsertProjectCheck().execute();
+                                                                                                    postProjectInformation(creationRequest());
                                                                                                 }
                                                                                             })
                                                                                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -1026,7 +1049,8 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                                                                                                 @Override
                                                                                                 public void onClick(DialogInterface dialog, int which) {
 
-                                                                                                    new InsertProjectCheck().execute();
+//                                                                                                    new InsertProjectCheck().execute();
+                                                                                                    postProjectInformation(creationRequest());
                                                                                                 }
                                                                                             })
                                                                                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -1046,7 +1070,8 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                                                                                                 @Override
                                                                                                 public void onClick(DialogInterface dialog, int which) {
 
-                                                                                                    new InsertProjectCheck().execute();
+//                                                                                                    new InsertProjectCheck().execute();
+                                                                                                    postProjectInformation(creationRequest());
                                                                                                 }
                                                                                             })
                                                                                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -1066,7 +1091,8 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                                                                                                 @Override
                                                                                                 public void onClick(DialogInterface dialog, int which) {
 
-                                                                                                    new InsertProjectCheck().execute();
+//                                                                                                    new InsertProjectCheck().execute();
+                                                                                                    postProjectInformation(creationRequest());
                                                                                                 }
                                                                                             })
                                                                                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -1234,7 +1260,8 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
             }
         }
         else {
-            new DataCheck().execute();
+//            new DataCheck().execute();
+            getData();
         }
 
     }
@@ -1550,37 +1577,37 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
             // TODO Auto-generated catch block
             e.printStackTrace();
             address = "Address Not Found";
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    public boolean isConnected () {
-        boolean connected = false;
-        boolean isMobile = false;
-        try {
-            ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo nInfo = cm.getActiveNetworkInfo();
-            connected = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
-            return connected;
-        } catch (Exception e) {
-            Log.e("Connectivity Exception", e.getMessage());
-        }
-        return connected;
-    }
-
-    public boolean isOnline () {
-
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
+//    public boolean isConnected () {
+//        boolean connected = false;
+//        boolean isMobile = false;
+//        try {
+//            ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+//            NetworkInfo nInfo = cm.getActiveNetworkInfo();
+//            connected = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
+//            return connected;
+//        } catch (Exception e) {
+//            Log.e("Connectivity Exception", e.getMessage());
+//        }
+//        return connected;
+//    }
+//
+//    public boolean isOnline () {
+//
+//        Runtime runtime = Runtime.getRuntime();
+//        try {
+//            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+//            int exitValue = ipProcess.waitFor();
+//            return (exitValue == 0);
+//        } catch (IOException | InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return false;
+//    }
 
     @Override
     public void onCategoryClicked(int CategoryPosition) {
@@ -1602,337 +1629,943 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
 
     }
 
-    public class DataCheck extends AsyncTask<Void, Void, Void> {
+    // ----------------------Getting Necessary Data----------------------
+    public void getData() {
+        waitProgress.show(getSupportFragmentManager(), "WaitBar");
+        waitProgress.setCancelable(false);
+        conn = false;
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        sanctionCatLists = new ArrayList<>();
+        sanctionSubCatLists = new ArrayList<>();
+        sourceFundLists = new ArrayList<>();
+        financialYearLists = new ArrayList<>();
+        unionLists = new ArrayList<>();
 
-            waitProgress.show(getSupportFragmentManager(), "WaitBar");
-            waitProgress.setCancelable(false);
-        }
+        String sanc_cat_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/sanction_cat_lists";
+        String pcm_cat_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/pcm_category_lists";
+        String fy_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/fy_lists";
+        String fund_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/source_of_fund_lists";
+        String union_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/union_lists?dd_id="+dd_id;
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (isConnected() && isOnline()) {
+        RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
 
-                DataQuery();
-                if (connected) {
-                    conn = true;
+        StringRequest unionRequest = new StringRequest(Request.Method.GET, union_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject unionObject = jsonArray.getJSONObject(i);
+                        String pcun_ddu_id = unionObject.getString("pcun_ddu_id");
+                        String ddu_union_name = unionObject.getString("ddu_union_name");
+
+                        ddu_union_name = transformText(ddu_union_name);
+
+                        unionLists.add(new UnionLists(pcun_ddu_id,ddu_union_name));
+
+                    }
                 }
+                conn = true;
+                updateUI();
 
-            } else {
+            } catch (JSONException e) {
+                e.printStackTrace();
                 conn = false;
+                updateUI();
+            }
+        }, error -> {
+            conn = false;
+            updateUI();
+        });
+
+        StringRequest fundRequest = new StringRequest(Request.Method.GET, fund_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject fundObject = jsonArray.getJSONObject(i);
+                        String p_fsm_id = fundObject.getString("p_fsm_id");
+                        String fsm_fund_name = fundObject.getString("fsm_fund_name");
+
+                        fsm_fund_name = transformText(fsm_fund_name);
+
+                        sourceFundLists.add(new SourceFundLists(p_fsm_id,fsm_fund_name));
+                    }
+                }
+                requestQueue.add(unionRequest);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateUI();
+            }
+        }, error -> {
+            conn = false;
+            updateUI();
+        });
+
+        StringRequest fyRequest = new StringRequest(Request.Method.GET, fy_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject fyObject = jsonArray.getJSONObject(i);
+                        String p_fy_id = fyObject.getString("p_fy_id");
+                        String fy_financial_year_name = fyObject.getString("fy_financial_year_name");
+                        String fy_from_year = fyObject.getString("fy_from_year");
+                        String fy_to_year = fyObject.getString("fy_to_year");
+                        String fy_details = fyObject.getString("fy_details");
+                        String fy_active_flag = fyObject.getString("fy_active_flag");
+
+                        financialYearLists.add(new FinancialYearLists(p_fy_id,fy_financial_year_name,fy_from_year,
+                                fy_to_year,fy_details,fy_active_flag));
+                    }
+                }
+                requestQueue.add(fundRequest);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateUI();
+            }
+        }, error -> {
+            conn = false;
+            updateUI();
+        });
+
+        StringRequest pcmCatRequest = new StringRequest(Request.Method.GET, pcm_cat_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject pcmCatObject = jsonArray.getJSONObject(i);
+                        String pcm_id = pcmCatObject.getString("pcm_id");
+                        String pcm_category_name = pcmCatObject.getString("pcm_category_name");
+                        pcm_category_name = transformText(pcm_category_name);
+
+                        sanctionSubCatLists.add(new ChoiceList(pcm_id,pcm_category_name));
+                    }
+                }
+                requestQueue.add(fyRequest);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateUI();
+            }
+        }, error -> {
+            conn = false;
+            updateUI();
+        });
+
+        StringRequest sancCatRequest = new StringRequest(Request.Method.GET, sanc_cat_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject sancCatObject = jsonArray.getJSONObject(i);
+                        String psc_id = sancCatObject.getString("psc_id");
+                        String psc_sanction_cat_name = sancCatObject.getString("psc_sanction_cat_name");
+                        psc_sanction_cat_name = transformText(psc_sanction_cat_name);
+
+                        sanctionCatLists.add(new ChoiceList(psc_id,psc_sanction_cat_name));
+                    }
+                }
+                requestQueue.add(pcmCatRequest);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateUI();
+            }
+        }, error -> {
+            conn = false;
+            updateUI();
+        });
+
+        requestQueue.add(sancCatRequest);
+    }
+
+    private void updateUI() {
+        waitProgress.dismiss();
+        if (conn) {
+
+            conn = false;
+
+            ArrayList<String> type = new ArrayList<>();
+            for(int i = 0; i < sanctionCatLists.size(); i++) {
+                type.add(sanctionCatLists.get(i).getName());
+            }
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+
+            sanctionCat.setAdapter(arrayAdapter);
+
+            ArrayList<String> type1 = new ArrayList<>();
+            for(int i = 0; i < sanctionSubCatLists.size(); i++) {
+                type1.add(sanctionSubCatLists.get(i).getName());
+            }
+            ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
+
+            sanctionSubCat.setAdapter(arrayAdapter1);
+
+            ArrayList<String> type2 = new ArrayList<>();
+            for(int i = 0; i < financialYearLists.size(); i++) {
+                type2.add(financialYearLists.get(i).getFinancialYearName());
+            }
+            ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type2);
+
+            financialYear.setAdapter(arrayAdapter2);
+
+            ArrayList<String> type3 = new ArrayList<>();
+            for(int i = 0; i < sourceFundLists.size(); i++) {
+                type3.add(sourceFundLists.get(i).getFundName());
+            }
+            ArrayAdapter<String> arrayAdapter3 = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type3);
+
+            sourceOfFund.setAdapter(arrayAdapter3);
+
+            if (dd_id != null) {
+                if (!dd_id.isEmpty()) {
+                    ArrayList<String> type7 = new ArrayList<>();
+                    for(int i = 0; i < unionLists.size(); i++) {
+                        type7.add(unionLists.get(i).getUnionName());
+                    }
+                    ArrayAdapter<String> arrayAdapter7 = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type7);
+
+                    projectUnion.setAdapter(arrayAdapter7);
+                }
             }
 
-            return null;
+            try {
+                gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                System.out.println(gps_enabled);
+                Log.i("GPS", String.valueOf(gps_enabled));
+            } catch(Exception ex) {
+                ex.printStackTrace();
+            }
+
+            try {
+                network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                System.out.println(network_enabled);
+                Log.i("Network", String.valueOf(network_enabled));
+            } catch(Exception ex) {
+                ex.printStackTrace();
+            }
+
+            if(!gps_enabled && !network_enabled) {
+                System.out.println(gps_enabled);
+                Log.i("GPS1", String.valueOf(gps_enabled));
+                Log.i("Network1", String.valueOf(network_enabled));
+                System.out.println(network_enabled);
+                // notify user
+                enableGPS();
+
+            }
+            else {
+                //Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT).show();
+                if (ActivityCompat.checkSelfPermission(CreateProject.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(CreateProject.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                fusedLocationProviderClientCamera.requestLocationUpdates(locationRequestCamera, locationCallbackCamera, Looper.getMainLooper());
+                System.out.println("RESUMED");
+            }
+
+        } else {
+            AlertDialog dialog = new AlertDialog.Builder(CreateProject.this)
+                    .setMessage("Please Check Your Internet Connection")
+                    .setPositiveButton("Retry", null)
+                    .setNegativeButton("EXIT",null)
+                    .show();
+
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    getData();
+                    dialog.dismiss();
+                }
+            });
+
+            Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            negative.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    finish();
+
+                }
+            });
+        }
+    }
+
+    // ----------------------Getting Project Types Data and Updating UI----------------------
+    public void getProjectType() {
+        waitProgress.show(getSupportFragmentManager(), "WaitBar");
+        waitProgress.setCancelable(false);
+        conn = false;
+
+        projectTypeLists = new ArrayList<>();
+
+        if (source_of_fund_id == null) {
+            source_of_fund_id = "";
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        String p_type_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/modified_project_type_lists?fsm_id="+source_of_fund_id;
 
-            waitProgress.dismiss();
-            if (conn) {
+        RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
 
-                conn = false;
-                connected = false;
+        StringRequest projectTypeRequest = new StringRequest(Request.Method.GET, p_type_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject pTypeObject = jsonArray.getJSONObject(i);
+                        String ptm_id = pTypeObject.getString("ptm_id");
+                        String ptm_project_type_name = pTypeObject.getString("ptm_project_type_name");
 
-                ArrayList<String> type = new ArrayList<>();
-                for(int i = 0; i < sanctionCatLists.size(); i++) {
-                    type.add(sanctionCatLists.get(i).getName());
-                }
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                        ptm_project_type_name = transformText(ptm_project_type_name);
 
-                sanctionCat.setAdapter(arrayAdapter);
-
-                ArrayList<String> type1 = new ArrayList<>();
-                for(int i = 0; i < sanctionSubCatLists.size(); i++) {
-                    type1.add(sanctionSubCatLists.get(i).getName());
-                }
-                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
-
-                sanctionSubCat.setAdapter(arrayAdapter1);
-
-                ArrayList<String> type2 = new ArrayList<>();
-                for(int i = 0; i < financialYearLists.size(); i++) {
-                    type2.add(financialYearLists.get(i).getFinancialYearName());
-                }
-                ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type2);
-
-                financialYear.setAdapter(arrayAdapter2);
-
-                ArrayList<String> type3 = new ArrayList<>();
-                for(int i = 0; i < sourceFundLists.size(); i++) {
-                    type3.add(sourceFundLists.get(i).getFundName());
-                }
-                ArrayAdapter<String> arrayAdapter3 = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type3);
-
-                sourceOfFund.setAdapter(arrayAdapter3);
-
-                if (dd_id != null) {
-                    if (!dd_id.isEmpty()) {
-                        ArrayList<String> type7 = new ArrayList<>();
-                        for(int i = 0; i < unionLists.size(); i++) {
-                            type7.add(unionLists.get(i).getUnionName());
-                        }
-                        ArrayAdapter<String> arrayAdapter7 = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type7);
-
-                        projectUnion.setAdapter(arrayAdapter7);
+                        projectTypeLists.add(new ProjectTypeLists(ptm_id,ptm_project_type_name));
                     }
                 }
 
-                try {
-                    gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                    System.out.println(gps_enabled);
-                    Log.i("GPS", String.valueOf(gps_enabled));
-                } catch(Exception ex) {
-                    ex.printStackTrace();
+                conn = true;
+                updateProjectType();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateProjectType();
+            }
+        }, error -> {
+            conn = false;
+            updateProjectType();
+        });
+
+        requestQueue.add(projectTypeRequest);
+
+    }
+
+    private void updateProjectType() {
+        waitProgress.dismiss();
+        if (conn) {
+
+            if (projectTypeLists.size() != 0) {
+                projectTypeLay.setEnabled(true);
+            }
+            ArrayList<String> type = new ArrayList<>();
+            for(int i = 0; i < projectTypeLists.size(); i++) {
+                type.add(projectTypeLists.get(i).getProjectTypeName());
+            }
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+
+            projectType.setAdapter(arrayAdapter);
+
+            conn = false;
+
+        } else {
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+            AlertDialog dialog = new AlertDialog.Builder(CreateProject.this)
+                    .setMessage("Please Check Your Internet Connection")
+                    .setPositiveButton("Retry", null)
+                    .show();
+
+//                dialog.setCancelable(false);
+//                dialog.setCanceledOnTouchOutside(false);
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    getProjectType();
+                    dialog.dismiss();
                 }
+            });
+        }
+    }
 
-                try {
-                    network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                    System.out.println(network_enabled);
-                    Log.i("Network", String.valueOf(network_enabled));
-                } catch(Exception ex) {
-                    ex.printStackTrace();
+    //    --------------------------Getting Project Sub Types and updating UI-----------------------------
+    public void getProjectSubType() {
+        waitProgress.show(getSupportFragmentManager(), "WaitBar");
+        waitProgress.setCancelable(false);
+        conn = false;
+
+        projectSubTypeLists = new ArrayList<>();
+
+        if (project_type_id == null) {
+            project_type_id = "";
+        }
+
+        String pr_sub_type_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/project_sub_type_lists?ptm_id="+project_type_id;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
+
+        StringRequest prSubTypeRequest = new StringRequest(Request.Method.GET, pr_sub_type_url, response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray jsonArray = new JSONArray(items);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject prSubTypeObject = jsonArray.getJSONObject(i);
+                        String p_ptd_id = prSubTypeObject.getString("p_ptd_id");
+                        String ptd_project_subtype_name = prSubTypeObject.getString("ptd_project_subtype_name");
+
+                        ptd_project_subtype_name = transformText(ptd_project_subtype_name);
+
+                        projectSubTypeLists.add(new ProjectSubTypeLists(p_ptd_id,ptd_project_subtype_name));
+
+                    }
                 }
+                conn = true;
+                updateProjectSubTypes();
 
-                if(!gps_enabled && !network_enabled) {
-                    System.out.println(gps_enabled);
-                    Log.i("GPS1", String.valueOf(gps_enabled));
-                    Log.i("Network1", String.valueOf(network_enabled));
-                    System.out.println(network_enabled);
-                    // notify user
-                    enableGPS();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                conn = false;
+                updateProjectSubTypes();
+            }
+        }, error -> {
+            conn = false;
+            updateProjectSubTypes();
+        });
 
+        requestQueue.add(prSubTypeRequest);
+    }
+
+    public void updateProjectSubTypes() {
+        waitProgress.dismiss();
+        if (conn) {
+
+            if (projectSubTypeLists.size() != 0) {
+                projectSubTypeLay.setEnabled(true);
+            }
+
+            ArrayList<String> type = new ArrayList<>();
+            for(int i = 0; i < projectSubTypeLists.size(); i++) {
+                type.add(projectSubTypeLists.get(i).getProjectSubTypeName());
+            }
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+
+            projectSubType.setAdapter(arrayAdapter);
+
+            conn = false;
+
+        } else {
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+            AlertDialog dialog = new AlertDialog.Builder(CreateProject.this)
+                    .setMessage("Please Check Your Internet Connection")
+                    .setPositiveButton("Retry", null)
+                    .show();
+
+//                dialog.setCancelable(false);
+//                dialog.setCanceledOnTouchOutside(false);
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    getProjectSubType();
+                    dialog.dismiss();
+                }
+            });
+        }
+    }
+
+    //    --------------------------INSERTING PROJECT DATA-----------------------------
+    public ProjectCreationRequest creationRequest() {
+        ProjectCreationRequest p = new ProjectCreationRequest();
+        p.setP_ENTRY_DATE(entry_date);
+        p.setP_PCM_USER(pcm_user);
+        p.setP_DD_ID(dd_id);
+        p.setP_DDU_ID(ddu_id);
+        p.setP_PROJECT_NAME(project_name);
+        p.setP_PROJECT_NO(project_no);
+        p.setP_FY_ID(financial_year_id);
+        p.setP_PTM_ID(project_type_id);
+        p.setP_PTD_ID(project_sub_type_id);
+        p.setP_APPROVAL_DATE(approval_date);
+        p.setP_PIC_DETAILS(project_pic_details);
+        p.setP_FSM_ID(source_of_fund_id);
+        p.setP_PROJECT_VALUE(project_value);
+        p.setP_START_DATE(start_date);
+        p.setP_END_DATE(end_date);
+        p.setP_PCM_PSC_ID(sanction_category_id);
+        p.setP_PCM_PCM_ID(sanction_sub_cat_id);
+        p.setP_PROJECT_DETAILS(project_details);
+        p.setP_PROJECT_VALUE_TYPE_ID(project_value_type_id);
+
+        return p;
+    }
+
+    public void postProjectInformation(ProjectCreationRequest projectCreationRequest) {
+
+        waitProgress.show(getSupportFragmentManager(), "WaitBar");
+        waitProgress.setCancelable(false);
+        conn = false;
+
+        firstStage = false;
+        secondStage = false;
+        thirdStage = false;
+
+        Call<ProjectCreationResponse> projectCreationResponseCall = ApiClient.getService().createProject(projectCreationRequest);
+        projectCreationResponseCall.enqueue(new Callback<ProjectCreationResponse>() {
+            @Override
+            public void onResponse(Call<ProjectCreationResponse> call, Response<ProjectCreationResponse> response) {
+
+                if (response.isSuccessful()) {
+                    String string_out = Objects.requireNonNull(response.body()).getString_out();
+                    String pcun_id = response.body().getPcun_id();
+                    String pcm_id = response.body().getPcm_id();
+                    pcm_internal_no = response.body().getPcm_internal_no();
+
+                    if (!pcun_id.isEmpty() && !pcun_id.equals("null") && string_out.equals("Successfully Created")) {
+                        firstStage = true;
+                        postWard(pcun_id,pcm_id);
+                    }
+                    else {
+                        conn = false;
+                        firstStage = false;
+                        updateInterface();
+                    }
                 }
                 else {
-                    //Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT).show();
-                    if (ActivityCompat.checkSelfPermission(CreateProject.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(CreateProject.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return;
-                    }
-                    fusedLocationProviderClientCamera.requestLocationUpdates(locationRequestCamera, locationCallbackCamera, Looper.getMainLooper());
-                    System.out.println("RESUMED");
+                    System.out.println("Failed");
+                    conn = false;
+                    firstStage = false;
+                    updateInterface();
                 }
 
-            } else {
-                AlertDialog dialog = new AlertDialog.Builder(CreateProject.this)
-                        .setMessage("Please Check Your Internet Connection")
-                        .setPositiveButton("Retry", null)
-                        .setNegativeButton("EXIT",null)
-                        .show();
-
-                dialog.setCancelable(false);
-                dialog.setCanceledOnTouchOutside(false);
-                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                positive.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        new DataCheck().execute();
-                        dialog.dismiss();
-                    }
-                });
-
-                Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                negative.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                        finish();
-
-                    }
-                });
             }
+
+            @Override
+            public void onFailure(Call<ProjectCreationResponse> call, Throwable t) {
+                System.out.println("Failed: ERROR");
+                conn = false;
+                firstStage = false;
+                updateInterface();
+            }
+        });
+
+    }
+
+    public void postWard(String pcun_id,String pcm_id) {
+
+        numberOfLocationRequestsToMake = 0;
+        hasLocationRequestFailed = false;
+
+        if (selectedWardLists.size() != 0) {
+            for (int i = 0 ; i < selectedWardLists.size() ; i++) {
+                String ddw_id = selectedWardLists.get(i).getDdw_id();
+                numberOfLocationRequestsToMake++;
+                System.out.println("numberOfRequestsToMake: "+ numberOfLocationRequestsToMake);
+                postWardRequest(ddw_id,i,pcun_id,pcm_id);
+            }
+        }
+        else {
+            secondStage = true;
+            updateGpxQuery(pcm_id);
+        }
+
+    }
+
+    public void postWardRequest(String ddw_id, int i, String pcun_id, String pcm_id){
+
+        String url = "http://103.56.208.123:8086/terrain/tr_kabikha/project_creation/insert_wards";
+
+        RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
+
+        StringRequest wardRequest = new StringRequest(Request.Method.POST, url, response -> {
+
+            try {
+                numberOfLocationRequestsToMake--;
+                System.out.println("numberOfRequestsToMake: "+ numberOfLocationRequestsToMake);
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                String pcw_id = jsonObject.getString("pcw_id");
+                if (!pcw_id.isEmpty() && !pcw_id.equals("null") && string_out.equals("Successfully Created")) {
+
+                    postVillage(pcw_id,ddw_id,pcm_id);
+                }
+                else {
+                    hasLocationRequestFailed = true;
+                    if(numberOfLocationRequestsToMake == 0) {
+                        //The last request failed
+                        conn = false;
+                        secondStage = false;
+                        updateInterface();
+                    }
+                }
+            } catch (JSONException e) {
+                numberOfLocationRequestsToMake--;
+                e.printStackTrace();
+                hasLocationRequestFailed = true;
+                if(numberOfLocationRequestsToMake == 0) {
+                    //The last request failed
+                    conn = false;
+                    secondStage = false;
+                    updateInterface();
+                }
+            }
+        },error -> {
+            numberOfLocationRequestsToMake--;
+            hasLocationRequestFailed = true;
+            if(numberOfLocationRequestsToMake == 0) {
+                //The last request failed
+                conn = false;
+                secondStage = false;
+                updateInterface();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("DD_ID",dd_id);
+                headers.put("PCUN_ID",pcun_id);
+                headers.put("PCM_USER",pcm_user);
+                headers.put("DDU_ID",ddu_id);
+                headers.put("DDW_ID",ddw_id);
+
+                return headers;
+            }
+        };
+
+        requestQueue.add(wardRequest);
+    }
+
+    public void postVillage(String pcw_id, String ddw_id, String pcm_id) {
+
+        if (selectedVillageLists.size()!= 0) {
+            for (int j = 0; j < selectedVillageLists.size(); j++) {
+                if (ddw_id.equals(selectedVillageLists.get(j).getDdv_ddw_id())) {
+                    String ddv_id = selectedVillageLists.get(j).getDdv_id();
+                    numberOfLocationRequestsToMake++;
+                    System.out.println("numberOfRequestsToMake: "+ numberOfLocationRequestsToMake);
+                    postVillageRequest(ddw_id, ddv_id, pcw_id, pcm_id);
+                }
+            }
+        }
+        else {
+            if (numberOfLocationRequestsToMake == 0) {
+                if (!hasLocationRequestFailed) {
+                    secondStage = true;
+                    updateGpxQuery(pcm_id);
+                }
+                else {
+                    conn = false;
+                    secondStage = false;
+                    updateInterface();
+                }
+            }
+
+        }
+
+    }
+
+    public void postVillageRequest(String ddw_id, String ddv_id, String pcw_id,String pcm_id) {
+
+        String url = "http://103.56.208.123:8086/terrain/tr_kabikha/project_creation/insert_villages";
+
+        RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
+
+        StringRequest villageRequest = new StringRequest(Request.Method.POST, url, response -> {
+
+            try {
+                numberOfLocationRequestsToMake--;
+                System.out.println("numberOfRequestsToMake: "+ numberOfLocationRequestsToMake);
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                if (string_out.equals("Successfully Created")) {
+
+                    if (numberOfLocationRequestsToMake == 0) {
+                        if (!hasLocationRequestFailed) {
+                            secondStage = true;
+                            updateGpxQuery(pcm_id);
+                        }
+                        else {
+                            conn = false;
+                            secondStage = false;
+                            updateInterface();
+                        }
+                    }
+                }
+                else {
+                    hasLocationRequestFailed = true;
+                    if(numberOfLocationRequestsToMake == 0) {
+                        //The last request failed
+                        conn = false;
+                        secondStage = false;
+                        updateInterface();
+                    }
+                }
+            } catch (JSONException e) {
+                numberOfLocationRequestsToMake--;
+                e.printStackTrace();
+                hasLocationRequestFailed = true;
+                if(numberOfLocationRequestsToMake == 0) {
+                    //The last request failed
+                    conn = false;
+                    secondStage = false;
+                    updateInterface();
+                }
+            }
+        },error -> {
+            numberOfLocationRequestsToMake--;
+            hasLocationRequestFailed = true;
+            if(numberOfLocationRequestsToMake == 0) {
+                //The last request failed
+                conn = false;
+                secondStage = false;
+                updateInterface();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("DD_ID",dd_id);
+                headers.put("PCW_ID",pcw_id);
+                headers.put("PCM_USER",pcm_user);
+                headers.put("DDU_ID",ddu_id);
+                headers.put("DDW_ID",ddw_id);
+                headers.put("DDV_ID",ddv_id);
+
+                return headers;
+            }
+        };
+
+        requestQueue.add(villageRequest);
+    }
+
+    public void updateGpxQuery(String pcm_id) {
+        gpxUploaded = false;
+        String update_gpx_url = "http://103.56.208.123:8086/terrain/tr_kabikha/update_project/update_gpx_file";
+
+        if (!gpxContent_pc.isEmpty()) {
+            RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
+            String gpxName = gpxFileName_pc.getText().toString();
+            byte[] bArray = gpxContent_pc.getBytes();
+
+            StringRequest updateGpxRequest = new StringRequest(Request.Method.POST, update_gpx_url, response -> {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String string_out = jsonObject.getString("string_out");
+                    if (string_out.equals("Successfully Created")) {
+                        gpxUploaded = true;
+                        updatePicQuery(pcm_id);
+                    }
+                    else {
+                        conn = false;
+                        gpxUploaded = false;
+                        updateInterface();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    conn = false;
+                    gpxUploaded = false;
+                    updateInterface();
+                }
+            },error -> {
+                conn = false;
+                gpxUploaded = false;
+                updateInterface();
+            }) {
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    return bArray;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("PCM_ID",pcm_id);
+                    headers.put("P_TYPE",p_type_name);
+                    headers.put("FILE_NAME",gpxName);
+                    return headers;
+                }
+
+                @Override
+                public String getBodyContentType() {
+                    return "application/binary";
+                }
+            };
+
+            requestQueue.add(updateGpxRequest);
+        }
+        else {
+            gpxUploaded = true;
+            updatePicQuery(pcm_id);
         }
     }
 
-    public class ProjectTypeCheck extends AsyncTask<Void, Void, Void> {
+    public void updatePicQuery(String pcm_id) {
+        numberOfRequestsToMake = 0;
+        hasRequestFailed = false;
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        if (imageCapturedListsPC.size() != 0) {
+            for (int i = 0; i < imageCapturedListsPC.size(); i++) {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                Bitmap bitmap = imageCapturedListsPC.get(i).getBitmap();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 60, bos);
+                byte[] bArray = bos.toByteArray();
+                numberOfRequestsToMake++;
+                updatePicRequest(bArray,i,pcm_id);
 
-            waitProgress.show(getSupportFragmentManager(), "WaitBar");
-            waitProgress.setCancelable(false);
+            }
+        }
+        else {
+            conn = true;
+            updateInterface();
         }
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (isConnected() && isOnline()) {
+    }
 
-                ProjectTypeQuery();
-                if (connected) {
-                    conn = true;
+    public void updatePicRequest(byte[] bArray, int i,String pcm_id) {
+        String update_pic_url = "http://103.56.208.123:8086/terrain/tr_kabikha/update_project/update_picture";
+        RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
+
+        StringRequest updatePicRequest = new StringRequest(Request.Method.POST, update_pic_url, response -> {
+            try {
+                numberOfRequestsToMake--;
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                if (string_out.equals("Successfully Created")) {
+                    imageCapturedListsPC.get(i).setUploaded(true);
+                }
+                else {
+                    hasRequestFailed = true;
                 }
 
-            } else {
+                if (numberOfRequestsToMake == 0) {
+                    if (!hasRequestFailed) {
+                        thirdStage = true;
+                        conn = true;
+                        updateInterface();
+                    }
+                    else {
+                        conn = false;
+                        thirdStage = false;
+                        updateInterface();
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                numberOfRequestsToMake--;
+                hasRequestFailed = true;
+                if(numberOfRequestsToMake == 0) {
+                    //The last request failed
+                    conn = false;
+                    thirdStage = false;
+                    updateInterface();
+                }
+            }
+        }, error -> {
+            numberOfRequestsToMake--;
+            hasRequestFailed = true;
+            if(numberOfRequestsToMake == 0) {
+                //The last request failed
                 conn = false;
+                thirdStage = false;
+                updateInterface();
+            }
+        }) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return bArray;
             }
 
-            return null;
-        }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("PCM_ID",pcm_id);
+                headers.put("FILE_NAME",imageCapturedListsPC.get(i).getFileName());
+                headers.put("USER_NAME",picUserDetails.get(0).getUserName());
+                headers.put("STAGE",imageCapturedListsPC.get(i).getStage());
+                return headers;
+            }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+            @Override
+            public String getBodyContentType() {
+                return "application/binary";
+            }
+        };
 
-            waitProgress.dismiss();
-            if (conn) {
+        requestQueue.add(updatePicRequest);
+    }
 
-                if (projectTypeLists.size() != 0) {
-                    projectTypeLay.setEnabled(true);
-                }
-                ArrayList<String> type = new ArrayList<>();
-                for(int i = 0; i < projectTypeLists.size(); i++) {
-                    type.add(projectTypeLists.get(i).getProjectTypeName());
-                }
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+    public void updateInterface(){
+        waitProgress.dismiss();
+        if (conn) {
 
-                projectType.setAdapter(arrayAdapter);
+            conn = false;
 
-                conn = false;
-                connected = false;
+            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
+                    .setTitle("SUCCESS!")
+                    .setMessage("Project Created Successfully with all information. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            gpxContent_pc = "";
+                            ddu_id = "";
+                            locationListsCreatePC = new ArrayList<>();
+                            imageCapturedListsPC = new ArrayList<>();
+                            selectedWardLists = new ArrayList<>();
+                            selectedVillageLists = new ArrayList<>();
+                            finish();
+                        }
+                    });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.setCancelable(false);
+            alertDialog.show();
 
-            } else {
+        } else {
+            if (!firstStage && !secondStage && !gpxUploaded && !thirdStage ) {
                 Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                AlertDialog dialog = new AlertDialog.Builder(CreateProject.this)
+                MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(CreateProject.this)
                         .setMessage("Please Check Your Internet Connection")
-                        .setPositiveButton("Retry", null)
-                        .show();
+                        .setPositiveButton("Retry", null);
 
-//                dialog.setCancelable(false);
-//                dialog.setCanceledOnTouchOutside(false);
-                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                AlertDialog alertDialog = dialog.create();
+                alertDialog.show();
+                Button positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 positive.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        new ProjectTypeCheck().execute();
-                        dialog.dismiss();
+                        postProjectInformation(creationRequest());
+                        alertDialog.dismiss();
                     }
                 });
             }
-        }
-    }
-
-    public class ProjectSubTypeCheck extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            waitProgress.show(getSupportFragmentManager(), "WaitBar");
-            waitProgress.setCancelable(false);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (isConnected() && isOnline()) {
-
-                ProjectSubTypeQuery();
-                if (connected) {
-                    conn = true;
-                }
-
-            } else {
-                conn = false;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            waitProgress.dismiss();
-            if (conn) {
-
-                if (projectSubTypeLists.size() != 0) {
-                    projectSubTypeLay.setEnabled(true);
-                }
-
-                ArrayList<String> type = new ArrayList<>();
-                for(int i = 0; i < projectSubTypeLists.size(); i++) {
-                    type.add(projectSubTypeLists.get(i).getProjectSubTypeName());
-                }
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
-
-                projectSubType.setAdapter(arrayAdapter);
-
-                conn = false;
-                connected = false;
-
-            } else {
-                Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                AlertDialog dialog = new AlertDialog.Builder(CreateProject.this)
-                        .setMessage("Please Check Your Internet Connection")
-                        .setPositiveButton("Retry", null)
-                        .show();
-
-//                dialog.setCancelable(false);
-//                dialog.setCanceledOnTouchOutside(false);
-                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                positive.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        new ProjectSubTypeCheck().execute();
-                        dialog.dismiss();
-                    }
-                });
-            }
-        }
-    }
-
-    public class InsertProjectCheck extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            waitProgress.show(getSupportFragmentManager(), "WaitBar");
-            waitProgress.setCancelable(false);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (isConnected() && isOnline()) {
-
-                InsertProjectInfoQuery();
-                if (connected) {
-                    conn = true;
-                }
-
-            } else {
-                conn = false;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            waitProgress.dismiss();
-            if (conn) {
-
-                conn = false;
-                connected = false;
-
+            else if (firstStage && !secondStage && !gpxUploaded && !thirdStage ) {
                 MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
-                        .setTitle("SUCCESS!")
-                        .setMessage("Project Created Successfully with all information. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
+                        .setTitle("Network Connection Interrupted!")
+                        .setMessage("Project Created Successfully but failed to upload Location data, Map Data and Image Data. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -1949,560 +2582,55 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                 alertDialog.setCanceledOnTouchOutside(false);
                 alertDialog.setCancelable(false);
                 alertDialog.show();
-
-            } else {
-                if (!firstStage && !secondStage && !thirdStage && !fourthStage) {
-                    Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                    MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(CreateProject.this)
-                            .setMessage("Please Check Your Internet Connection")
-                            .setPositiveButton("Retry", null);
-
-                    AlertDialog alertDialog = dialog.create();
-                    alertDialog.show();
-                    Button positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    positive.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            new InsertProjectCheck().execute();
-                            alertDialog.dismiss();
-                        }
-                    });
-                }
-                else if (firstStage && !secondStage && !thirdStage && !fourthStage && !gpxUploaded) {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
-                            .setTitle("Network Connection Interrupted!")
-                            .setMessage("Project Created Successfully but failed to upload Location data, Map Data and Image Data. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    gpxContent_pc = "";
-                                    ddu_id = "";
-                                    locationListsCreatePC = new ArrayList<>();
-                                    imageCapturedListsPC = new ArrayList<>();
-                                    selectedWardLists = new ArrayList<>();
-                                    selectedVillageLists = new ArrayList<>();
-                                    finish();
-                                }
-                            });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.setCancelable(false);
-                    alertDialog.show();
-                }
-                else if (firstStage && secondStage && !thirdStage && !fourthStage && !gpxUploaded) {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
-                            .setTitle("Network Connection Interrupted!")
-                            .setMessage("Project Created Successfully but failed to upload Location data(UNION,WARD,VILLAGE), Map Data and Image Data. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    gpxContent_pc = "";
-                                    ddu_id = "";
-                                    locationListsCreatePC = new ArrayList<>();
-                                    imageCapturedListsPC = new ArrayList<>();
-                                    selectedWardLists = new ArrayList<>();
-                                    selectedVillageLists = new ArrayList<>();
-                                    finish();
-                                }
-                            });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.setCancelable(false);
-                    alertDialog.show();
-                }
-                else if (firstStage && secondStage && thirdStage && !fourthStage && !gpxUploaded) {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
-                            .setTitle("Network Connection Interrupted!")
-                            .setMessage("Project Created Successfully but failed to upload Location data(WARD,VILLAGE), Map Data and Image Data. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    gpxContent_pc = "";
-                                    ddu_id = "";
-                                    locationListsCreatePC = new ArrayList<>();
-                                    imageCapturedListsPC = new ArrayList<>();
-                                    selectedWardLists = new ArrayList<>();
-                                    selectedVillageLists = new ArrayList<>();
-                                    finish();
-                                }
-                            });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.setCancelable(false);
-                    alertDialog.show();
-                }
-                else if (firstStage && secondStage && thirdStage && fourthStage && !gpxUploaded) {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
-                            .setTitle("Network Connection Interrupted!")
-                            .setMessage("Project Created Successfully but failed to upload Map Data and Image Data. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    gpxContent_pc = "";
-                                    ddu_id = "";
-                                    locationListsCreatePC = new ArrayList<>();
-                                    imageCapturedListsPC = new ArrayList<>();
-                                    selectedWardLists = new ArrayList<>();
-                                    selectedVillageLists = new ArrayList<>();
-                                    finish();
-                                }
-                            });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.setCancelable(false);
-                    alertDialog.show();
-                }
-                else {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
-                            .setTitle("Network Connection Interrupted!")
-                            .setMessage("Project Created Successfully but failed to upload Image Data. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    gpxContent_pc = "";
-                                    ddu_id = "";
-                                    locationListsCreatePC = new ArrayList<>();
-                                    imageCapturedListsPC = new ArrayList<>();
-                                    selectedWardLists = new ArrayList<>();
-                                    selectedVillageLists = new ArrayList<>();
-                                    finish();
-                                }
-                            });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.setCancelable(false);
-                    alertDialog.show();
-                }
+            }
+            else if (firstStage && secondStage && !gpxUploaded && !thirdStage ) {
+                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
+                        .setTitle("Network Connection Interrupted!")
+                        .setMessage("Project Created Successfully but failed to upload Map Data and Image Data. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                gpxContent_pc = "";
+                                ddu_id = "";
+                                locationListsCreatePC = new ArrayList<>();
+                                imageCapturedListsPC = new ArrayList<>();
+                                selectedWardLists = new ArrayList<>();
+                                selectedVillageLists = new ArrayList<>();
+                                finish();
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.setCanceledOnTouchOutside(false);
+                alertDialog.setCancelable(false);
+                alertDialog.show();
+            }
+            else if (firstStage && secondStage && gpxUploaded && !thirdStage) {
+                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CreateProject.this)
+                        .setTitle("Network Connection Interrupted!")
+                        .setMessage("Project Created Successfully but failed to upload Image Data. Your Project's Internal No is "+pcm_internal_no+". You can use this Internal no to search project from project lists and update your project.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                gpxContent_pc = "";
+                                ddu_id = "";
+                                locationListsCreatePC = new ArrayList<>();
+                                imageCapturedListsPC = new ArrayList<>();
+                                selectedWardLists = new ArrayList<>();
+                                selectedVillageLists = new ArrayList<>();
+                                finish();
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.setCanceledOnTouchOutside(false);
+                alertDialog.setCancelable(false);
+                alertDialog.show();
             }
         }
     }
 
-    private void DataQuery() {
-        try {
-            this.connection = createConnection();
-
-            Statement stmt = connection.createStatement();
-
-            sanctionCatLists = new ArrayList<>();
-            sanctionSubCatLists = new ArrayList<>();
-            sourceFundLists = new ArrayList<>();
-            financialYearLists = new ArrayList<>();
-            unionLists = new ArrayList<>();
-
-            ResultSet resultSet = stmt.executeQuery("Select psc_id, psc_sanction_cat_name from project_sanction_category where psc_active_flag is NULL");
-
-            while (resultSet.next()) {
-                sanctionCatLists.add(new ChoiceList(resultSet.getString(1),resultSet.getString(2)));
-            }
-            resultSet.close();
-
-            ResultSet resultSet1 = stmt.executeQuery("Select pcm_id, pcm_category_name from project_category_mst where pcm_active_flag = 0");
-
-            while (resultSet1.next()) {
-                sanctionSubCatLists.add(new ChoiceList(resultSet1.getString(1),resultSet1.getString(2)));
-            }
-            resultSet1.close();
-
-            ResultSet rs = stmt.executeQuery("SELECT FINANCIAL_YEAR.FY_ID P_FY_ID, FINANCIAL_YEAR.FY_FINANCIAL_YEAR_NAME, FINANCIAL_YEAR.FY_FROM_YEAR, FINANCIAL_YEAR.FY_TO_YEAR, FINANCIAL_YEAR.FY_DETAILS, FINANCIAL_YEAR.FY_ACTIVE_FLAG " +
-                    "FROM FINANCIAL_YEAR " +
-                    "WHERE FINANCIAL_YEAR.FY_ACTIVE_FLAG = 1 " +
-                    "ORDER BY FINANCIAL_YEAR.FY_FROM_YEAR ASC");
-
-            while (rs.next()) {
-                financialYearLists.add(new FinancialYearLists(rs.getString(1),rs.getString(2),rs.getString(3),
-                        rs.getString(4),rs.getString(5),rs.getString(6)));
-            }
-            rs.close();
-
-            ResultSet rs2 = stmt.executeQuery("SELECT FSM_ID P_FSM_ID, FSM_FUND_NAME FROM FUND_SOURCE_MST WHERE FSM_FUND_SOURCE_ACTIVE_FLAG = 1");
-
-            while (rs2.next()) {
-                sourceFundLists.add(new SourceFundLists(rs2.getString(1),rs2.getString(2)));
-            }
-
-            if (dd_id != null) {
-                if (!dd_id.isEmpty()) {
-                    ResultSet rs6 = stmt.executeQuery("SELECT DISTRICT_DTL_UNION.DDU_ID PCUN_DDU_ID, DISTRICT_DTL_UNION.DDU_UNION_NAME \n" +
-                            "FROM DISTRICT_DTL_UNION \n" +
-                            "WHERE DISTRICT_DTL_UNION.DDU_DD_ID = "+dd_id+"\n" +
-                            "ORDER BY DISTRICT_DTL_UNION.DDU_UNION_NAME ASC");
-
-                    while (rs6.next()) {
-                        unionLists.add(new UnionLists(rs6.getString(1),rs6.getString(2)));
-                    }
-                    rs6.close();
-                }
-            }
-
-//            ResultSet resultSet2 = stmt.executeQuery("select * from uploaded_docs where ud_pcm_id = "+PCM_ID_PE+"");
-//
-//            while (resultSet2.next()) {
-//                databaseImage = true;
-//            }
-//
-//            resultSet2.close();
-
-            connected = true;
-
-            connection.close();
-
-        }
-        catch (Exception e) {
-
-            Log.i("ERRRRR", e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public void ProjectTypeQuery () {
-
-        try {
-            this.connection = createConnection();
-
-            projectTypeLists = new ArrayList<>();
-
-            Statement stmt = connection.createStatement();
-
-            if (source_of_fund_id != null) {
-                if (source_of_fund_id.isEmpty()) {
-                    source_of_fund_id = null;
-                }
-            }
-
-            ResultSet rs3 = stmt.executeQuery("SELECT  PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME, PROJECT_TYPE_MST.PTM_ID\n" +
-                    "FROM PROJECT_TYPE_MST, FUND_SOURCE_PROJ_TYPE\n" +
-                    "WHERE PROJECT_TYPE_MST.PTM_ID         = FUND_SOURCE_PROJ_TYPE.FSPT_PTM_ID\n" +
-                    "AND FUND_SOURCE_PROJ_TYPE.FSPT_FSM_ID = "+source_of_fund_id+"\n" +
-                    "AND PROJECT_TYPE_MST.PTM_ACTIVE_FLAG = 1\n" +
-                    "AND ptm_id IN  ( SELECT    ptd_ptm_id\n" +
-                    "                    FROM project_type_dtl\n" +
-                    "                    WHERE (PTD_ID=NULL OR NULL IS NULL))\n" +
-                    "ORDER BY PROJECT_TYPE_MST.PTM_PROJECT_TYPE_NAME");
-
-            while (rs3.next()) {
-                projectTypeLists.add(new ProjectTypeLists(rs3.getString(2),rs3.getString(1)));
-            }
-
-            rs3.close();
-
-            if (source_of_fund_id == null) {
-                source_of_fund_id = "";
-            }
-
-            stmt.close();
-
-            connected = true;
-
-            connection.close();
-
-        } catch (Exception e) {
-
-            //   Toast.makeText(MainActivity.this, ""+e,Toast.LENGTH_LONG).show();
-            Log.i("ERRRRR", e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-
-    }
-
-    public void ProjectSubTypeQuery () {
-
-        try {
-            this.connection = createConnection();
-
-            projectSubTypeLists = new ArrayList<>();
-
-            Statement stmt = connection.createStatement();
-
-            if (project_type_id != null) {
-                if (project_type_id.isEmpty()) {
-                    project_type_id = null;
-                }
-            }
-
-            ResultSet rs = stmt.executeQuery("SELECT PTD_ID P_PTD_ID, ptd_project_subtype_name FROM PROJECT_TYPE_DTL WHERE PTD_PTM_ID = "+project_type_id+" ORDER BY P_PTD_ID");
-
-            while (rs.next()) {
-                projectSubTypeLists.add(new ProjectSubTypeLists(rs.getString(1),rs.getString(2)));
-            }
-
-            rs.close();
-
-            if (project_type_id == null) {
-                project_type_id = "";
-            }
-
-            stmt.close();
-
-            connected = true;
-
-            connection.close();
-
-        } catch (Exception e) {
-
-            //   Toast.makeText(MainActivity.this, ""+e,Toast.LENGTH_LONG).show();
-            Log.i("ERRRRR", e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-
-    }
-
-    public void InsertProjectInfoQuery () {
-
-        try {
-            this.connection = createConnection();
-
-            Statement stmt = connection.createStatement();
-
-            firstStage = false;
-            secondStage = false;
-            thirdStage = false;
-            fourthStage = false;
-            fifthStage = false;
-
-            String pcm_id = "";
-            String internal_no_id = "";
-            String v_proj_code = "";
-            String dd_code = "";
-            String dist_code = "";
-            String div_code = "";
-            String union_code = "";
-            String geo_code_id = "";
-            String company_short_code = "";
-            String pcm_project_code = "";
-
-            String location_dist_id = "";
-            String location_div_id = "";
-            String location_dd_id = "";
-            String pcu_id = "";
-
-            String pcun_id = "";
-
-            ResultSet rs = stmt.executeQuery("SELECT NVL(MAX(PCM_ID),0)+1 \n" +
-                    "FROM PROJECT_CREATION_MST");
-
-            while (rs.next()) {
-                pcm_id = rs.getString(1);
-            }
-            rs.close();
-
-            ResultSet rs1 = stmt.executeQuery("SELECT NVL(MAX(PCM_INTERNAL_NO_ID),0)+1 \n" +
-                    "FROM PROJECT_CREATION_MST\n" +
-                    "WHERE TO_CHAR(PROJECT_CREATION_MST.PCM_ENTRY_DATE,'RR')= TO_CHAR(to_date('"+entry_date+"','DD-MM-YYYY HH12:MIPM'),'RR')");
-
-            while (rs1.next()) {
-                internal_no_id = rs1.getString(1);
-            }
-            rs1.close();
-
-            ResultSet rs2 = stmt.executeQuery("SELECT  DD_CODE\n" +
-                    "            FROM ISP_USER, DISTRICT_DTL\n" +
-                    "            WHERE DD_ID = USR_DD_ID\n" +
-                    "            AND USR_NAME = '"+pcm_user+"'");
-
-            while (rs2.next()) {
-                v_proj_code = rs2.getString(1);
-            }
-            rs2.close();
-
-            ResultSet rs3 = stmt.executeQuery("SELECT DISTINCT DD_CODE, DIST_CODE, DIV_CODE\n" +
-                    "    FROM DISTRICT_DTL, DISTRICT, DIVISION\n" +
-                    "    WHERE DD_DIST_ID = DIST_ID\n" +
-                    "    AND DIST_DIV_ID = DIV_ID\n" +
-                    "    AND DD_ID = "+dd_id+"");
-
-            while (rs3.next()) {
-                dd_code = rs3.getString(1);
-                dist_code = rs3.getString(2);
-                div_code = rs3.getString(3);
-            }
-            rs3.close();
-
-            ResultSet rs4 = stmt.executeQuery("SELECT DDU_CODE\n" +
-                    "    FROM DISTRICT_DTL_UNION\n" +
-                    "    WHERE DDU_ID = "+ddu_id+"");
-            while (rs4.next()) {
-                union_code = rs4.getString(1);
-            }
-            rs4.close();
-
-            ResultSet rs5 = stmt.executeQuery("SELECT NVL(MAX(PCM_PROJECT_CODE_GEONO_ID),0)+1\n" +
-                    "    FROM PROJECT_CREATION_MST\n" +
-                    "    WHERE PCM_DD_ID = "+dd_id+"\n" +
-                    "    AND PCM_DDU_ID = "+ddu_id+"");
-            while (rs5.next()) {
-                geo_code_id = rs5.getString(1);
-            }
-            rs5.close();
-
-            ResultSet rs6 = stmt.executeQuery("select CIM_SHORT_CODE \n" +
-                    "    from COMPANY_INFO_MST");
-
-            while (rs6.next()) {
-                company_short_code = rs6.getString(1);
-            }
-            rs6.close();
-
-            ResultSet rs7 = stmt.executeQuery("Select "+company_short_code+"||'01.'||"+div_code+"||"+dist_code+"||"+dd_code+"||"+union_code+"||'.'||LTRIM(TO_CHAR("+geo_code_id+",'0000')) from dual");
-
-            while (rs7.next()) {
-                pcm_project_code = rs7.getString(1);
-            }
-            rs7.close();
-
-            ResultSet rs8 = stmt.executeQuery("Select "+v_proj_code+"||'/'||LTRIM(TO_CHAR(to_date('"+entry_date+"','DD-MM-YYYY HH12:MIPM'),'RR'))||'/'||LTRIM(TO_CHAR("+internal_no_id+",'000000')) from dual");
-
-            while (rs8.next()) {
-                pcm_internal_no = rs8.getString(1);
-            }
-            rs8.close();
-
-            stmt.executeUpdate("INSERT INTO project_creation_mst(PCM_ID,PCM_ENTRY_DATE,PCM_INTERNAL_NO,PCM_INTERNAL_NO_ID,PCM_USER,\n" +
-                    "PCM_PROJECT_NAME,PCM_PROJECT_NO,PCM_FY_ID,PCM_PTM_ID,PCM_PTD_ID,PCM_PROJECT_DATE,PCM_PIC_CHAIRMAN_NAME,\n" +
-                    "PCM_FSM_ID,PCM_ESTIMATE_PROJECT_VALUE,PCM_ESTIMATE_START_DATE,PCM_ESTIMATE_END_DATE,PCM_PSC_ID,PCM_PCM_ID,\n" +
-                    "PCM_PROJECT_DETAILS,PCM_PROJECT_CODE,PCM_PROJ_SUBMISSION_FLAG_PIC,PCM_PROJ_VERIFY_FLAG_PIO,PCM_PROJ_EVALUATION_FLAG,\n" +
-                    "PCM_CRITERIA_FROM_FY_ID,PCM_CRITERIA_TO_FY_ID,PCM_CRITERIA_PTM_ID,PCM_CRITERIA_PTD_ID,PCM_PROJECT_SANCTION_TYPE,\n" +
-                    "PCM_DD_ID,PCM_DDU_ID,PCM_PROJECT_CODE_GEONO_ID) \n" +
-                    "VALUES("+pcm_id+",TO_DATE('"+entry_date+"'),'"+pcm_internal_no+"',"+internal_no_id+",'"+pcm_user+"',\n" +
-                    "'"+project_name+"','"+project_no+"',"+financial_year_id+","+project_type_id+","+project_sub_type_id+",TO_DATE('"+approval_date+"'),\n" +
-                    "'"+project_pic_details+"',"+source_of_fund_id+","+project_value+",TO_DATE('"+start_date+"'),TO_DATE('"+end_date+"'),\n" +
-                    ""+sanction_category_id+","+sanction_sub_cat_id+",'"+project_details+"','"+pcm_project_code+"',0,0,0,"+financial_year_id+",\n" +
-                    ""+financial_year_id+","+project_type_id+","+project_sub_type_id+","+project_value_type_id+","+dd_id+","+ddu_id+"," +
-                    ""+geo_code_id+")");
-
-            firstStage = true;
-
-
-            // District , division, union
-
-            ResultSet resultSet = stmt.executeQuery("SELECT DISTINCT DIST_DIV_ID, DIST_ID, DD_ID\n" +
-                    "    FROM DISTRICT_DTL, DISTRICT\n" +
-                    "    WHERE DD_DIST_ID = DIST_ID\n" +
-                    "    AND DD_ID = "+dd_id+"");
-
-            while (resultSet.next()) {
-                location_div_id = resultSet.getString(1);
-                location_dist_id = resultSet.getString(2);
-                location_dd_id = resultSet.getString(3);
-            }
-            resultSet.close();
-
-            ResultSet resultSet1 = stmt.executeQuery("SELECT NVL(MAX(PCU_ID),0)+1 \n" +
-                    "    FROM PROJECT_CREATION_UPOZILA");
-            while (resultSet1.next()) {
-                pcu_id = resultSet1.getString(1);
-            }
-            resultSet1.close();
-
-            stmt.executeUpdate("INSERT INTO PROJECT_CREATION_UPOZILA (PCU_ID, PCU_PCM_ID, PCU_DATE, PCU_USER, PCU_REMARKS, PCU_DD_ID, PCU_DIST_ID, PCU_DIV_ID)\n" +
-                    "    VALUES ("+pcu_id+", "+pcm_id+", SYSDATE, '"+pcm_user+"', NULL, "+location_dd_id+", "+location_dist_id+", "+location_div_id+")");
-
-            secondStage = true;
-
-            ResultSet resultSet2 = stmt.executeQuery("SELECT NVL(MAX(PCUN_ID),0)+1 \n" +
-                    "    FROM PROJECT_CREATION_UNION");
-
-            while (resultSet2.next()) {
-                pcun_id = resultSet2.getString(1);
-            }
-            resultSet2.close();
-
-            stmt.executeUpdate("INSERT INTO PROJECT_CREATION_UNION(PCUN_ID, PCUN_PCU_ID, PCUN_DATE, PCUN_USER, PCUN_REMARKS, PCUN_DD_ID, PCUN_DIST_ID, PCUN_DIV_ID, PCUN_DDU_ID)\n" +
-                    " VALUES ("+pcun_id+", "+pcu_id+" , SYSDATE, '"+pcm_user+"', NULL, "+location_dd_id+", "+location_dist_id+", "+location_div_id+", "+ddu_id+")");
-
-            thirdStage = true;
-
-            for (int i = 0 ; i < selectedWardLists.size() ; i++) {
-
-                String pcw_id = "";
-
-                ResultSet resultSet3 = stmt.executeQuery("SELECT NVL(MAX(PCW_ID),0)+1 \n" +
-                        "    FROM PROJECT_CREATION_WARD");
-                while (resultSet3.next()) {
-                    pcw_id = resultSet3.getString(1);
-                }
-                resultSet3.close();
-
-                stmt.executeUpdate("INSERT INTO PROJECT_CREATION_WARD(PCW_ID,PCW_PCUN_ID,PCW_DATE,PCW_USER,PCW_REMARKS,PCW_DD_ID,PCW_DIST_ID,PCW_DIV_ID,PCW_DDU_ID,PCW_DDW_ID)\n" +
-                        "    VALUES("+pcw_id+","+pcun_id+",SYSDATE,'"+pcm_user+"',NULL,"+location_dd_id+","+location_dist_id+","+location_div_id+","+ddu_id+","+selectedWardLists.get(i).getDdw_id()+")");
-
-
-                for (int j = 0; j < selectedVillageLists.size(); j++) {
-
-                    if (selectedWardLists.get(i).getDdw_id().equals(selectedVillageLists.get(j).getDdv_ddw_id())) {
-
-                        String pcv_id = "";
-
-                        ResultSet resultSet4 = stmt.executeQuery("SELECT NVL(MAX(PCV_ID),0)+1 \n" +
-                                "    FROM PROJECT_CREATION_VILLAGE");
-                        while (resultSet4.next()) {
-                            pcv_id = resultSet4.getString(1);
-                        }
-                        resultSet4.close();
-
-                        stmt.executeUpdate("INSERT INTO PROJECT_CREATION_VILLAGE(PCV_ID,PCV_PCW_ID,PCV_DATE,PCV_USER,PCV_REMARKS,PCV_DD_ID,PCV_DIST_ID,PCV_DIV_ID,PCV_DDU_ID,PCV_DDW_ID,PCV_DDV_ID)\n" +
-                                "    VALUES("+pcv_id+","+pcw_id+",SYSDATE,'"+pcm_user+"',NULL,"+location_dd_id+","+location_dist_id+","+location_div_id+","+ddu_id+","+selectedWardLists.get(i).getDdw_id()+"," +
-                                "    "+selectedVillageLists.get(j).getDdv_id()+")");
-                    }
-                }
-            }
-
-            fourthStage = true;
-
-            // MAP
-
-            if (!gpxContent_pc.isEmpty()) {
-                String gpxName = gpxFileName_pc.getText().toString();
-                byte[] bArray = gpxContent_pc.getBytes();
-                InputStream stream = new ByteArrayInputStream(bArray);
-
-                CallableStatement callableStatement1 = connection.prepareCall("{call androaid_gpx_file_process(?,?,?,?,?)}");
-                callableStatement1.setInt(1,Integer.parseInt(pcm_id));
-                callableStatement1.setString(2,p_type_name);
-                callableStatement1.setString(3,"Default from Android");
-                callableStatement1.setString(4,gpxName);
-                callableStatement1.setBinaryStream(5,stream,bArray.length);
-                callableStatement1.execute();
-
-                callableStatement1.close();
-                gpxUploaded = true;
-            }
-
-
-            // Image
-
-            for (int i = 0; i < imageCapturedListsPC.size(); i++) {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                Bitmap bitmap = imageCapturedListsPC.get(i).getBitmap();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 60, bos);
-                byte[] bArray = bos.toByteArray();
-                InputStream in = new ByteArrayInputStream(bArray);
-
-                CallableStatement callableStatement1 = connection.prepareCall("{call androaid_proj_pic_upl_process(?,?,?,?,?)}");
-                callableStatement1.setInt(1,Integer.parseInt(pcm_id));
-                callableStatement1.setString(2, imageCapturedListsPC.get(i).getFileName());
-                callableStatement1.setString(3,picUserDetails.get(0).getUserName());
-                callableStatement1.setBinaryStream(4,in,bArray.length);
-                callableStatement1.setInt(5,Integer.parseInt(imageCapturedListsPC.get(i).getStage()));
-                callableStatement1.execute();
-
-                callableStatement1.close();
-                imageCapturedListsPC.get(i).setUploaded(true);
-            }
-
-
-            stmt.close();
-
-            connected = true;
-
-            connection.close();
-
-        } catch (Exception e) {
-
-            //   Toast.makeText(MainActivity.this, ""+e,Toast.LENGTH_LONG).show();
-            Log.i("ERRRRR", e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-
+    //    --------------------------Transforming Bangla Text-----------------------------
+    private String transformText(String text) {
+        byte[] bytes = text.getBytes(ISO_8859_1);
+        return new String(bytes, UTF_8);
     }
 }
