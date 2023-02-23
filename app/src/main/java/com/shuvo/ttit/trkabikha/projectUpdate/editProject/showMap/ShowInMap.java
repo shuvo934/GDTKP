@@ -4,8 +4,12 @@ import static com.shuvo.ttit.trkabikha.adapter.ProjectUpdateAdapter.locationList
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -53,6 +57,11 @@ public class ShowInMap extends AppCompatActivity implements OnMapReadyCallback {
     public String ES_VAL = "";
     public String S_TYPE = "";
 
+    CardView moveToProject;
+    LatLng proLatLng;
+    Boolean latlngChange = false;
+    Boolean track = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +73,8 @@ public class ShowInMap extends AppCompatActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         selection = findViewById(R.id.spinnnnn_multi3);
+        moveToProject = findViewById(R.id.move_card);
+        moveToProject.setVisibility(View.GONE);
 
         locationListsDial = new ArrayList<>();
 
@@ -91,6 +102,22 @@ public class ShowInMap extends AppCompatActivity implements OnMapReadyCallback {
         spinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
         selection.setAdapter(spinnerAdapter);
+
+        moveToProject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (proLatLng != null) {
+                    latlngChange = false;
+                    if (track) {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(proLatLng,15));
+                    }
+                    else {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(proLatLng,17));
+                    }
+                    moveToProject.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     @Override
@@ -99,6 +126,17 @@ public class ShowInMap extends AppCompatActivity implements OnMapReadyCallback {
         mMap = googleMap;
 
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
 
         selection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -187,9 +225,27 @@ public class ShowInMap extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
+        mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                if (latlngChange) {
+                    moveToProject.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                latlngChange = true;
+            }
+        });
+
         if (locationListsDial.size() != 0) {
             if (locationListsDial.size() == 1 ) {
                 LatLng latLng = new LatLng(Double.parseDouble(locationListsDial.get(0).getLatitude()),Double.parseDouble(locationListsDial.get(0).getLongitude()));
+                proLatLng = latLng;
+                track = false;
                 Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(P_NAME)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_36_2))
                         .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE+
@@ -253,6 +309,8 @@ public class ShowInMap extends AppCompatActivity implements OnMapReadyCallback {
                     }
 
                     if (pointNumber == 1) {
+                        proLatLng = point;
+                        track = false;
                         Marker marker = mMap.addMarker(new MarkerOptions().position(point).title(P_NAME)
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_micro_36_2))
                                 .snippet("Project No (প্রকল্প নং): "+ P_NO+"\nProject Code (প্রকল্প কোড): "+P_CODE+"\nProject Date: "+P_DATE+
@@ -267,6 +325,8 @@ public class ShowInMap extends AppCompatActivity implements OnMapReadyCallback {
                         int a = polyline.getPoints().size()/2;
 
                         LatLng latLng = new LatLng(polyline.getPoints().get(a).latitude,polyline.getPoints().get(a).longitude);
+                        proLatLng = latLng;
+                        track = true;
                         Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(P_NAME)
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.transparent_circle))
                                 .anchor((float) 0.5,(float) 0.5)

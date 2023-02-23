@@ -15,6 +15,7 @@
         <entry key="app/src/main/res/drawable/ic_baseline_camera_alt_24.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/ic_baseline_clear_.xml" value="0.133" />
         <entry key="app/src/main/res/drawable/image_transparent.xml" value="0.133" />
+        <entry key="app/src/main/res/drawable/quit_button_design.xml" value="0.1535" />
         <entry key="app/src/main/res/drawable/search_24.xml" value="0.133" />
         <entry key="app/src/main/res/layout/activity_choose_user.xml" value="0.15756578947368421" />
         <entry key="app/src/main/res/layout/activity_create_project.xml" value="0.15756578947368421" />

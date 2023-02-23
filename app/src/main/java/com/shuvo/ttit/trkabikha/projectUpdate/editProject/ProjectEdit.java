@@ -711,51 +711,143 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
             public void onClick(View v) {
                 if (cameraLatLng[0] != null) {
                     if (preLocationLists.size() != 0) {
-                        double startLatitude = Double.parseDouble(preLocationLists.get(0).getLatitude());
-                        double startLongitude = Double.parseDouble(preLocationLists.get(0).getLongitude());
-                        float[] distance = new float[1];
-                        Location.distanceBetween(startLatitude,startLongitude,cameraLatLng[0].latitude,cameraLatLng[0].longitude,distance);
+                        if (preLocationLists.size() == 1) {
+                            double startLatitude = Double.parseDouble(preLocationLists.get(0).getLatitude());
+                            double startLongitude = Double.parseDouble(preLocationLists.get(0).getLongitude());
+                            float[] distance = new float[1];
+                            Location.distanceBetween(startLatitude,startLongitude,cameraLatLng[0].latitude,cameraLatLng[0].longitude,distance);
 
-                        float radius;
-                        if (DISTANCE_METER != null) {
-                            if (!DISTANCE_METER.isEmpty()) {
-                                radius = Float.parseFloat(DISTANCE_METER);
+                            float radius;
+                            if (DISTANCE_METER != null) {
+                                if (!DISTANCE_METER.isEmpty()) {
+                                    radius = Float.parseFloat(DISTANCE_METER);
+                                }
+                                else {
+                                    radius = 0;
+                                }
                             }
                             else {
                                 radius = 0;
                             }
+                            System.out.println("DISTANCE FROM MAIN LOCATION: " + distance[0]);
+
+                            if (radius == 0) {
+                                cameraClick();
+                            }
+                            else if (distance[0] <= radius) {
+                                cameraClick();
+                            }
+                            else {
+                                int dis = (int) distance[0];
+                                Toast.makeText(getApplicationContext(), "You are so far from Main Project Location",Toast.LENGTH_SHORT).show();
+                                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(ProjectEdit.this);
+                                builder.setTitle("Alert!")
+                                        .setMessage("You are "+dis+" meters away from project location. You need to be inside around "+ (int) radius+" meters. Do you still want to take pictures?")
+                                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                cameraClick();
+                                            }
+                                        })
+                                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        });
+                                AlertDialog alert = builder.create();
+                                alert.show();
+
+                            }
                         }
                         else {
-                            radius = 0;
-                        }
-                        System.out.println("DISTANCE FROM MAIN LOCATION: " + distance[0]);
-
-                        if (radius == 0) {
-                            cameraClick();
-                        }
-                        else if (distance[0] <= radius) {
-                            cameraClick();
-                        }
-                        else {
-                            Toast.makeText(getApplicationContext(), "You are so far from Main Project Location",Toast.LENGTH_SHORT).show();
-                            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(ProjectEdit.this);
-                            builder.setTitle("Alert!")
-                                    .setMessage("You are "+distance[0]+" meters away from project location. You need to be inside around "+radius+" meters from project location. Do you still want to take pictures?")
-                                    .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            cameraClick();
+                            float[] distance = new float[1];
+                            float radius;
+                            float[] finalDistance = new float[1];
+                            boolean found = false;
+                            if (DISTANCE_METER != null) {
+                                if (!DISTANCE_METER.isEmpty()) {
+                                    radius = Float.parseFloat(DISTANCE_METER);
+                                    for (int i = 0 ; i < preLocationLists.size(); i++) {
+                                        double startLatitude = Double.parseDouble(preLocationLists.get(i).getLatitude());
+                                        double startLongitude = Double.parseDouble(preLocationLists.get(i).getLongitude());
+                                        Location.distanceBetween(startLatitude,startLongitude,cameraLatLng[0].latitude,cameraLatLng[0].longitude,distance);
+                                        if (distance[0] <= radius) {
+                                            finalDistance[0] = distance[0];
+                                            found = true;
+                                            break;
                                         }
-                                    })
-                                    .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
+                                        else {
+                                            if (i == 0) {
+                                                finalDistance[0] = distance[0];
+                                            }
+                                            else {
+                                                if (distance[0] < finalDistance[0]) {
+                                                    finalDistance[0] = distance[0];
+                                                }
+                                            }
                                         }
-                                    });
-                            AlertDialog alert = builder.create();
-                            alert.show();
+                                    }
+                                }
+                                else {
+                                    radius = 0;
+                                }
+                            }
+                            else {
+                                radius = 0;
+                            }
 
+                            System.out.println("SHORTEST DISTANCE FROM MAIN LOCATION: " + finalDistance[0]);
+
+                            if (radius == 0) {
+                                cameraClick();
+                            }
+                            else if (found) {
+                                cameraClick();
+                            }
+                            else {
+                                float dd = finalDistance[0] - radius;
+                                if (dd < 100) {
+                                    Toast.makeText(getApplicationContext(), "You are only "+(int) dd+" meters behind from Project Location. Try to move a little forward.",Toast.LENGTH_SHORT).show();
+                                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(ProjectEdit.this);
+                                    builder.setTitle("Alert!")
+                                            .setMessage("You are only "+ (int) finalDistance[0]+" meters away from project location. You need to be inside around "+ (int) radius+" meters. Do you still want to take pictures?")
+                                            .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    cameraClick();
+                                                }
+                                            })
+                                            .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                }
+                                            });
+                                    AlertDialog alert = builder.create();
+                                    alert.show();
+                                }
+                                else {
+                                    Toast.makeText(getApplicationContext(), "You are so far from Main Project Location",Toast.LENGTH_SHORT).show();
+                                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(ProjectEdit.this);
+                                    builder.setTitle("Alert!")
+                                            .setMessage("You are "+(int) finalDistance[0]+" meters away from project location. You need to be inside around "+ (int) radius+" meters. Do you still want to take pictures?")
+                                            .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    cameraClick();
+                                                }
+                                            })
+                                            .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                }
+                                            });
+                                    AlertDialog alert = builder.create();
+                                    alert.show();
+                                }
+                            }
                         }
                     }
                     else {

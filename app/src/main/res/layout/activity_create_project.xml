@@ -68,6 +68,14 @@
                     android:layout_height="wrap_content"
                     android:gravity="center">
 
+                    <ImageView
+                        android:id="@+id/design_image_pc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="6dp"
+                        android:layout_alignParentStart="true"
+                        android:src="@drawable/ic_baseline_info_24"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -80,7 +88,8 @@
                         android:fontFamily="@font/roboto_bold"
                         android:gravity="center"
                         android:letterSpacing=".15"
-                        android:text="Project Data"
+                        android:layout_toEndOf="@+id/design_image_pc"
+                        android:text="PROJECT DATA"
                         android:textColor="@color/white"
                         android:textSize="17sp"
                         android:textStyle="bold" />
@@ -107,6 +116,15 @@
                     android:layout_height="wrap_content"
                     android:gravity="center">
 
+                    <ImageView
+                        android:id="@+id/design_image_1_pc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="6dp"
+                        android:layout_alignParentStart="true"
+                        android:src="@drawable/ic_baseline_location_city_24"/>
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -118,7 +136,8 @@
                         android:fontFamily="@font/roboto_bold"
                         android:gravity="center"
                         android:letterSpacing=".15"
-                        android:text="Location Data"
+                        android:layout_toEndOf="@+id/design_image_1_pc"
+                        android:text="LOCATION DATA"
                         android:textColor="@color/white"
                         android:textSize="17sp"
                         android:textStyle="bold" />
@@ -351,6 +370,14 @@
                     android:layout_height="wrap_content"
                     android:gravity="center">
 
+                    <ImageView
+                        android:id="@+id/design_image_2_pc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="6dp"
+                        android:layout_alignParentStart="true"
+                        android:src="@drawable/ic_baseline_map_24"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -363,7 +390,8 @@
                         android:fontFamily="@font/roboto_bold"
                         android:gravity="center"
                         android:letterSpacing=".15"
-                        android:text="Map Data"
+                        android:layout_toEndOf="@+id/design_image_2_pc"
+                        android:text="MAP DATA"
                         android:textColor="@color/white"
                         android:textSize="17sp"
                         android:textStyle="bold" />
@@ -474,7 +502,14 @@
                     android:layout_height="wrap_content"
                     android:gravity="center">
 
-
+                    <ImageView
+                        android:id="@+id/design_image_3_pc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="6dp"
+                        android:layout_alignParentStart="true"
+                        android:src="@drawable/ic_baseline_image_24"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -486,7 +521,8 @@
                         android:fontFamily="@font/roboto_bold"
                         android:gravity="center"
                         android:letterSpacing=".15"
-                        android:text="Image Data"
+                        android:layout_toEndOf="@+id/design_image_3_pc"
+                        android:text="IMAGE DATA"
                         android:textColor="@color/white"
                         android:textSize="17sp"
                         android:textStyle="bold" />
