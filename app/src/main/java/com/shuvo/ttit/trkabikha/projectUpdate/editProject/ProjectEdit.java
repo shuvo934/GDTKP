@@ -7,6 +7,10 @@ import static com.shuvo.ttit.trkabikha.mainmenu.HomePage.projectUpdateLists;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -973,7 +977,8 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 try {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+//                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    activityResultLauncher.launch(takePictureIntent);
                     Log.i("Activity:", "Shuru hoise");
 
                 } catch (ActivityNotFoundException e) {
@@ -984,6 +989,50 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
             }
         }
     }
+
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    int resultCode = result.getResultCode();
+
+                    if (resultCode == RESULT_OK) {
+
+                        // Getting ImageFile Name
+                        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",Locale.getDefault()).format(new Date());
+                        System.out.println(timeStamp);
+                        imageFileName = "IMG_" + timeStamp;
+                        System.out.println(imageFileName);
+
+                        File imgFile = new  File(currentPhotoPath);
+                        if(imgFile.exists()) {
+                            //cameraImage.setImageURI(Uri.fromFile(imgFile));
+                            System.out.println(currentPhotoPath);
+
+                            firstBitmap = BitmapFactory.decodeFile(currentPhotoPath);
+                            try {
+                                firstBitmap = modifyOrientation(firstBitmap, currentPhotoPath);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            android.graphics.Bitmap.Config bitmapConfig = firstBitmap.getConfig();
+                            // set default bitmap config if none
+                            if(bitmapConfig == null) {
+                                bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
+                            }
+                            // resource bitmaps are imutable,
+                            // so we need to convert it to mutable one
+                            firstBitmap = firstBitmap.copy(bitmapConfig, true);
+
+                            ImageDialogue imageDialogue = new ImageDialogue();
+                            imageDialogue.show(getSupportFragmentManager(),"Image");
+                        }
+
+                    }
+                }
+            }
+    );
 
     @Override
     protected void onStop() {
@@ -1177,7 +1226,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1000) {
             if (resultCode == Activity.RESULT_OK) {
-                String result = data.getStringExtra("result");
+//                String result = data.getStringExtra("result");
                 //info.setText("Done");
                 if (ActivityCompat.checkSelfPermission(ProjectEdit.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
@@ -1199,94 +1248,94 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 //                System.exit(0);
             }
         }
-        else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-
-            double latitude = cameraLatLng[0].latitude;
-            double longitude = cameraLatLng[0].longitude;
-
-            // \n is for new line
-            //Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
-
-            getAddress(latitude, longitude);
-
-            // Getting ImageFile Name
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",Locale.getDefault()).format(new Date());
-            System.out.println(timeStamp);
-            imageFileName = "IMG_" + timeStamp;
-            System.out.println(imageFileName);
-
-            //fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy, hh:mm:ss a", Locale.getDefault());
-            Date c = Calendar.getInstance().getTime();
-            String dd = simpleDateFormat.format(c);
-            System.out.println(dd);
-            String timeLatLng = "Time: " + dd + "\n" + "Latitude: " + latitude + "\n" + "Longitude: " + longitude;
-            address = timeLatLng + "\n"+ "Address: " + address;
-            System.out.println(address);
-
-            File imgFile = new  File(currentPhotoPath);
-            if(imgFile.exists()) {
-                //cameraImage.setImageURI(Uri.fromFile(imgFile));
-                System.out.println(currentPhotoPath);
-
-                firstBitmap = BitmapFactory.decodeFile(currentPhotoPath);
-                try {
-                    firstBitmap = modifyOrientation(firstBitmap, currentPhotoPath);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Resources resources = getResources();
-                float scale = resources.getDisplayMetrics().density;
-                //Bitmap bitmap = BitmapFactory.decodeResource(resources, gResId);
-
-                android.graphics.Bitmap.Config bitmapConfig = firstBitmap.getConfig();
-                // set default bitmap config if none
-                if(bitmapConfig == null) {
-                    bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
-                }
-                // resource bitmaps are imutable,
-                // so we need to convert it to mutable one
-                firstBitmap = firstBitmap.copy(bitmapConfig, true);
-
-                Canvas canvas = new Canvas(firstBitmap);
-
-                // new antialiased Paint
-                TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);
-                // text color - #3D3D3D
-                paint.setColor(Color.WHITE);
-                // text size in pixels
-                paint.setTextSize((int) (36 * scale));
-                // text shadow
-                paint.setShadowLayer(4f, 0f, 2f, Color.BLACK);
-                paint.setFakeBoldText(true);
-
-                // set text width to canvas width minus 16dp padding
-                int textWidth = canvas.getWidth() - (int) (16 * scale);
-
-                // init StaticLayout for text
-
-                StaticLayout textLayout = new StaticLayout(
-                        address, paint, textWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-
-                // get height of multiline text
-                int textHeight = textLayout.getHeight();
-
-                // get position of text's top left corner
-                float x = (firstBitmap.getWidth() - textWidth)/2;
-                float y = (firstBitmap.getHeight() - textHeight)/2;
-
-
-                // draw text to the Canvas center
-                int yyyy = firstBitmap.getHeight() - textHeight - 16;
-                canvas.save();
-                canvas.translate(5, yyyy);
-                textLayout.draw(canvas);
-                canvas.restore();
-
-                ImageDialogue imageDialogue = new ImageDialogue();
-                imageDialogue.show(getSupportFragmentManager(),"Image");
-            }
-        }
+//        else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+//
+//            double latitude = cameraLatLng[0].latitude;
+//            double longitude = cameraLatLng[0].longitude;
+//
+//            // \n is for new line
+//            //Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+//
+//            getAddress(latitude, longitude);
+//
+//            // Getting ImageFile Name
+//            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",Locale.getDefault()).format(new Date());
+//            System.out.println(timeStamp);
+//            imageFileName = "IMG_" + timeStamp;
+//            System.out.println(imageFileName);
+//
+//            //fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy, hh:mm:ss a", Locale.getDefault());
+//            Date c = Calendar.getInstance().getTime();
+//            String dd = simpleDateFormat.format(c);
+//            System.out.println(dd);
+//            String timeLatLng = "Time: " + dd + "\n" + "Latitude: " + latitude + "\n" + "Longitude: " + longitude;
+//            address = timeLatLng + "\n"+ "Address: " + address;
+//            System.out.println(address);
+//
+//            File imgFile = new  File(currentPhotoPath);
+//            if(imgFile.exists()) {
+//                //cameraImage.setImageURI(Uri.fromFile(imgFile));
+//                System.out.println(currentPhotoPath);
+//
+//                firstBitmap = BitmapFactory.decodeFile(currentPhotoPath);
+//                try {
+//                    firstBitmap = modifyOrientation(firstBitmap, currentPhotoPath);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                Resources resources = getResources();
+//                float scale = resources.getDisplayMetrics().density;
+//                //Bitmap bitmap = BitmapFactory.decodeResource(resources, gResId);
+//
+//                android.graphics.Bitmap.Config bitmapConfig = firstBitmap.getConfig();
+//                // set default bitmap config if none
+//                if(bitmapConfig == null) {
+//                    bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
+//                }
+//                // resource bitmaps are imutable,
+//                // so we need to convert it to mutable one
+//                firstBitmap = firstBitmap.copy(bitmapConfig, true);
+//
+//                Canvas canvas = new Canvas(firstBitmap);
+//
+//                // new antialiased Paint
+//                TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);
+//                // text color - #3D3D3D
+//                paint.setColor(Color.WHITE);
+//                // text size in pixels
+//                paint.setTextSize((int) (36 * scale));
+//                // text shadow
+//                paint.setShadowLayer(4f, 0f, 2f, Color.BLACK);
+//                paint.setFakeBoldText(true);
+//
+//                // set text width to canvas width minus 16dp padding
+//                int textWidth = canvas.getWidth() - (int) (16 * scale);
+//
+//                // init StaticLayout for text
+//
+//                StaticLayout textLayout = new StaticLayout(
+//                        address, paint, textWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+//
+//                // get height of multiline text
+//                int textHeight = textLayout.getHeight();
+//
+//                // get position of text's top left corner
+//                float x = (firstBitmap.getWidth() - textWidth)/2;
+//                float y = (firstBitmap.getHeight() - textHeight)/2;
+//
+//
+//                // draw text to the Canvas center
+//                int yyyy = firstBitmap.getHeight() - textHeight - 16;
+//                canvas.save();
+//                canvas.translate(5, yyyy);
+//                textLayout.draw(canvas);
+//                canvas.restore();
+//
+//                ImageDialogue imageDialogue = new ImageDialogue();
+//                imageDialogue.show(getSupportFragmentManager(),"Image");
+//            }
+//        }
     }
 
     public static Bitmap modifyOrientation(Bitmap bitmap, String image_absolute_path) throws IOException {
@@ -1326,35 +1375,35 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-    public void getAddress(double lat, double lng) {
-        Geocoder geocoder = new Geocoder(ProjectEdit.this, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
-            Address obj = addresses.get(0);
-            String adds = obj.getAddressLine(0);
-            String add = "Address from GeoCODE: ";
-            add = add + "\n" + obj.getCountryName();
-            add = add + "\n" + obj.getCountryCode();
-            add = add + "\n" + obj.getAdminArea();
-            add = add + "\n" + obj.getPostalCode();
-            add = add + "\n" + obj.getSubAdminArea();
-            add = add + "\n" + obj.getLocality();
-            add = add + "\n" + obj.getSubThoroughfare();
-
-            Log.v("IGA", "Address: " + add);
-            Log.v("NEW ADD", "Address: " + adds);
-            address = adds;
-            // Toast.makeText(this, "Address=>" + add,
-            // Toast.LENGTH_SHORT).show();
-
-            // TennisAppActivity.showDialog(add);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            address = "Address Not Found";
-//            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
+//    public void getAddress(double lat, double lng) {
+//        Geocoder geocoder = new Geocoder(ProjectEdit.this, Locale.getDefault());
+//        try {
+//            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+//            Address obj = addresses.get(0);
+//            String adds = obj.getAddressLine(0);
+//            String add = "Address from GeoCODE: ";
+//            add = add + "\n" + obj.getCountryName();
+//            add = add + "\n" + obj.getCountryCode();
+//            add = add + "\n" + obj.getAdminArea();
+//            add = add + "\n" + obj.getPostalCode();
+//            add = add + "\n" + obj.getSubAdminArea();
+//            add = add + "\n" + obj.getLocality();
+//            add = add + "\n" + obj.getSubThoroughfare();
+//
+//            Log.v("IGA", "Address: " + add);
+//            Log.v("NEW ADD", "Address: " + adds);
+//            address = adds;
+//            // Toast.makeText(this, "Address=>" + add,
+//            // Toast.LENGTH_SHORT).show();
+//
+//            // TennisAppActivity.showDialog(add);
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//            address = "Address Not Found";
+////            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

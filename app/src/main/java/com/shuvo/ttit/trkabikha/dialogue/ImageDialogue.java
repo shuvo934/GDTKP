@@ -22,12 +22,22 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.location.Address;
+import android.location.Geocoder;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -46,8 +56,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.core.widget.NestedScrollView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.rosemaryapp.amazingspinner.AmazingSpinner;
@@ -55,13 +68,16 @@ import com.shuvo.ttit.trkabikha.R;
 import com.shuvo.ttit.trkabikha.arraylist.ChoiceList;
 import com.shuvo.ttit.trkabikha.arraylist.ImageCapturedList;
 import com.shuvo.ttit.trkabikha.arraylist.LocationLists;
+import com.shuvo.ttit.trkabikha.projectUpdate.editProject.ProjectEdit;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -79,6 +95,9 @@ public class ImageDialogue extends AppCompatDialogFragment {
 
     String imageStageName = "";
     String imageStageId = "";
+    NestedScrollView fullLayout;
+    CircularProgressIndicator circularProgressIndicator;
+    String address = "";
 
     AlertDialog dialog;
 
@@ -98,6 +117,9 @@ public class ImageDialogue extends AppCompatDialogFragment {
         imageStageLayout = view.findViewById(R.id.project_image_stage_spinner_layout);
         imageStageLayout.setVisibility(View.GONE);
         imageStageSpinner = view.findViewById(R.id.project_image_stage_spinner);
+        fullLayout = view.findViewById(R.id.image_load_full_layout);
+        circularProgressIndicator = view.findViewById(R.id.progress_indicator_image_load);
+        circularProgressIndicator.setVisibility(View.GONE);
 
         imageStageTypeLists = new ArrayList<>();
 
@@ -135,8 +157,8 @@ public class ImageDialogue extends AppCompatDialogFragment {
         });
 
         fileName.setText(imageFileName);
-        if (firstBitmap != null)
-        imageView.setImageBitmap(firstBitmap);
+//        if (firstBitmap != null)
+//        imageView.setImageBitmap(firstBitmap);
 
 
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -337,6 +359,7 @@ public class ImageDialogue extends AppCompatDialogFragment {
             }
         });
 
+        new getAddress().execute();
         return dialog;
     }
 
@@ -413,6 +436,112 @@ public class ImageDialogue extends AppCompatDialogFragment {
         @Override
         public void onScanCompleted(String path, Uri uri) {
             connection.disconnect();
+        }
+    }
+
+    public class getAddress extends  AsyncTask<Void,Void,Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            circularProgressIndicator.setVisibility(View.VISIBLE);
+            fullLayout.setVisibility(View.GONE);
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            double lat = targetLocation.getLatitude();
+            double lng = targetLocation.getLongitude();
+
+            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+            try {
+                List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+                Address obj = addresses.get(0);
+                String adds = obj.getAddressLine(0);
+                String add = "Address from GeoCODE: ";
+                add = add + "\n" + obj.getCountryName();
+                add = add + "\n" + obj.getCountryCode();
+                add = add + "\n" + obj.getAdminArea();
+                add = add + "\n" + obj.getPostalCode();
+                add = add + "\n" + obj.getSubAdminArea();
+                add = add + "\n" + obj.getLocality();
+                add = add + "\n" + obj.getSubThoroughfare();
+
+                Log.v("IGA", "Address: " + add);
+                Log.v("NEW ADD", "Address: " + adds);
+                address = adds;
+                // Toast.makeText(this, "Address=>" + add,
+                // Toast.LENGTH_SHORT).show();
+
+                // TennisAppActivity.showDialog(add);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                address = "Address Not Found";
+//            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy, hh:mm:ss a", Locale.getDefault());
+            Date c = Calendar.getInstance().getTime();
+            String dd = simpleDateFormat.format(c);
+            System.out.println(dd);
+            String timeLatLng = "Time: " + dd + "\n" + "Latitude: " + targetLocation.getLatitude() + "\n" + "Longitude: " + targetLocation.getLongitude();
+            address = timeLatLng + "\n"+ "Address: " + address;
+            System.out.println(address);
+            Resources resources = getResources();
+            float scale = resources.getDisplayMetrics().density;
+            Canvas canvas = new Canvas(firstBitmap);
+
+            // new antialiased Paint
+            TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);
+            // text color - #3D3D3D
+            paint.setColor(Color.WHITE);
+            // text size in pixels
+            paint.setTextSize((int) (36 * scale));
+            // text shadow
+            paint.setShadowLayer(4f, 0f, 2f, Color.BLACK);
+            paint.setFakeBoldText(true);
+
+            // set text width to canvas width minus 16dp padding
+            int textWidth = canvas.getWidth() - (int) (16 * scale);
+
+            // init StaticLayout for text
+
+            StaticLayout textLayout = new StaticLayout(
+                    address, paint, textWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+
+            // get height of multiline text
+            int textHeight = textLayout.getHeight();
+
+            // get position of text's top left corner
+//                            float x = (firstBitmap.getWidth() - textWidth)/2;
+//                            float y = (firstBitmap.getHeight() - textHeight)/2;
+
+
+            // draw text to the Canvas center
+            int yyyy = firstBitmap.getHeight() - textHeight - 16;
+            canvas.save();
+            canvas.translate(5, yyyy);
+            textLayout.draw(canvas);
+            canvas.restore();
+            if (firstBitmap != null) {
+                Glide.with(getActivity().getApplicationContext())
+                    .load(firstBitmap)
+                    .error(R.drawable.loading_error)
+                    .placeholder(R.drawable.loading)
+                    .into(imageView);
+            }
+            circularProgressIndicator.setVisibility(View.GONE);
+            fullLayout.setVisibility(View.VISIBLE);
         }
     }
 }

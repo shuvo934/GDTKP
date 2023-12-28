@@ -3,6 +3,7 @@ package com.shuvo.ttit.trkabikha.mainmenu;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -136,6 +137,7 @@ public class HomePage extends AppCompatActivity {
     String pcmUser = "";
 
     ImageView logOut;
+    TextView citizenPortalLink;
 
 
     @Override
@@ -186,6 +188,7 @@ public class HomePage extends AppCompatActivity {
         createProject.setEnabled(false);
 
         logOut = findViewById(R.id.log_out_icon_main_menu);
+        citizenPortalLink = findViewById(R.id.citizen_portal_web_link);
 
         fysLists = new ArrayList<>();
         fyeLists = new ArrayList<>();
@@ -604,6 +607,16 @@ public class HomePage extends AppCompatActivity {
                         break;
                     }
                 }
+            }
+        });
+
+        citizenPortalLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String site_link = "http://tr-kabikha.techterrain-it.com:8869/";
+                Uri uri = Uri.parse(site_link); // missing 'http://' will cause crashed
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
             }
         });
 

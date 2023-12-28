@@ -284,7 +284,9 @@ public class PICLogin extends AppCompatActivity {
                     }
                 }
             }
-        } catch (Exception ex) { } // for now eat exceptions
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } // for now eat exceptions
         return "";
     }
 
@@ -330,6 +332,7 @@ public class PICLogin extends AppCompatActivity {
 
         StringRequest getUserRequest = new StringRequest(Request.Method.GET, get_pic_url, response -> {
             try {
+                conn = true;
                 JSONObject jsonObject = new JSONObject(response);
                 String items = jsonObject.getString("items");
                 String count = jsonObject.getString("count");
