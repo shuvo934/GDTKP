@@ -1,5 +1,6 @@
 package com.shuvo.ttit.trkabikha.projectCreation;
 
+import static com.shuvo.ttit.trkabikha.Constants.api_pre_url;
 import static com.shuvo.ttit.trkabikha.login.PICLogin.picUserDetails;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -66,6 +67,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -1688,11 +1690,11 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
         financialYearLists = new ArrayList<>();
         unionLists = new ArrayList<>();
 
-        String sanc_cat_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/sanction_cat_lists";
-        String pcm_cat_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/pcm_category_lists";
-        String fy_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/fy_lists";
-        String fund_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/source_of_fund_lists";
-        String union_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/union_lists?dd_id="+dd_id;
+        String sanc_cat_url = api_pre_url + "utility_data/sanction_cat_lists";
+        String pcm_cat_url = api_pre_url + "utility_data/pcm_category_lists";
+        String fy_url = api_pre_url + "utility_data/fy_lists";
+        String fund_url = api_pre_url + "utility_data/source_of_fund_lists";
+        String union_url = api_pre_url + "utility_data/union_lists?dd_id="+dd_id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
 
@@ -1978,7 +1980,7 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
             source_of_fund_id = "";
         }
 
-        String p_type_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/modified_project_type_lists?fsm_id="+source_of_fund_id;
+        String p_type_url = api_pre_url + "utility_data/modified_project_type_lists?fsm_id="+source_of_fund_id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
 
@@ -2067,7 +2069,7 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
             project_type_id = "";
         }
 
-        String pr_sub_type_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/project_sub_type_lists?ptm_id="+project_type_id;
+        String pr_sub_type_url = api_pre_url + "utility_data/project_sub_type_lists?ptm_id="+project_type_id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
 
@@ -2243,7 +2245,7 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
 
     public void postWardRequest(String ddw_id, int i, String pcun_id, String pcm_id){
 
-        String url = "http://103.56.208.123:8086/terrain/tr_kabikha/project_creation/insert_wards";
+        String url = api_pre_url + "project_creation/insert_wards";
 
         RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
 
@@ -2256,8 +2258,10 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                 String string_out = jsonObject.getString("string_out");
                 String pcw_id = jsonObject.getString("pcw_id");
                 if (!pcw_id.isEmpty() && !pcw_id.equals("null") && string_out.equals("Successfully Created")) {
-
-                    postVillage(pcw_id,ddw_id,pcm_id);
+                    if(numberOfLocationRequestsToMake == 0 && !hasLocationRequestFailed) {
+                        conn = true;
+                        postVillage(pcw_id,ddw_id,pcm_id);
+                    }
                 }
                 else {
                     hasLocationRequestFailed = true;
@@ -2336,7 +2340,7 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
 
     public void postVillageRequest(String ddw_id, String ddv_id, String pcw_id,String pcm_id) {
 
-        String url = "http://103.56.208.123:8086/terrain/tr_kabikha/project_creation/insert_villages";
+        String url = api_pre_url + "project_creation/insert_villages";
 
         RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
 
@@ -2410,7 +2414,7 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
 
     public void updateGpxQuery(String pcm_id) {
         gpxUploaded = false;
-        String update_gpx_url = "http://103.56.208.123:8086/terrain/tr_kabikha/update_project/update_gpx_file";
+        String update_gpx_url = api_pre_url + "update_project/update_gpx_file";
 
         if (!gpxContent_pc.isEmpty()) {
             RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
@@ -2474,12 +2478,14 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
         hasRequestFailed = false;
 
         if (imageCapturedListsPC.size() != 0) {
+            System.out.println("IMAGE SIZE : " + imageCapturedListsPC.size());
             for (int i = 0; i < imageCapturedListsPC.size(); i++) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 Bitmap bitmap = imageCapturedListsPC.get(i).getBitmap();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 60, bos);
                 byte[] bArray = bos.toByteArray();
                 numberOfRequestsToMake++;
+                System.out.println("REQUEST TO MAKE: " + numberOfRequestsToMake);
                 updatePicRequest(bArray,i,pcm_id);
 
             }
@@ -2492,12 +2498,13 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
     }
 
     public void updatePicRequest(byte[] bArray, int i,String pcm_id) {
-        String update_pic_url = "http://103.56.208.123:8086/terrain/tr_kabikha/update_project/update_picture";
+        String update_pic_url = api_pre_url + "update_project/update_picture";
         RequestQueue requestQueue = Volley.newRequestQueue(CreateProject.this);
 
         StringRequest updatePicRequest = new StringRequest(Request.Method.POST, update_pic_url, response -> {
             try {
                 numberOfRequestsToMake--;
+                System.out.println("REQUEST REMAINED: " + numberOfRequestsToMake);
                 JSONObject jsonObject = new JSONObject(response);
                 String string_out = jsonObject.getString("string_out");
                 if (string_out.equals("Successfully Created")) {
@@ -2522,6 +2529,7 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
             } catch (JSONException e) {
                 e.printStackTrace();
                 numberOfRequestsToMake--;
+                System.out.println("REQUEST REMAINED: " + numberOfRequestsToMake);
                 hasRequestFailed = true;
                 if(numberOfRequestsToMake == 0) {
                     //The last request failed
@@ -2532,6 +2540,7 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
             }
         }, error -> {
             numberOfRequestsToMake--;
+            System.out.println("REQUEST REMAINED: " + numberOfRequestsToMake);
             hasRequestFailed = true;
             if(numberOfRequestsToMake == 0) {
                 //The last request failed
@@ -2560,6 +2569,12 @@ public class CreateProject extends AppCompatActivity implements ImageCapturedAda
                 return "application/binary";
             }
         };
+
+        updatePicRequest.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 4,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
 
         requestQueue.add(updatePicRequest);
     }

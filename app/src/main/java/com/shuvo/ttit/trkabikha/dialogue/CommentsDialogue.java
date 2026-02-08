@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.shuvo.ttit.trkabikha.Constants.api_pre_url;
 import static com.shuvo.ttit.trkabikha.projectDetails.ProjectDetails.PCM_ID_PD;
 
 import org.json.JSONException;
@@ -240,7 +241,7 @@ public class CommentsDialogue extends AppCompatDialogFragment {
         conn = false;
         connected = false;
 
-        String post_url = "http://103.56.208.123:8086/terrain/tr_kabikha/comments/uploadComments";
+        String post_url = api_pre_url + "comments/uploadComments";
 
         RequestQueue requestQueue = Volley.newRequestQueue(getContext());
 

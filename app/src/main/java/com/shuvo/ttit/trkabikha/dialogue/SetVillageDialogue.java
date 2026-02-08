@@ -1,5 +1,6 @@
 package com.shuvo.ttit.trkabikha.dialogue;
 
+import static com.shuvo.ttit.trkabikha.Constants.api_pre_url;
 import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.selectedVillageAdapter;
 import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.selectedVillageLists;
 import static com.shuvo.ttit.trkabikha.projectCreation.CreateProject.selectedWardLists;
@@ -192,7 +193,7 @@ public class SetVillageDialogue extends AppCompatDialogFragment {
         villageLists = new ArrayList<>();
 
 
-        String dist_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/village_lists?ward_id="+ward_id;
+        String dist_url = api_pre_url + "utility_data/village_lists?ward_id="+ward_id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(getContext());
 

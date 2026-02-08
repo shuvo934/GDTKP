@@ -1,5 +1,6 @@
 package com.shuvo.ttit.trkabikha.projectUpdate.editProject;
 
+import static com.shuvo.ttit.trkabikha.Constants.api_pre_url;
 import static com.shuvo.ttit.trkabikha.adapter.ProjectUpdateAdapter.locationListsAdapterPU;
 import static com.shuvo.ttit.trkabikha.login.PICLogin.picUserDetails;
 import static com.shuvo.ttit.trkabikha.mainmenu.HomePage.projectUpdateLists;
@@ -31,18 +32,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.media.ExifInterface;
+import androidx.exifinterface.media.ExifInterface;
 
 import android.net.Uri;
 
@@ -52,9 +47,6 @@ import android.os.Environment;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.Html;
-import android.text.Layout;
-import android.text.StaticLayout;
-import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -71,8 +63,6 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
@@ -111,21 +101,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.sql.CallableStatement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -204,11 +188,9 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
     LocationCallback locationCallbackCamera;
     LocationManager locationManager;
     public static String currentPhotoPath;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
     public static String imageFileName = "";
     final LatLng[] cameraLatLng = {null};
     public static Location targetLocation = null;
-    String address = "";
     public static Bitmap firstBitmap = null;
 
     private int mYear, mMonth, mDay;
@@ -235,7 +217,6 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
     public static String gpxContent = "";
     public static ArrayList<LocationLists> locationListsCreate;
-    LatLng[] WayLatLng;
 
     public static RelativeLayout gpxFileLayout;
     public static TextView gpxFileName;
@@ -408,84 +389,81 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
 
         projectValueType.setText(S_TYPE);
 
-        approvalDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar c = Calendar.getInstance();
-                if(P_DATE.isEmpty()) {
-                    mYear = c.get(Calendar.YEAR);
-                    mMonth = c.get(Calendar.MONTH);
-                    mDay = c.get(Calendar.DAY_OF_MONTH);
+        approvalDate.setOnClickListener(v -> {
+            final Calendar c = Calendar.getInstance();
+            if(P_DATE.isEmpty()) {
+                mYear = c.get(Calendar.YEAR);
+                mMonth = c.get(Calendar.MONTH);
+                mDay = c.get(Calendar.DAY_OF_MONTH);
+            }
+            else {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.getDefault());
+                Date date = null;
+                try {
+                    date = simpleDateFormat.parse(P_DATE);
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
-                else {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.getDefault());
-                    Date date = null;
-                    try {
-                        date = simpleDateFormat.parse(P_DATE);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    if (date != null) {
-                        c.setTime(date);
-                    }
-
-                    mYear = c.get(Calendar.YEAR);
-                    mMonth = c.get(Calendar.MONTH);
-                    mDay = c.get(Calendar.DAY_OF_MONTH);
+                if (date != null) {
+                    c.setTime(date);
                 }
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(ProjectEdit.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                mYear = c.get(Calendar.YEAR);
+                mMonth = c.get(Calendar.MONTH);
+                mDay = c.get(Calendar.DAY_OF_MONTH);
+            }
 
-                            String monthName = "";
-                            String dayOfMonthName = "";
-                            String yearName = "";
-                            month = month + 1;
-                            if (month == 1) {
-                                monthName = "JAN";
-                            } else if (month == 2) {
-                                monthName = "FEB";
-                            } else if (month == 3) {
-                                monthName = "MAR";
-                            } else if (month == 4) {
-                                monthName = "APR";
-                            } else if (month == 5) {
-                                monthName = "MAY";
-                            } else if (month == 6) {
-                                monthName = "JUN";
-                            } else if (month == 7) {
-                                monthName = "JUL";
-                            } else if (month == 8) {
-                                monthName = "AUG";
-                            } else if (month == 9) {
-                                monthName = "SEP";
-                            } else if (month == 10) {
-                                monthName = "OCT";
-                            } else if (month == 11) {
-                                monthName = "NOV";
-                            } else if (month == 12) {
-                                monthName = "DEC";
-                            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(ProjectEdit.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
-                            if (dayOfMonth <= 9) {
-                                dayOfMonthName = "0" + String.valueOf(dayOfMonth);
-                            } else {
-                                dayOfMonthName = String.valueOf(dayOfMonth);
-                            }
-                            yearName  = String.valueOf(year);
-                            yearName = yearName.substring(yearName.length()-2);
-                            System.out.println(yearName);
-                            System.out.println(dayOfMonthName);
-                            approvalDate.setText(dayOfMonthName + "-" + monthName + "-" + yearName);
-                            P_DATE = Objects.requireNonNull(approvalDate.getText()).toString();
+                        String monthName = "";
+                        String dayOfMonthName = "";
+                        String yearName = "";
+                        month = month + 1;
+                        if (month == 1) {
+                            monthName = "JAN";
+                        } else if (month == 2) {
+                            monthName = "FEB";
+                        } else if (month == 3) {
+                            monthName = "MAR";
+                        } else if (month == 4) {
+                            monthName = "APR";
+                        } else if (month == 5) {
+                            monthName = "MAY";
+                        } else if (month == 6) {
+                            monthName = "JUN";
+                        } else if (month == 7) {
+                            monthName = "JUL";
+                        } else if (month == 8) {
+                            monthName = "AUG";
+                        } else if (month == 9) {
+                            monthName = "SEP";
+                        } else if (month == 10) {
+                            monthName = "OCT";
+                        } else if (month == 11) {
+                            monthName = "NOV";
+                        } else if (month == 12) {
+                            monthName = "DEC";
                         }
-                    }, mYear, mMonth, mDay);
+
+                        if (dayOfMonth <= 9) {
+                            dayOfMonthName = "0" + String.valueOf(dayOfMonth);
+                        } else {
+                            dayOfMonthName = String.valueOf(dayOfMonth);
+                        }
+                        yearName  = String.valueOf(year);
+                        yearName = yearName.substring(yearName.length()-2);
+                        System.out.println(yearName);
+                        System.out.println(dayOfMonthName);
+                        approvalDate.setText(dayOfMonthName + "-" + monthName + "-" + yearName);
+                        P_DATE = Objects.requireNonNull(approvalDate.getText()).toString();
+                    }
+                }, mYear, mMonth, mDay);
 //                    datePickerDialog.getDatePicker().setMaxDate(result.getTime());
 //                    datePickerDialog.getDatePicker().setMinDate(ff.getTime());
-                    datePickerDialog.show();
-                }
+                datePickerDialog.show();
             }
         });
 
@@ -1480,7 +1458,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
     public void updateGpxQuery() {
         gpxUploaded = false;
         gpxAvailable = false;
-        String update_gpx_url = "http://103.56.208.123:8086/terrain/tr_kabikha/update_project/update_gpx_file";
+        String update_gpx_url = api_pre_url + "update_project/update_gpx_file";
 
         if (!gpxContent.isEmpty()) {
             gpxAvailable = true;
@@ -1563,7 +1541,7 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
     }
 
     public void updatePicRequest(byte[] bArray, int i) {
-        String update_pic_url = "http://103.56.208.123:8086/terrain/tr_kabikha/update_project/update_picture";
+        String update_pic_url = api_pre_url + "update_project/update_picture";
         RequestQueue requestQueue = Volley.newRequestQueue(ProjectEdit.this);
 
         StringRequest updatePicRequest = new StringRequest(Request.Method.POST, update_pic_url, response -> {
@@ -1658,9 +1636,23 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
                         if (gpxUploaded) {
                             if(locationListsCreate.size() != 0) {
                                 projectUpdateLists.get(index).setLocationLists(locationListsCreate);
+                                projectUpdateLists.get(index).setMapData(true);
                             }
                             gpxContent = "";
                             locationListsCreate = new ArrayList<>();
+
+                            boolean isUp = false;
+                            if (!imageCapturedLists.isEmpty()) {
+                                for (int i = 0; i < imageCapturedLists.size(); i++) {
+                                    if (imageCapturedLists.get(i).isUploaded()) {
+                                        isUp = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (isUp) {
+                                projectUpdateLists.get(index).setImageData(true);
+                            }
 
                             if (!hasRequestFailed) {
                                 Toast.makeText(ProjectEdit.this, "Project Updated Successfully", Toast.LENGTH_SHORT).show();
@@ -2026,8 +2018,8 @@ public class ProjectEdit extends AppCompatActivity implements GoogleApiClient.Co
         sanctionCatLists = new ArrayList<>();
         sanctionSubCatLists = new ArrayList<>();
 
-        String sanc_cat_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/sanction_cat_lists";
-        String pcm_cat_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/pcm_category_lists";
+        String sanc_cat_url = api_pre_url + "utility_data/sanction_cat_lists";
+        String pcm_cat_url = api_pre_url + "utility_data/pcm_category_lists";
 
         RequestQueue requestQueue = Volley.newRequestQueue(ProjectEdit.this);
 

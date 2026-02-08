@@ -1,5 +1,7 @@
 package com.shuvo.ttit.trkabikha.connection.retrofit;
 
+import static com.shuvo.ttit.trkabikha.Constants.api_pre_url;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -7,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
-    private static final String BASE_URL = "http://103.56.208.123:8086/";
+    private static final String BASE_URL = api_pre_url;
 
     public static Retrofit getRetrofit() {
 

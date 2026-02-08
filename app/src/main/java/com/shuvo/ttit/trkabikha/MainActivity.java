@@ -8,7 +8,6 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -20,8 +19,8 @@ import com.shuvo.ttit.trkabikha.userChoice.ChooseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Handler mHandler = new Handler();
-    private int FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
+    private final Handler mHandler = new Handler();
+    private final int FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
 
 
     @Override
@@ -69,18 +68,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goToActivityMap() {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                Intent intent = new Intent(MainActivity.this, ChooseUser.class);
-                startActivity(intent);
-                showSystemUI();
-                finish();
-
-
-            }
-        }, 3000);
+        mHandler.postDelayed(() -> {
+            Intent intent = new Intent(MainActivity.this, ChooseUser.class);
+            startActivity(intent);
+            showSystemUI();
+            finish();
+        }, 2000);
     }
 
     private void enableUserLocation() {
@@ -105,26 +98,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void enableFileAccess() {
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            int REQUEST_CODE_PERMISSION_STORAGE = 100;
-            String[] permission = {
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            };
+        int REQUEST_CODE_PERMISSION_STORAGE = 100;
+        String[] permission = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
 
-            for (String str : permission) {
-                if (this.checkSelfPermission(str) != PackageManager.PERMISSION_GRANTED) {
-                    this.requestPermissions(permission, REQUEST_CODE_PERMISSION_STORAGE);
-                    return;
-                }
-
+        for (String str : permission) {
+            if (this.checkSelfPermission(str) != PackageManager.PERMISSION_GRANTED) {
+                this.requestPermissions(permission, REQUEST_CODE_PERMISSION_STORAGE);
+                return;
             }
+        }
 
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                goToActivityMap();
-            }
-
-
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            goToActivityMap();
         }
     }
 

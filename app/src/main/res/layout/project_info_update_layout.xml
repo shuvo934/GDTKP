@@ -868,7 +868,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="PIC/Other Details (পিআইসি/ঠিকাদার/ অন্যান্য নাম)"
+                    android:hint="PIC/Other Details (পিআইসি/অন্যান্য বিস্তারিত তথ্য)"
                     android:layout_margin="1dp"
                     app:boxStrokeColor="@color/primaryVariant_waterfall"
                     app:boxStrokeWidth="0dp"

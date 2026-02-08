@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
@@ -22,7 +23,6 @@ import android.view.inputmethod.InputMethodManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.shuvo.ttit.trkabikha.R;
-import com.shuvo.ttit.trkabikha.adapter.ProjectAdapter;
 import com.shuvo.ttit.trkabikha.adapter.ProjectUpdateAdapter;
 import com.shuvo.ttit.trkabikha.arraylist.ProjectUpdateLists;
 
@@ -105,6 +105,7 @@ public class ProjectUpdate extends AppCompatActivity implements ProjectUpdateAda
         });
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onResume() {
         super.onResume();

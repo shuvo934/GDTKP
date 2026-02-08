@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "30.0.3"
+    namespace 'com.shuvo.ttit.trkabikha'
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.shuvo.ttit.trkabikha"
-        minSdkVersion 23
-        targetSdkVersion 31
+        minSdk 23
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -44,7 +44,8 @@ dependencies {
     implementation 'com.github.shadowalker77:wp7progressbar:1.1.0'
     implementation 'com.github.bumptech.glide:glide:4.13.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
-    implementation 'pl.rjuszczyk:panorama-view:0.0.7'
+//    implementation 'pl.rjuszczyk:panorama-view:0.0.7'
+    implementation files('libs/panorama-view-0.0.7.aar')
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
     implementation 'jp.wasabeef:recyclerview-animators:4.0.2'
     implementation 'com.android.volley:volley:1.2.1'

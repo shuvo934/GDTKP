@@ -90,13 +90,15 @@ public class ProjectPicture extends AppCompatActivity {
                                 String ud_db_generated_file_name = items.get(i).getUd_db_generated_file_name();
                                 String ud_doc_upload_stage = items.get(i).getUd_doc_upload_stage();
 
-                                if (image_name.equals("null") || image_name.equals("") ) {
-                                    System.out.println("NULL IMAGE");
-                                    imageFailedToLoad = true;
-                                }
-                                else {
-                                    byte[] decodedString = Base64.decode(image_name,Base64.DEFAULT);
-                                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString,0,decodedString.length);
+                                System.out.println("PCM ID: "+pcm);
+                                if (image_name != null) {
+                                    if (image_name.equals("null") || image_name.equals("") ) {
+                                        System.out.println("NULL IMAGE");
+                                        imageFailedToLoad = true;
+                                    }
+                                    else {
+                                        byte[] decodedString = Base64.decode(image_name,Base64.DEFAULT);
+                                        Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString,0,decodedString.length);
 
 //                                    Uri uri = getImageUri(ProjectPicture.this,bitmap);
 //                                    Bitmap rotatedBitmap = picRotation(uri,bitmap);
@@ -109,31 +111,45 @@ public class ProjectPicture extends AppCompatActivity {
 //                                    Matrix matrix = new Matrix();
 //                                    matrix.postRotate(90);
 //                                    Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                                    if (bitmap != null) {
-                                        System.out.println("OK");
+                                        if (bitmap != null) {
+                                            System.out.println("OK");
 
-                                        String stype = "";
-                                        switch (ud_doc_upload_stage) {
-                                            case "1":
-                                                stype = "Pre-Work";
-                                                break;
-                                            case "2":
-                                                stype = "On-Working";
-                                                break;
-                                            case "3":
-                                                stype = "Finish-Work";
-                                                break;
+                                            String stype = "";
+                                            if (ud_doc_upload_stage != null) {
+                                                switch (ud_doc_upload_stage) {
+                                                    case "1":
+                                                        stype = "Pre-Work";
+                                                        break;
+                                                    case "2":
+                                                        stype = "On-Working";
+                                                        break;
+                                                    case "3":
+                                                        stype = "Finish-Work";
+                                                        break;
+                                                    default:
+                                                        stype = "No Data";
+                                                        break;
+                                                }
+                                            }
+                                            else {
+                                                stype = "No Data";
+                                            }
+
+                                            String url = "";
+                                            url = "http://103.56.208.123:8869/assets/project_image/"+ud_db_generated_file_name;
+                                            photoLists.add(new PhotoList(url, ud_date, stype,bitmap));
                                         }
-
-                                        String url = "";
-                                        url = "http://103.56.208.123:8869/assets/project_image/"+ud_db_generated_file_name;
-                                        photoLists.add(new PhotoList(url, ud_date, stype,bitmap));
-                                    }
-                                    else {
-                                        System.out.println("NOT OK");
-                                        imageFailedToLoad = true;
+                                        else {
+                                            System.out.println("NOT OK");
+                                            imageFailedToLoad = true;
+                                        }
                                     }
                                 }
+                                else {
+                                    System.out.println("NULL IMAGE");
+                                    imageFailedToLoad = true;
+                                }
+
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package com.shuvo.ttit.trkabikha.login;
 
+import static com.shuvo.ttit.trkabikha.Constants.api_pre_url;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -325,7 +326,7 @@ public class PICLogin extends AppCompatActivity {
         connected = false;
         infoConnected = false;
 
-        String get_pic_url = "http://103.56.208.123:8086/terrain/tr_kabikha/user_login/pic_user/"+userName+"/"+password;
+        String get_pic_url = api_pre_url + "user_login/pic_user/"+userName+"/"+password;
         picUserDetails = new ArrayList<>();
 
         RequestQueue requestQueue = Volley.newRequestQueue(PICLogin.this);
@@ -396,8 +397,8 @@ public class PICLogin extends AppCompatActivity {
     }
 
     public void updateNewRequest(String dist_id) {
-        String get_div_url = "http://103.56.208.123:8086/terrain/tr_kabikha/utility_data/div_from_dist?dist_id="+dist_id;
-        String login_log_url = "http://103.56.208.123:8086/terrain/tr_kabikha/user_login/login_log";
+        String get_div_url = api_pre_url + "utility_data/div_from_dist?dist_id="+dist_id;
+        String login_log_url = api_pre_url + "user_login/login_log";
 
         RequestQueue requestQueue = Volley.newRequestQueue(PICLogin.this);
 

@@ -1,5 +1,7 @@
 package com.shuvo.ttit.trkabikha.projectDetails;
 
+import static com.shuvo.ttit.trkabikha.Constants.api_pre_url;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -442,8 +444,8 @@ public class ProjectDetails extends AppCompatActivity implements OnMapReadyCallb
         commentLists = new ArrayList<>();
         locationListsDial = new ArrayList<>();
 
-        String comments_url = "http://103.56.208.123:8086/terrain/tr_kabikha/comments/getComments?pcm_id="+PCM_ID_PD;
-        String location_url = "http://103.56.208.123:8086/terrain/tr_kabikha/projects/projectLocation?pcm_id="+PCM_ID_PD;
+        String comments_url = api_pre_url + "comments/getComments?pcm_id="+PCM_ID_PD;
+        String location_url = api_pre_url + "projects/projectLocation?pcm_id="+PCM_ID_PD;
 
         RequestQueue requestQueue = Volley.newRequestQueue(ProjectDetails.this);
 

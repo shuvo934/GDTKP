@@ -14,7 +14,7 @@ import com.shuvo.ttit.trkabikha.adapter.ProjectAdapter;
 
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 
-import static com.shuvo.ttit.trkabikha.mainmenu.HomePage.projectlists;
+import static com.shuvo.ttit.trkabikha.mainmenu.HomePage.projectLists;
 
 public class Projects extends AppCompatActivity implements ProjectAdapter.ClickedItem{
 
@@ -41,14 +41,14 @@ public class Projects extends AppCompatActivity implements ProjectAdapter.Clicke
 
 
 
-        projectAdapter = new ProjectAdapter(projectlists, Projects.this, Projects.this);
+        projectAdapter = new ProjectAdapter(projectLists, Projects.this, Projects.this);
         ScaleInAnimationAdapter animationAdapter = new ScaleInAnimationAdapter(projectAdapter);
         animationAdapter.setDuration(500);
         animationAdapter.setInterpolator(new AccelerateDecelerateInterpolator());
         animationAdapter.setFirstOnly(false);
         itemView.setAdapter(animationAdapter);
 
-        String text = "Total " + projectlists.size() + " Projects";
+        String text = "Total " + projectLists.size() + " Projects";
         totalProjects.setText(text);
 
     }

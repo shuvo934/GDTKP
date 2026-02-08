@@ -1,5 +1,6 @@
 package com.shuvo.ttit.trkabikha.login;
 
+import static com.shuvo.ttit.trkabikha.Constants.api_pre_url;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -336,8 +337,8 @@ public class Login extends AppCompatActivity {
         connected = false;
         infoConnected = false;
 
-        String get_url = "http://103.56.208.123:8086/terrain/tr_kabikha/user_login/admin_user/"+userName+"/"+password;
-        String login_log_url = "http://103.56.208.123:8086/terrain/tr_kabikha/user_login/login_log";
+        String get_url = api_pre_url + "user_login/admin_user/"+userName+"/"+password;
+        String login_log_url = api_pre_url + "user_login/login_log";
         userInfoLists = new ArrayList<>();
 
         RequestQueue requestQueue = Volley.newRequestQueue(Login.this);
